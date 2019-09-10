@@ -45,8 +45,8 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
   float xsec = 0.0, numEvents = 0.0;
   if(s_data.Contains("TChiWZ")){
     isFastSim = true;
-    if(s_data.Contains("TChiWZ_1000")){ xsec = 0.00196539; numEvents = 28771;}
-    else if(s_data.Contains("TChiWZ_800")){ xsec = 0.00697040; numEvents = 34036;}
+    if(s_data.Contains("TChiWZ_1000")){ xsec = 1.34352e-3; numEvents = 28771;}
+    else if(s_data.Contains("TChiWZ_800")){ xsec = 4.75843e-3; numEvents = 34036;}
     cout<<"Assigning xsec as: "<<xsec<<endl;
   }
   Long64_t nEvtSurv = 0;
