@@ -1,2 +1,1 @@
-/uscms/home/vhegde/nobackup/Physics/makeRA2bSkims/CMSSW_8_0_30/src/Analysis/test/tree_signal/tree_TChiWZ_NLSP1000_LSP100_MC2018_private.root
-
+root://cmseos.fnal.gov//store/user/vhegde/RA2bTrees_V17/EW_SUSY/skims/tree_signal/tree_TChiWZ_NLSP800_LSP1_MC2018_private.root

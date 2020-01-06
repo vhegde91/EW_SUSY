@@ -48,11 +48,9 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     //   if(s_data.Contains("TChiWZ_1000")){ xsec = 1.34352e-3; numEvents = 28771;}
     //   else if(s_data.Contains("TChiWZ_800")){ xsec = 4.75843e-3; numEvents = 34036;}
     //   cout<<"Assigning xsec as: "<<xsec<<endl;
-    cout<<"Using as FastSim"<<endl;
   }
   Long64_t nEvtSurv = 0;
   int ak8J1Idx = -1;
-  int catNum = 1; //should be either 1 or 2 only. 1: exactly one boosted jet. 2: at least 2 boosted jets.
   float deepCSVvalue = 0.;
 
   h_cutflow->Fill("0",0);
@@ -94,8 +92,6 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
   if(dataRun>0) cout<<"Processing it as "<<dataRun<<" data"<<endl;
   else if(dataRun<0) cout<<"Processing it as "<<abs(dataRun)<<" MC"<<endl;
   else cout<<"No specific data/MC year"<<endl;
-  
-  cout<<"Selection are for category:"<<catNum<<" 1: only one boosted, 2: both boosted"<<endl;
 
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     
@@ -169,91 +165,29 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     if(nPhotons>0) continue;
     //if(Photons->size()!=0) continue;
     h_cutflow->Fill("photonVeto",wt);
-
-    if(MET < 250) continue;
-    if(NJets > 6) continue;
-    if(DeltaPhi1 < 1.5) continue;
-    //if(BTagsDeepCSV != 0) continue;
-
-    if(JetsAK8->size()==0) continue;
-    if((*JetsAK8)[0].Pt() < 200 || abs((*JetsAK8)[0].Eta()) > 2.0) continue; //at least 1 AK8
-    
-    vector<float> tau21;
-    float i_tau21;
-    TLorentzVector bestAK8J1, bestAK8J2;
-    int bestAK8J1IdxInMainColl = -1, bestAK8J2IdxInMainColl = -1;
-    int nGoodAK8TightTau21 = 0;
-    vector<TLorentzVector> goodAk8;
-    vector<double> goodAk8Mass;
-    vector<int> ak8IdxInMainColl;
-    //    int nBoostedJets = 0;
-    for(int i=0;i<JetsAK8->size();i++){
-      i_tau21 = ((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]);
-      tau21.push_back(i_tau21);
-      if(catNum==2){//good jets with tau21 > 0.35 only
-	if(((*JetsAK8)[i].Pt() > 200) && 
-	   (abs((*JetsAK8)[i].Eta()) < 2.0) && 
-	   (i_tau21 < 0.35) && 
-	   ((*JetsAK8_softDropMass)[i] > 65) && 
-	   ((*JetsAK8_softDropMass)[i] < 100)){
-	  if(bestAK8J1IdxInMainColl == -1){
-	    bestAK8J1IdxInMainColl = i;
-	    bestAK8J1 = (*JetsAK8)[i];
-	  }
-	  else if(bestAK8J2IdxInMainColl == -1){
-	    bestAK8J2IdxInMainColl = i;
-	    bestAK8J2 = (*JetsAK8)[i];
-	  }
-	  nGoodAK8TightTau21++;
-	  // goodAk8.push_back((*JetsAK8)[i]);
-	  // goodAk8Mass.push_back((*JetsAK8_softDropMass)[i]);
-	  // ak8IdxInMainColl.push_back(i);
-	}
-      }
-      else if(catNum==1){//good jets with any tau21 value
-	if(((*JetsAK8)[i].Pt() > 200) && 
-	   (abs((*JetsAK8)[i].Eta()) < 2.0) && 
-	   ((*JetsAK8_softDropMass)[i] > 65) && 
-	   ((*JetsAK8_softDropMass)[i] < 100)){
-	  if(bestAK8J1IdxInMainColl == -1 && i_tau21 < 0.35){
-	    bestAK8J1IdxInMainColl = i;
-	    bestAK8J1 = (*JetsAK8)[i];
-	  }
-	  else if(bestAK8J2IdxInMainColl == -1){
-	    bestAK8J2IdxInMainColl = i;
-	    bestAK8J2 = (*JetsAK8)[i];
-	  }	  
-	  // goodAk8.push_back((*JetsAK8)[i]);
-	  // goodAk8Mass.push_back((*JetsAK8_softDropMass)[i]);
-	  // ak8IdxInMainColl.push_back(i);
-	  if(i_tau21 < 0.35) nGoodAK8TightTau21++;
-	}
-      }
-    }
-    //    print(jentry);
-
-    if(catNum==2){
-      if(nGoodAK8TightTau21<2) continue;
-    }
-    else if(catNum==1){
-      if((bestAK8J1IdxInMainColl == -1) || (nGoodAK8TightTau21 > 1)) continue;
-    }
-    else continue;
-    
     //----MT
     double mt = 0, mt2j = 0;
-    mt = sqrt(2*bestAK8J1.Pt()*MET*(1-cos(DeltaPhi(METPhi,bestAK8J1.Phi()))));
-    if(bestAK8J2IdxInMainColl != -1) mt2j = sqrt(2*bestAK8J2.Pt()*MET*(1-cos(DeltaPhi(METPhi,bestAK8J2.Phi()))));
+    if(JetsAK8->size()) mt = sqrt(2*(*JetsAK8)[0].Pt()*MET*(1-cos(DeltaPhi(METPhi,(*JetsAK8)[0].Phi()))));
+    if(JetsAK8->size()>=2) mt2j = sqrt(2*(*JetsAK8)[1].Pt()*MET*(1-cos(DeltaPhi(METPhi,(*JetsAK8)[1].Phi()))));
+
+    if(MET < 250) continue;
     if(mt < 500) continue;
-    //    cout<<goodAk8.size()<<" :"<<ak8JBoosted.size()<<" nBoosted:"<<goodAk8.size()<<endl;
-    //------------ZZMET-----------
-    // if(MET < 300 || HT < 400) continue;//ZZMET
-    // if(goodAk8.size()<2) continue;//ZZMET
-    // if(goodAk8[0].Pt() < 200) continue;//ZZMET
-    // if(goodAk8[1].Pt() < 200) continue;//ZZMET
-    // if(((*JetsAK8_softDropMass)[0] < 70 || (*JetsAK8_softDropMass)[0] > 100)) continue;//ZZMET
-    // if(((*JetsAK8_softDropMass)[1] < 70 || (*JetsAK8_softDropMass)[1] > 100)) continue;//ZZMET
-    
+    if(JetsAK8->size()==0 || (*JetsAK8)[0].Pt() < 200 || abs((*JetsAK8)[0].Eta()) > 2.0) continue;
+    if(JetsAK8->size()>1  && ((*JetsAK8)[1].Pt() < 200 || abs((*JetsAK8)[1].Eta()) > 2.0)) continue;
+    if(JetsAK8->size()<=1) continue;
+    if(NJets > 6) continue;
+    if(DeltaPhi1 < 1.5) continue;
+    float tau21J1 = 2., tau21J2 = 2.;
+    if(JetsAK8->size()>0) tau21J1 = ((*JetsAK8_NsubjettinessTau2)[0])/((*JetsAK8_NsubjettinessTau1)[0]);
+    if(JetsAK8->size()>1) tau21J2 = ((*JetsAK8_NsubjettinessTau2)[1])/((*JetsAK8_NsubjettinessTau1)[1]);
+
+    if(JetsAK8->size()==1 && ((*JetsAK8_softDropMass)[0] < 65 || (*JetsAK8_softDropMass)[0] > 100)) continue;
+    if(JetsAK8->size()>=2 && 
+       ((*JetsAK8_softDropMass)[0] < 65 || (*JetsAK8_softDropMass)[0] > 100) ||
+       ((*JetsAK8_softDropMass)[1] < 65 || (*JetsAK8_softDropMass)[1] > 100) ) continue;
+    if(JetsAK8->size()==1 && tau21J1 > 0.35) continue;
+    if(JetsAK8->size()>1 && (tau21J1 > 0.35 || tau21J2 > 0.35)) continue;
+
     vector<TLorentzVector> bjets;
     for(int i=0;i<Jets_bJetTagDeepCSVprobb->size();i++){
       if((*Jets)[i].Pt() < 30 || abs((*Jets)[i].Eta()) > 2.4) continue;
@@ -261,39 +195,8 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
 	bjets.push_back((*Jets)[i]);
     }
     sortTLorVec(&bjets);
+    //    if(JetsAK8->size()>=1 && tau21J2 > 0.45) continue;
     
-    vector<TLorentzVector> ak4jNotAK8;
-    for(int i=0;i<Jets->size();i++){
-      if((*Jets)[i].Pt() > 30. && abs((*Jets)[i].Eta()) < 2.4){
-	if((*Jets)[i].DeltaR(bestAK8J1) < 0.8) continue;
-	if(bestAK8J2IdxInMainColl != -1 && (*Jets)[i].DeltaR(bestAK8J2) < 0.8) continue;
-	ak4jNotAK8.push_back((*Jets)[i]);
-      }
-    }
-    
-    TLorentzVector ak4PairBosonLike;
-    float minMassDiff = 1000;
-    if(bestAK8J2IdxInMainColl==-1){
-      if(ak4jNotAK8.size()==1) ak4PairBosonLike = ak4jNotAK8[0];//actually redundant if ak4jNotAK8.size() > 1 cut is applied.
-      else if(ak4jNotAK8.size()==2) ak4PairBosonLike = ak4jNotAK8[0] + ak4jNotAK8[1];
-      else if(ak4jNotAK8.size()>=3){
-	for(int k=0;k<ak4jNotAK8.size();k++){
-	  for(int j=k+1;j<ak4jNotAK8.size();j++){
-	    if(minMassDiff > (85 - (ak4jNotAK8[k]+ak4jNotAK8[j]).M())){
-	      minMassDiff = 85 - (ak4jNotAK8[k]+ak4jNotAK8[j]).M();
-	      ak4PairBosonLike = ak4jNotAK8[k]+ak4jNotAK8[j];
-	    }
-	  }
-	}
-      }
-      if(ak4jNotAK8.size() < 2) continue;
-      if(ak4PairBosonLike.M() < 60 || ak4PairBosonLike.M() > 120) continue;
-    }
-    //    if(goodAk8.size()>=1 && tau21J2 > 0.45) continue;
-    // if(bjets.size()>0 && goodAk8.size()>1){
-    //   if(goodAk8[1].DeltaR(bjets[0]) < 0.8) continue;//ZZMET
-    // }
-
     h_filters->Fill("TotEvnts",1);
     h_filters->Fill("globalSuperTightHalo2016Filter",globalSuperTightHalo2016Filter);
     h_filters->Fill("HBHENoiseFilter",HBHENoiseFilter);
@@ -345,8 +248,6 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     }
     
     h_MET->Fill(MET,wt);
-    h_METvBin->Fill(MET,wt);
-    h_METvBinZZMET->Fill(MET,wt);
     h_MHT->Fill(MHT,wt);
     h_HT->Fill(HT,wt);
     h_NJets->Fill(NJets,wt);
@@ -361,45 +262,29 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     h_dPhi3->Fill(DeltaPhi3,wt);
     h_dPhi4->Fill(DeltaPhi4,wt);
     h_RA2bBins->Fill(RA2bin,wt);
-    if(bestAK8J1IdxInMainColl<0) cout<<"Bug!!!!!";
 
-    if(boson.size()==2) h_dRbosons->Fill(boson[0].DeltaR(boson[1]),wt);
-    else h_dRbosons->Fill(4.90,wt);
-    h_nAk4jNotAK8->Fill(ak4jNotAK8.size(),wt);
-    if(bestAK8J2IdxInMainColl==-1){
-      h_dRbestAK8AK4Cand->Fill(bestAK8J1.DeltaR(ak4PairBosonLike),wt);
-      h_dPhiBestAK8AK4Cand->Fill(bestAK8J1.DeltaPhi(ak4PairBosonLike),wt);
-      h_AK4BosonCandMass->Fill(ak4PairBosonLike.M(),wt);
-    }
-
-    if(boson.size()==1) h_dRaK4BosonGenBoson->Fill(ak4PairBosonLike.DeltaR(boson[0]),wt);
-    else if(boson.size()==2) h_dRaK4BosonGenBoson->Fill(min((ak4PairBosonLike.DeltaR(boson[0])),(ak4PairBosonLike.DeltaR(boson[1]))),wt);
-
-    if(bestAK8J1IdxInMainColl != -1){
-      h_AK8J1Pt->Fill((bestAK8J1.Pt()),wt);
-      h_AK8J1Eta->Fill((bestAK8J1.Eta()),wt);
-      h_AK8J1Mass->Fill((*JetsAK8_softDropMass)[bestAK8J1IdxInMainColl],wt);
-      h_AK8J1Tau21->Fill(tau21[bestAK8J1IdxInMainColl],wt);
+    if(JetsAK8->size()){
+      h_AK8J1Pt->Fill(((*JetsAK8)[0].Pt()),wt);
+      h_AK8J1Eta->Fill(((*JetsAK8)[0].Eta()),wt);
+      h_AK8J1Mass->Fill((*JetsAK8_softDropMass)[0],wt);
+      h_AK8J1Tau21->Fill(((*JetsAK8_NsubjettinessTau2)[0])/((*JetsAK8_NsubjettinessTau1)[0]),wt);
       h_MT->Fill(mt,wt);
-      h_MTvBin->Fill(mt,wt);
-      h_dPhiMETAK8->Fill(abs(DeltaPhi(METPhi,bestAK8J1.Phi())),wt);
-    }
-    if(bestAK8J2IdxInMainColl != -1){
-      h_AK8J2Pt->Fill((bestAK8J2.Pt()),wt);
-      h_AK8J2Eta->Fill((bestAK8J2.Eta()),wt);
-      h_AK8J2Mass->Fill((*JetsAK8_softDropMass)[bestAK8J2IdxInMainColl],wt);
-      h_AK8J2Tau21->Fill(tau21[bestAK8J2IdxInMainColl],wt);
-      h_dPhiAK8J1J2->Fill(abs(DeltaPhi(bestAK8J1.Phi(),bestAK8J2.Phi())),wt);
-      h_InvMassAK8Jets->Fill((bestAK8J1+bestAK8J2).M(),wt);
-      h_AK8J1J2MassRatio->Fill((*JetsAK8_softDropMass)[bestAK8J2IdxInMainColl]/(*JetsAK8_softDropMass)[bestAK8J1IdxInMainColl],wt);
       h_MT2J->Fill(mt2j,wt);
-      h_MT2JvBin->Fill(mt2j,wt);
+      h_dPhiMETAK8->Fill(abs(DeltaPhi(METPhi,(*JetsAK8)[0].Phi())),wt);
+    }
+    if(JetsAK8->size() >=2){
+      h_AK8J2Pt->Fill(((*JetsAK8)[1].Pt()),wt);
+      h_AK8J2Eta->Fill(((*JetsAK8)[1].Eta()),wt);
+      h_AK8J2Mass->Fill((*JetsAK8_softDropMass)[1],wt);
+      h_AK8J2Tau21->Fill(((*JetsAK8_NsubjettinessTau2)[1])/((*JetsAK8_NsubjettinessTau1)[1]),wt);
+      h_dPhiAK8J1J2->Fill(abs(DeltaPhi((*JetsAK8)[0].Phi(),(*JetsAK8)[1].Phi())),wt);
+      h_InvMassAK8Jets->Fill(((*JetsAK8)[0]+(*JetsAK8)[1]).M(),wt);
+      h_AK8J1J2MassRatio->Fill((*JetsAK8)[1].M()/(*JetsAK8)[0].M(),wt);
       h_mTSum->Fill(mt+mt2j,wt);
-      h_mTSumvBin->Fill(mt+mt2j,wt);
       h_mTRatio->Fill(mt/mt2j,wt);
 
-      h2_AK8J1J2Tau21->Fill(tau21[bestAK8J1IdxInMainColl],tau21[bestAK8J2IdxInMainColl],wt);
-      h2_AK8J1J2Mass->Fill((*JetsAK8_softDropMass)[bestAK8J1IdxInMainColl],(*JetsAK8_softDropMass)[bestAK8J2IdxInMainColl],wt);
+      h2_AK8J1J2Tau21->Fill(((*JetsAK8_NsubjettinessTau2)[0])/((*JetsAK8_NsubjettinessTau1)[0]),((*JetsAK8_NsubjettinessTau2)[1])/((*JetsAK8_NsubjettinessTau1)[1]),wt);
+      h2_AK8J1J2Mass->Fill((*JetsAK8_softDropMass)[0],(*JetsAK8_softDropMass)[1],wt);
       for(int i=0;i<lspParentIdx.size();i++){
 	for(int j=0;j<bosonParentIdx.size();j++){
 	  if(lspParentIdx[i]==bosonParentIdx[j])
@@ -407,28 +292,15 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
 	}
       }
     }
-
-    float bPosAK8J1 = 100, bPosAK8orAK4 = 100;
     
     if(bjets.size()==1){
-      h_dRbJetAK8->Fill(bjets[0].DeltaR(bestAK8J1),wt);      
+      h_dRbJetAK8->Fill(bjets[0].DeltaR((*JetsAK8)[0]),wt);      
       h_dPhibJetMET->Fill(abs(DeltaPhi(METPhi,bjets[0].Phi())),wt);
-      h_dPhibJetAK8->Fill(abs(DeltaPhi(METPhi,bestAK8J1.Phi())),wt);
-      
-      bPosAK8J1 = bjets[0].DeltaR(bestAK8J1);
-      if(bestAK8J2IdxInMainColl == -1)
-      bPosAK8orAK4 = bjets[0].DeltaR(ak4PairBosonLike);
-      else bPosAK8orAK4 = bjets[0].DeltaR(bestAK8J2);
-      
-      if(bestAK8J2IdxInMainColl != -1){
-	h_dPhibJetAK8J2->Fill(abs(DeltaPhi(METPhi,bestAK8J2.Phi())),wt);
-	h_dRbJetAK8J2->Fill(bjets[0].DeltaR(bestAK8J2),wt);
+      h_dPhibJetAK8->Fill(abs(DeltaPhi(METPhi,(*JetsAK8)[0].Phi())),wt);
+      if(JetsAK8->size()>=2){
+	h_dPhibJetAK8J2->Fill(abs(DeltaPhi(METPhi,(*JetsAK8)[1].Phi())),wt);
+	h_dRbJetAK8J2->Fill(bjets[0].DeltaR((*JetsAK8)[1]),wt);
       }
-      else{
-	h_dPhibJetAK4BosonCand->Fill(abs(bjets[0].DeltaPhi(ak4PairBosonLike)),wt);
-	h_dRbJetAK4BosonCand->Fill(bjets[0].DeltaR(ak4PairBosonLike),wt);
-      }
-      h2_bJetPos->Fill(bPosAK8J1,bPosAK8orAK4,wt);
     }
     nEvtSurv++;
     h_cutflow->Fill("NEvtsNoWtLeft",1);
@@ -448,11 +320,12 @@ void SignalReg::print(Long64_t jentry){
     cout<<EvtNum<<" "<<jentry<<" "<<GenParticles->size()<<" "<<i<<" PdgId:"<<(*GenParticles_PdgId)[i]<<" parentId:"<<(*GenParticles_ParentId)[i]<<" parentIndx:"<<(*GenParticles_ParentIdx)[i]<<" Status:"<<(*GenParticles_Status)[i]<</*"\tPx:"<<(*GenParticles)[i].Px()<<" Py:"<<(*GenParticles)[i].Py()<<" Pz:"<<(*GenParticles)[i].Pz()<<*/"\tPt:"<<(*GenParticles)[i].Pt()<<" Eta:"<<(*GenParticles)[i].Eta()<<" Phi:"<<(*GenParticles)[i].Phi()<<" M:"<<(*GenParticles)[i].M()<<endl;
 
   }
+  for(int i=0;i<Photons->size();i++){
+    double dR=0;//DeltaR( bestPhoton.Eta(),bestPhoton.Phi(),(*Photons)[i].Eta(),(*Photons)[i].Phi() );
+    //cout<<jentry<<" i:"<<i<<" phoSize:"<<Photons->size()<<" Pt:"<<bestPhoton.Pt()<<" eta:"<<bestPhoton.Eta()<<" phi:"<<bestPhoton.Phi()<<" otherP:"<<(*Photons)[i].Pt()<<" eta:"<<(*Photons)[i].Eta()<<" phi:"<<(*Photons)[i].Phi()<<" dR:"<<dR<<endl;
+  }
   for(int i=0;i<Jets->size();i++){
     cout<<"JetPt:"<<(*Jets)[i].Pt()<<" JetEta:"<<(*Jets)[i].Eta()<<" JetPhi:"<<(*Jets)[i].Phi()<<endl;
   }
   cout<<"MHTPhi:"<<MHTPhi<<" DPhi1:"<<DeltaPhi1<<" DeltaPhi2:"<<DeltaPhi2<<" DeltaPhi3:"<<DeltaPhi3<<" DeltaPhi4:"<<DeltaPhi4<<endl;
-  for(int i=0;i<JetsAK8->size();i++){
-    cout<<"AK8 pT:"<<(*JetsAK8)[i].Pt()<<" eta:"<<(*JetsAK8)[i].Eta()<<" phi:"<<(*JetsAK8)[i].Phi()<<" softDropM:"<<(*JetsAK8_softDropMass)[i]<<" tau21:"<<(*JetsAK8_NsubjettinessTau2)[i]/(*JetsAK8_NsubjettinessTau1)[i]<<endl;
-  }
 }

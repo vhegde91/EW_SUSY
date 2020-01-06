@@ -52,8 +52,21 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
   else if(s_data.Contains("TChiWZ_800")) mass = 800.0;
   else if(s_data.Contains("TChiWZ_700")) mass = 700.0;
   else if(s_data.Contains("TChiWZ_600")) mass = 600.0;
-  
-  xsec = h1->GetBinContent(h1->FindBin(mass));
+  else if(s_data.Contains("TChiWZ_500")) mass = 500.0;
+  else if(s_data.Contains("TChiWZ_400")) mass = 400.0;
+  else if(s_data.Contains("TChiWZ_300")) mass = 300.0;
+  else if(s_data.Contains("TChiWH_600")) mass = 600.0;
+  else if(s_data.Contains("TChiWH_800")) mass = 800.0;
+  else if(s_data.Contains("TChiWH_1000")) mass = 1000.0;
+  else if(s_data.Contains("TChiWW_600")) mass = 600.0;
+  else if(s_data.Contains("TChiWW_800")) mass = 800.0;
+  else if(s_data.Contains("TChiWW_1000")) mass = 1000.0;
+
+  if(s_data.Contains("TChiWZ") || s_data.Contains("TChiWH")) xsec = h1->GetBinContent(h1->FindBin(mass));
+  else if(s_data.Contains("TChiWW_600")) xsec = 9.49913e-3;
+  else if(s_data.Contains("TChiWW_800")) xsec = 2.21197e-3;
+  else if(s_data.Contains("TChiWW_1000")) xsec = 0.621866e-3;
+
   cout<<"Assigning xsec as: "<<xsec<<endl;
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     // ==============print number of events done == == == == == == == =
