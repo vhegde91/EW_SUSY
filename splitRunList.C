@@ -22,7 +22,7 @@ void splitRunList(string infile,int nfPerJob){
   if(fileName.Contains("MET_Run2017")) datasetAna = "2017";
   if(fileName.Contains("MET_Run2018")) datasetAna = "2018";
 
-  if(fileName.Contains("TChiWZ")) datasetAna = "TChiWZ_"+datasetAna;
+  if(fileName.Contains("TChi")) datasetAna = "TChi_"+datasetAna;
   //---------------------------------------------------
   cout<<"executable at worker node : "<<exeCondor<<endl
       <<"Analysis executable : "<<exeAna<<endl

@@ -12,6 +12,7 @@
 #include "TFile.h"
 #include "TLorentzVector.h"
 #include "TDirectory.h"
+#include "MT2_ROOT.h"
 
 class SignalReg : public NtupleVariables{
 
@@ -22,19 +23,37 @@ class SignalReg : public NtupleVariables{
   Long64_t LoadTree(Long64_t entry);
   void     EventLoop(const char *,const char *);
   void     BookHistogram(const char *);
+  int  getEventType();
   void print(Long64_t);
-
+  //
+  TLorentzVector visa = TLorentzVector( -18.1222 , -14.4356 , 0 , 158.653);
+  TLorentzVector visb = TLorentzVector( 48.2681 , 38.449 , 0 , 62.513);
+  TLorentzVector met4 = TLorentzVector( -30.1459 , -24.0134 , 0 , 74.8509);
+  //  ComputeMT2 mycalc;
+  //
   //Variables defined
   bool isMC=true;
   double wt=0,lumiInfb=35.815165;
+  double massLow = 65., massHigh = 100.;
+  //  double massLow = 0., massHigh = 1000.;
+
+  vector<float> tau21;
+  float i_tau21;
+  TLorentzVector bestAK8J1, bestAK8J2;
+  int bestAK8J1IdxInMainColl = -1, bestAK8J2IdxInMainColl = -1;
+  vector<TLorentzVector> goodAk8;
+  vector<double> goodAk8Mass;
+  vector<int> ak8IdxInMainColl;
 
   vector<double> METvbinsZZMET={300,450,600,800,1000,1200,2000};
   vector<double> METvbins={200,250,300,350,400,450,550,650,800,1200};
   vector<double> mTvbins={400,500,600,700,800,900,1050,1300,2000};
   vector<double> mT2Jvbins={0,100,200,300,400,500,600,800,1000,1400};
   vector<double> mTSumvbins={500,700,900,1100,1400,1700,2000,2500};
+  vector<double> MT2vbins={0,50,100,150,200,250,300,350,400,450,550,650,800,1200};
 
   TH1D *h_filters;
+  TH1D *h_EvtType;
   TH1D *h_MET;
   TH1D *h_METvBin, *h_METvBinZZMET;
   TH1D *h_MHT;
@@ -42,7 +61,7 @@ class SignalReg : public NtupleVariables{
   TH1D *h_NJets;
   TH1D *h_BTags;
 
-  TH1D *h_MT, *h_MTvBin;
+  TH1D *h_MT, *h_MTvBin, *h_MT2, *h_MT2vBin;
   TH1D *h_MT2J, *h_MT2JvBin;
   TH1D *h_mTRatio, *h_mTSum, *h_mTSumvBin;
   TH1D *h_dPhiMETAK8;
@@ -96,7 +115,8 @@ void SignalReg::BookHistogram(const char *outFileName) {
 
   h_cutflow = new TH1F("CutFlow","cut flow",25,0,25);
   h_filters = new TH1D("Filters","Filters: Bin1 : all nEvnts, other bins: filter pass/fail",10,0,10);
-  
+  h_EvtType = new TH1D("EvtType","Event type",10,0,10);
+
   h_MET = new TH1D("MET","MET",200,0,2000);
   h_MHT = new TH1D("MHT","MHT",200,0,2000);
   h_METvBinZZMET = new TH1D("METvBinZZMET","MET variable bins",METvbinsZZMET.size()-1,&(METvbinsZZMET[0]));
@@ -114,12 +134,14 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_dPhibJetAK4BosonCand = new TH1D("dPhibJetAK4BosonCand","dPhi(leading b, AK4 pair candidate for W/Z) for 1 boosted AK8 events",40,0,4);
   h_dRbJetAK4BosonCand = new TH1D("dRJetAK4BosonCand","dR(leading b, AK4 pair candidate for W/Z) for 1 boosted AK8 events",100,0,5);
 
+  h_MT2 = new TH1D("MT2","MT2(AKJ1, AK8J2)",200,0,2000);
   h_MT = new TH1D("mT","mT(MET,AK8J)",200,0,2000);
   h_MT2J = new TH1D("mT2J","mT(MET,AK8J2)",200,0,2000);  
   h_mTSum = new TH1D("mTSum","mT+mT2J",200,0,4000);
   h_MTvBin = new TH1D("mTvBin","mT(MET,AK8J)",mTvbins.size()-1,&(mTvbins[0]));
   h_MT2JvBin = new TH1D("mT2JvBin","mT(MET,AK8J2)",mT2Jvbins.size()-1,&(mT2Jvbins[0]));
   h_mTSumvBin = new TH1D("mTSumvBin","mT+mT2J",mTSumvbins.size()-1,&(mTSumvbins[0]));
+  h_MT2vBin = new TH1D("MT2vBin","MT2(AKJ1, AK8J2) variable bins",MT2vbins.size()-1,&(MT2vbins[0]));
 
   h_mTRatio = new TH1D("mTRatio","mT/mT2J: ratio of mT1 and mT2J",500,0,5);
 
@@ -158,6 +180,12 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_dPhi4 = new TH1D("DeltaPhi4","DeltaPhi4",40,0,4);
 
   h_RA2bBins = new TH1D("RA2bBins","RA2b bins",175,0,175);
+
+  h_EvtType->Fill("2 Boosted",0);
+  h_EvtType->Fill("1 Boosted",0);
+  h_EvtType->Fill("1 Good AK8",0);
+  h_EvtType->Fill("2 Good AK8",0);
+  h_EvtType->Fill("0 Good AK8",0);
 }
 
 SignalReg::SignalReg(const TString &inputFileList, const char *outFileName, const char* dataset) {

@@ -43,7 +43,7 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
 
   bool isFastSim = false;
   // float xsec = 0.0, numEvents = 0.0;
-  if(s_data.Contains("TChiWZ")){
+  if(s_data.Contains("TChi")){
     isFastSim = true;
     //   if(s_data.Contains("TChiWZ_1000")){ xsec = 1.34352e-3; numEvents = 28771;}
     //   else if(s_data.Contains("TChiWZ_800")){ xsec = 4.75843e-3; numEvents = 34036;}
@@ -52,7 +52,6 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
   }
   Long64_t nEvtSurv = 0;
   int ak8J1Idx = -1;
-  int catNum = 1; //should be either 1 or 2 only. 1: exactly one boosted jet. 2: at least 2 boosted jets.
   float deepCSVvalue = 0.;
 
   h_cutflow->Fill("0",0);
@@ -94,8 +93,6 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
   if(dataRun>0) cout<<"Processing it as "<<dataRun<<" data"<<endl;
   else if(dataRun<0) cout<<"Processing it as "<<abs(dataRun)<<" MC"<<endl;
   else cout<<"No specific data/MC year"<<endl;
-  
-  cout<<"Selection are for category:"<<catNum<<" 1: only one boosted, 2: both boosted"<<endl;
 
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     
@@ -119,11 +116,64 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     //   NumEvents = numEvents;
     //   Weight = xsec/numEvents;
     // }
+    //    if(jentry>100) break;
+    //#################### RA2b cuts
+    if(isFastSim) JetID = true;
+    if(NJets < 2 || HT < 300 || MHT < 200 || NMuons!=0 || NElectrons!=0 || (MHT/HT > 1.0) || !JetID || !(DeltaPhi1 > 0.5 && DeltaPhi2 > 0.5 && DeltaPhi3 > 0.3 && DeltaPhi4 > 0.3) || isoMuonTracks!=0 || isoElectronTracks!=0 || isoPionTracks!=0) continue;  
+    //####################
+
     wt=Weight*1000.0*lumiInfb;
 
     h_cutflow->Fill("0",1);
     h_cutflow->Fill("Weighted",wt);
-    
+    h_filters->Fill("TotEvnts",1);
+    h_filters->Fill("globalSuperTightHalo2016Filter",globalSuperTightHalo2016Filter);
+    h_filters->Fill("HBHENoiseFilter",HBHENoiseFilter);
+    h_filters->Fill("HBHEIsoNoiseFilter",HBHEIsoNoiseFilter);
+    h_filters->Fill("eeBadScFilter",eeBadScFilter);
+    h_filters->Fill("EcalDeadCellTriggerPrimitiveFilter",EcalDeadCellTriggerPrimitiveFilter);
+    h_filters->Fill("BadChargedCandidateFilter",BadChargedCandidateFilter);
+    h_filters->Fill("BadPFMuonFilter",BadPFMuonFilter);
+    h_filters->Fill("NVtx>0",NVtx > 0);
+    h_filters->Fill("JetID",JetID);
+    h_filters->Fill("(MET/CaloMET<5.)",(MET/CaloMET < 5.));
+
+    if(!isFastSim){
+      if(!(globalSuperTightHalo2016Filter==1 && HBHENoiseFilter==1 && HBHEIsoNoiseFilter==1 && eeBadScFilter==1 && EcalDeadCellTriggerPrimitiveFilter==1 && BadChargedCandidateFilter && BadPFMuonFilter && NVtx > 0 && JetID && (MET/CaloMET < 5.))) continue;
+      h_cutflow->Fill("Filters",wt);
+      h_cutflow->Fill("HTRatioDphi",wt);
+    }
+    bool HEMaffected = false;
+    if(dataRun==2018 && RunNum >=319077){
+      for(int i=0;i<Jets->size();i++){
+	if((*Jets)[i].Pt() < 30) continue;
+	if( (*Jets)[i].Eta() >= -3.20 && (*Jets)[i].Eta() <= -1.2 && 
+	    (*Jets)[i].Phi() >= -1.77 && (*Jets)[i].Phi() <= -0.67 &&
+	    (abs(DeltaPhi(METPhi,(*Jets)[i].Phi())) < 0.5) ){HEMaffected = true; break;}
+      }
+    }
+    if(HEMaffected){
+      h_cutflow->Fill("HEMaffected",wt);
+      continue;
+    }
+    //--------------------------triggers
+    if(!isMC){
+      bool trgPass = false;
+      TString trgName;
+      for(int i=0;i<TriggerPass->size();i++){
+	trgName = (*TriggerNames)[i];
+	if(!(trgName.Contains("MET"))) continue;
+	if((*TriggerPass)[i]==1 && (trgName.Contains("HLT_PFMET100_PFMHT100_IDTight_v") || trgName.Contains("HLT_PFMET110_PFMHT110_IDTight_v") ||
+				    trgName.Contains("HLT_PFMET120_PFMHT120_IDTight_v") || trgName.Contains("HLT_PFMET130_PFMHT130_IDTight_v") ||
+				    trgName.Contains("HLT_PFMET140_PFMHT140_IDTight_v") || trgName.Contains("HLT_PFMET90_PFMHT90_IDTight_v") || 
+				    trgName.Contains("HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v") || trgName.Contains("HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v") ||
+				    trgName.Contains("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v") || trgName.Contains("HLT_PFMETNoMu130_PFMHTNoMu130_IDTight_v") || 
+				    trgName.Contains("HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_v") ||  trgName.Contains("HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v"))) trgPass = true;
+      }
+      if(trgPass) h_cutflow->Fill("PassedTrigger",wt);
+      else continue;
+    }
+    //--------------------------end of triggers   
     vector<TLorentzVector> nlsp,lsp,boson;
     vector<int> lspParentIdx, bosonParentIdx;
     for(int i=0;i<GenParticles->size();i++){
@@ -135,15 +185,9 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
       }
     }
     //--------------
-    //    if(jentry>100) break;
-    //#################### RA2b cuts
-    if(isFastSim) JetID = true;
-    if(NJets < 2 || HT < 300 || MHT < 200 || NMuons!=0 || NElectrons!=0 || (MHT/HT > 1.0) || !JetID || !(DeltaPhi1 > 0.5 && DeltaPhi2 > 0.5 && DeltaPhi3 > 0.3 && DeltaPhi4 > 0.3) || isoMuonTracks!=0 || isoElectronTracks!=0 || isoPionTracks!=0) continue;  
-    //####################
     //----MET
     //    if(MET < 200) continue;
     //h_cutflow->Fill("MET>200",wt);
-
     float dphi1=4, dphi2=4, dphi3=4, dphi4=4;
     if(Jets->size() > 0 && (*Jets)[0].Pt() > 30 && abs((*Jets)[0].Eta()) < 6.0)
       dphi1 = (abs(DeltaPhi(METPhi,(*Jets)[0].Phi())));
@@ -175,75 +219,30 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     if(DeltaPhi1 < 1.5) continue;
     //if(BTagsDeepCSV != 0) continue;
 
-    if(JetsAK8->size()==0) continue;
-    if((*JetsAK8)[0].Pt() < 200 || abs((*JetsAK8)[0].Eta()) > 2.0) continue; //at least 1 AK8
-    
-    vector<float> tau21;
-    float i_tau21;
-    TLorentzVector bestAK8J1, bestAK8J2;
-    int bestAK8J1IdxInMainColl = -1, bestAK8J2IdxInMainColl = -1;
-    int nGoodAK8TightTau21 = 0;
-    vector<TLorentzVector> goodAk8;
-    vector<double> goodAk8Mass;
-    vector<int> ak8IdxInMainColl;
-    //    int nBoostedJets = 0;
-    for(int i=0;i<JetsAK8->size();i++){
-      i_tau21 = ((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]);
-      tau21.push_back(i_tau21);
-      if(catNum==2){//good jets with tau21 > 0.35 only
-	if(((*JetsAK8)[i].Pt() > 200) && 
-	   (abs((*JetsAK8)[i].Eta()) < 2.0) && 
-	   (i_tau21 < 0.35) && 
-	   ((*JetsAK8_softDropMass)[i] > 65) && 
-	   ((*JetsAK8_softDropMass)[i] < 100)){
-	  if(bestAK8J1IdxInMainColl == -1){
-	    bestAK8J1IdxInMainColl = i;
-	    bestAK8J1 = (*JetsAK8)[i];
-	  }
-	  else if(bestAK8J2IdxInMainColl == -1){
-	    bestAK8J2IdxInMainColl = i;
-	    bestAK8J2 = (*JetsAK8)[i];
-	  }
-	  nGoodAK8TightTau21++;
-	  // goodAk8.push_back((*JetsAK8)[i]);
-	  // goodAk8Mass.push_back((*JetsAK8_softDropMass)[i]);
-	  // ak8IdxInMainColl.push_back(i);
-	}
-      }
-      else if(catNum==1){//good jets with any tau21 value
-	if(((*JetsAK8)[i].Pt() > 200) && 
-	   (abs((*JetsAK8)[i].Eta()) < 2.0) && 
-	   ((*JetsAK8_softDropMass)[i] > 65) && 
-	   ((*JetsAK8_softDropMass)[i] < 100)){
-	  if(bestAK8J1IdxInMainColl == -1 && i_tau21 < 0.35){
-	    bestAK8J1IdxInMainColl = i;
-	    bestAK8J1 = (*JetsAK8)[i];
-	  }
-	  else if(bestAK8J2IdxInMainColl == -1){
-	    bestAK8J2IdxInMainColl = i;
-	    bestAK8J2 = (*JetsAK8)[i];
-	  }	  
-	  // goodAk8.push_back((*JetsAK8)[i]);
-	  // goodAk8Mass.push_back((*JetsAK8_softDropMass)[i]);
-	  // ak8IdxInMainColl.push_back(i);
-	  if(i_tau21 < 0.35) nGoodAK8TightTau21++;
-	}
-      }
+    int evtType = getEventType();
+    if(evtType==0){
+      h_EvtType->Fill("0 Good AK8",wt);
+      continue;
     }
-    //    print(jentry);
-
-    if(catNum==2){
-      if(nGoodAK8TightTau21<2) continue;
-    }
-    else if(catNum==1){
-      if((bestAK8J1IdxInMainColl == -1) || (nGoodAK8TightTau21 > 1)) continue;
-    }
-    else continue;
-    
-    //----MT
-    double mt = 0, mt2j = 0;
+    else if(evtType==200) h_EvtType->Fill("2 Boosted",wt);
+    else if(evtType==100 || evtType==150) h_EvtType->Fill("1 Boosted",wt);
+    else if(evtType==1) h_EvtType->Fill("1 Good AK8",wt);
+    else if(evtType==50) h_EvtType->Fill("2 Good AK8",wt);
+    //    if(!(evtType==100 || evtType==150)) continue;
+    if(evtType!=200) continue;
+    //----MT and MT2
+    double mt = 0, mt2j = 0, mt2 = 0.;
     mt = sqrt(2*bestAK8J1.Pt()*MET*(1-cos(DeltaPhi(METPhi,bestAK8J1.Phi()))));
-    if(bestAK8J2IdxInMainColl != -1) mt2j = sqrt(2*bestAK8J2.Pt()*MET*(1-cos(DeltaPhi(METPhi,bestAK8J2.Phi()))));
+    if(bestAK8J2IdxInMainColl != -1) {
+      mt2j = sqrt(2*bestAK8J2.Pt()*MET*(1-cos(DeltaPhi(METPhi,bestAK8J2.Phi()))));
+      visa = bestAK8J1;
+      visb = bestAK8J2;
+      met4.SetPtEtaPhiE(MET,0.,METPhi,0.);
+      ComputeMT2 mycalc = ComputeMT2(visa,visb,met4,0.,80.);
+      mt2 = mycalc.Compute();
+      //      cout<<"MET:"<<MET<<" MT2:"<<mt2<<endl;
+    }
+    else mt2 = 0.;
     if(mt < 500) continue;
     //    cout<<goodAk8.size()<<" :"<<ak8JBoosted.size()<<" nBoosted:"<<goodAk8.size()<<endl;
     //------------ZZMET-----------
@@ -294,56 +293,6 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     //   if(goodAk8[1].DeltaR(bjets[0]) < 0.8) continue;//ZZMET
     // }
 
-    h_filters->Fill("TotEvnts",1);
-    h_filters->Fill("globalSuperTightHalo2016Filter",globalSuperTightHalo2016Filter);
-    h_filters->Fill("HBHENoiseFilter",HBHENoiseFilter);
-    h_filters->Fill("HBHEIsoNoiseFilter",HBHEIsoNoiseFilter);
-    h_filters->Fill("eeBadScFilter",eeBadScFilter);
-    h_filters->Fill("EcalDeadCellTriggerPrimitiveFilter",EcalDeadCellTriggerPrimitiveFilter);
-    h_filters->Fill("BadChargedCandidateFilter",BadChargedCandidateFilter);
-    h_filters->Fill("BadPFMuonFilter",BadPFMuonFilter);
-    h_filters->Fill("NVtx>0",NVtx > 0);
-    h_filters->Fill("JetID",JetID);
-    h_filters->Fill("(MET/CaloMET<5.)",(MET/CaloMET < 5.));
-
-    if(!isFastSim){
-      if(!(globalSuperTightHalo2016Filter==1 && HBHENoiseFilter==1 && HBHEIsoNoiseFilter==1 && eeBadScFilter==1 && EcalDeadCellTriggerPrimitiveFilter==1 && BadChargedCandidateFilter && BadPFMuonFilter && NVtx > 0 && JetID && (MET/CaloMET < 5.))) continue;
-      h_cutflow->Fill("Filters",wt);
-      h_cutflow->Fill("HTRatioDphi",wt);
-    }
-    //--------------------------triggers
-    if(!isMC){
-      bool trgPass = false;
-      TString trgName;
-      for(int i=0;i<TriggerPass->size();i++){
-	trgName = (*TriggerNames)[i];
-	if(!(trgName.Contains("MET"))) continue;
-	if((*TriggerPass)[i]==1 && (trgName.Contains("HLT_PFMET100_PFMHT100_IDTight_v") || trgName.Contains("HLT_PFMET110_PFMHT110_IDTight_v") ||
-				    trgName.Contains("HLT_PFMET120_PFMHT120_IDTight_v") || trgName.Contains("HLT_PFMET130_PFMHT130_IDTight_v") ||
-				    trgName.Contains("HLT_PFMET140_PFMHT140_IDTight_v") || trgName.Contains("HLT_PFMET90_PFMHT90_IDTight_v") || 
-				    trgName.Contains("HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v") || trgName.Contains("HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v") ||
-				    trgName.Contains("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v") || trgName.Contains("HLT_PFMETNoMu130_PFMHTNoMu130_IDTight_v") || 
-				    trgName.Contains("HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_v") ||  trgName.Contains("HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v"))) trgPass = true;
-      }
-      if(trgPass) h_cutflow->Fill("PassedTrigger",wt);
-      else continue;
-    }
-    bool HEMaffected = false;
-    if(dataRun==2018 && RunNum >=319077){
-      for(int i=0;i<Jets->size();i++){
-	if((*Jets)[i].Pt() < 30) continue;
-	if( (*Jets)[i].Eta() >= -3.20 && (*Jets)[i].Eta() <= -1.2 && 
-	    (*Jets)[i].Phi() >= -1.77 && (*Jets)[i].Phi() <= -0.67 &&
-	    (abs(DeltaPhi(METPhi,(*Jets)[i].Phi())) < 0.5) ){HEMaffected = true; break;}
-      }
-    }
-    //--------------------------end of triggers
-
-    if(HEMaffected){
-      h_cutflow->Fill("HEMaffected",wt);
-      continue;
-    }
-    
     h_MET->Fill(MET,wt);
     h_METvBin->Fill(MET,wt);
     h_METvBinZZMET->Fill(MET,wt);
@@ -351,6 +300,9 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     h_HT->Fill(HT,wt);
     h_NJets->Fill(NJets,wt);
     h_BTags->Fill(BTagsDeepCSV,wt);
+    h_MT2->Fill(mt2,wt);
+    h_MT2vBin->Fill(mt2,wt);
+
     int nAK8 = 0;
     for(int i=0;i<JetsAK8->size();i++){
       if((*JetsAK8)[i].Pt() > 200 && abs((*JetsAK8)[i].Eta()) < 2.4) nAK8++;
@@ -436,6 +388,72 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
   cout<<"No. of entries survived: "<<nEvtSurv<<endl;
 }
 
+int SignalReg::getEventType(){
+  int evtType = -1;
+  tau21.resize(0);
+  i_tau21 = 1.;
+  bestAK8J1.SetXYZT(0.,0.,0.,0.);
+  bestAK8J2.SetXYZT(0.,0.,0.,0.);
+  bestAK8J1IdxInMainColl = -1;
+  bestAK8J2IdxInMainColl = -1;
+  goodAk8.resize(0);
+  goodAk8Mass.resize(0);
+  ak8IdxInMainColl.resize(0);
+  //-------------
+  for(int i=0;i<JetsAK8->size();i++){
+    if((*JetsAK8)[i].Pt() < 200 || abs((*JetsAK8)[i].Eta()) > 2.4) continue;
+    if(((*JetsAK8_softDropMass)[i] < massLow) || ((*JetsAK8_softDropMass)[i] > massHigh)) continue;
+    goodAk8.push_back((*JetsAK8)[i]);
+    ak8IdxInMainColl.push_back(i);
+    goodAk8Mass.push_back((*JetsAK8_softDropMass)[i]);
+    i_tau21 = ((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]);
+    tau21.push_back(i_tau21);
+    if(abs((*JetsAK8)[i].Eta()) < 2.0){
+      if(i_tau21 < 0.35){
+	if(bestAK8J1IdxInMainColl == -1){
+	  bestAK8J1IdxInMainColl = i;
+	  bestAK8J1 = (*JetsAK8)[i];
+	}
+	else if(bestAK8J2IdxInMainColl == -1){
+	  bestAK8J2IdxInMainColl = i;
+	  bestAK8J2 = (*JetsAK8)[i];
+	}
+      }
+    }//good ak8s
+  }
+  if(bestAK8J1IdxInMainColl >= 0 && bestAK8J2IdxInMainColl >= 0) return 200;
+  //-----------2 boosted jets? ends here
+  //-----------0 boosted jets? start
+  if(tau21.size()==0) return 0;
+  //-----------1 boosted jet? start
+  if(bestAK8J1IdxInMainColl >=0){
+    //check if there is second AK8
+    for(int i=0;i<goodAk8.size();i++){
+      if(bestAK8J1IdxInMainColl == ak8IdxInMainColl[i]) continue;
+      bestAK8J2 = (*JetsAK8)[ak8IdxInMainColl[i]];
+      bestAK8J2IdxInMainColl = ak8IdxInMainColl[i];
+    }
+    if(bestAK8J2IdxInMainColl >= 0) return 150;//has 1 boosted jet + 1 additional good ak8
+    else return 100;//has 1 boosted jet and no additional good ak8
+  }
+  //--------none of the AK8 jets pass tau21, but there are ak8 jets with Pt,eta and mass. Start here
+  else if(tau21.size()!=0){
+    for(int i=0;i<goodAk8.size();i++){
+      if(bestAK8J1IdxInMainColl == -1){
+	bestAK8J1IdxInMainColl = ak8IdxInMainColl[i];
+	bestAK8J1 = (*JetsAK8)[i];
+      }
+      else if(bestAK8J2IdxInMainColl == -1){
+	bestAK8J2IdxInMainColl = i;
+	bestAK8J2 = (*JetsAK8)[i];
+      }
+    }
+    if(bestAK8J2IdxInMainColl >= 1) return 50;//there are 2 good AK8 jets (both failing Tau21).
+    else return 1;//there is only one good ak8
+  }
+  
+  return -1;  
+}
 
 
 void SignalReg::print(Long64_t jentry){
@@ -456,3 +474,62 @@ void SignalReg::print(Long64_t jentry){
     cout<<"AK8 pT:"<<(*JetsAK8)[i].Pt()<<" eta:"<<(*JetsAK8)[i].Eta()<<" phi:"<<(*JetsAK8)[i].Phi()<<" softDropM:"<<(*JetsAK8_softDropMass)[i]<<" tau21:"<<(*JetsAK8_NsubjettinessTau2)[i]/(*JetsAK8_NsubjettinessTau1)[i]<<endl;
   }
 }
+
+    /*
+    if(JetsAK8->size()==0) continue;
+    if((*JetsAK8)[0].Pt() < 200 || abs((*JetsAK8)[0].Eta()) > 2.0) continue; //at least 1 AK8
+
+    //    int nBoostedJets = 0;
+    for(int i=0;i<JetsAK8->size();i++){
+      i_tau21 = ((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]);
+      tau21.push_back(i_tau21);
+      if(catNum==2){//good jets with tau21 > 0.35 only
+	if(((*JetsAK8)[i].Pt() > 200) && 
+	   (abs((*JetsAK8)[i].Eta()) < 2.0) && 
+	   (i_tau21 < 0.35) && 
+	   ((*JetsAK8_softDropMass)[i] > 65) && 
+	   ((*JetsAK8_softDropMass)[i] < 100)){
+	  if(bestAK8J1IdxInMainColl == -1){
+	    bestAK8J1IdxInMainColl = i;
+	    bestAK8J1 = (*JetsAK8)[i];
+	  }
+	  else if(bestAK8J2IdxInMainColl == -1){
+	    bestAK8J2IdxInMainColl = i;
+	    bestAK8J2 = (*JetsAK8)[i];
+	  }
+	  nGoodAK8TightTau21++;
+	  // goodAk8.push_back((*JetsAK8)[i]);
+	  // goodAk8Mass.push_back((*JetsAK8_softDropMass)[i]);
+	  // ak8IdxInMainColl.push_back(i);
+	}
+      }
+      else if(catNum==1){//good jets with any tau21 value
+	if(((*JetsAK8)[i].Pt() > 200) && 
+	   (abs((*JetsAK8)[i].Eta()) < 2.0) && 
+	   ((*JetsAK8_softDropMass)[i] > 65) && 
+	   ((*JetsAK8_softDropMass)[i] < 100)){
+	  if(bestAK8J1IdxInMainColl == -1 && i_tau21 < 0.35){
+	    bestAK8J1IdxInMainColl = i;
+	    bestAK8J1 = (*JetsAK8)[i];
+	  }
+	  else if(bestAK8J2IdxInMainColl == -1){
+	    bestAK8J2IdxInMainColl = i;
+	    bestAK8J2 = (*JetsAK8)[i];
+	  }	  
+	  // goodAk8.push_back((*JetsAK8)[i]);
+	  // goodAk8Mass.push_back((*JetsAK8_softDropMass)[i]);
+	  // ak8IdxInMainColl.push_back(i);
+	  if(i_tau21 < 0.35) nGoodAK8TightTau21++;
+	}
+      }
+    }
+    //    print(jentry);
+
+    if(catNum==2){
+      if(nGoodAK8TightTau21<2) continue;
+    }
+    else if(catNum==1){
+      if((bestAK8J1IdxInMainColl == -1) || (nGoodAK8TightTau21 > 1)) continue;
+    }
+    else continue;
+    */

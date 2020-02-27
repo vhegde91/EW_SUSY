@@ -11,11 +11,15 @@ root -l -q 'splitRunList.C("Rare_MC2018MC2017MC2016.txt",1)'
 
 root -l -q 'splitRunList.C("TChiWZ_1000_100_MC2018.txt",1)'
 root -l -q 'splitRunList.C("TChiWZ_800_100_MC2018.txt",1)'
+root -l -q 'splitRunList.C("TChiWZ_800_400_MC2018.txt",1)'
+root -l -q 'splitRunList.C("TChiWZ_800_700_MC2018.txt",1)'
+root -l -q 'splitRunList.C("TChiWZ_800_1_MC2018.txt",1)'
+
 root -l -q 'splitRunList.C("TChiWZ_600_100_MC2018.txt",1)'
 root -l -q 'splitRunList.C("TChiWZ_1000_1_MC2018.txt",1)'
-root -l -q 'splitRunList.C("TChiWZ_800_1_MC2018.txt",1)'
 root -l -q 'splitRunList.C("TChiWZ_600_1_MC2018.txt",1)'
 
+root -l -q 'splitRunList.C("TChiWW_800_100_MC2018.txt",1)'
 #root -l -q 'splitRunList.C("WJetsToLNu_HT_MC2016.txt",1)'
 #root -l -q 'splitRunList.C("WJetsToLNu_HT_MC2017.txt",1)'
 #root -l -q 'splitRunList.C("WJetsToLNu_HT_MC2018.txt",1)'
