@@ -18,6 +18,6 @@ root -l -q 'findFailedJobs.C("TChiWZ_1000_1_MC2018")'
 root -l -q 'findFailedJobs.C("TChiWZ_800_1_MC2018")'
 root -l -q 'findFailedJobs.C("TChiWZ_600_1_MC2018")'
 
-#root -l -q 'findFailedJobs.C("TChiWW_800_100_MC2018")'
+root -l -q 'findFailedJobs.C("TChiWW_800_100_MC2018")'
 
 hadd -f TTJets_MC2018.root TTJets_DiLept_MC_MC2018.root TTJets_SingleLeptFromT_MC2018.root

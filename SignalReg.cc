@@ -174,16 +174,26 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
       else continue;
     }
     //--------------------------end of triggers   
-    vector<TLorentzVector> nlsp,lsp,boson;
+    vector<TLorentzVector> nlsp,lsp,boson,higgs;
     vector<int> lspParentIdx, bosonParentIdx;
     for(int i=0;i<GenParticles->size();i++){
-      if(abs((*GenParticles_ParentId)[i]) > 1e6 && abs((*GenParticles_PdgId)[i])>=23 && abs((*GenParticles_PdgId)[i])<=25){ boson.push_back((*GenParticles)[i]); bosonParentIdx.push_back((*GenParticles_ParentIdx)[i]);}
+      if(abs((*GenParticles_ParentId)[i]) > 1e6 && abs((*GenParticles_PdgId)[i])>=23 && abs((*GenParticles_PdgId)[i])<=25){ boson.push_back((*GenParticles)[i]); bosonParentIdx.push_back((*GenParticles_ParentIdx)[i]);
+	if(abs((*GenParticles_PdgId)[i])==25) higgs.push_back((*GenParticles)[i]);
+      }
       if(abs((*GenParticles_PdgId)[i])>=1e6){
 	h2_SusyPDGMass->Fill(abs((*GenParticles_PdgId)[i]),(*GenParticles)[i].M(),wt);
 	if(abs((*GenParticles_PdgId)[i])==1000023 || abs((*GenParticles_PdgId)[i])==1000024) nlsp.push_back((*GenParticles)[i]);
 	if(abs((*GenParticles_PdgId)[i])==1000022){ lsp.push_back((*GenParticles)[i]); lspParentIdx.push_back((*GenParticles_ParentIdx)[i]);}
       }
     }
+    double mindr=1000;
+    int mindrIdx = -1;
+    for(int i=0;i<JetsAK8->size();i++){
+      for(int j=0;j<higgs.size();j++){
+	if(mindr > higgs[j].DeltaR((*JetsAK8)[i])){ mindr = higgs[j].DeltaR((*JetsAK8)[i]); mindrIdx = i;}
+      }
+    }
+    if(mindr<0.3) h_doubleBdiscrForHcand->Fill((*JetsAK8_doubleBDiscriminator)[mindrIdx],wt);
     //--------------
     //----MET
     //    if(MET < 200) continue;
@@ -217,9 +227,12 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     if(MET < 250) continue;
     if(NJets > 6) continue;
     if(DeltaPhi1 < 1.5) continue;
-    //if(BTagsDeepCSV != 0) continue;
-
+    if(BTagsDeepCSV != 0) continue;
+    
     int evtType = getEventType();
+    getEventTypeFine();//to be called only after calling getEventType();
+    getEventTypeWH();
+
     if(evtType==0){
       h_EvtType->Fill("0 Good AK8",wt);
       continue;
@@ -228,8 +241,8 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     else if(evtType==100 || evtType==150) h_EvtType->Fill("1 Boosted",wt);
     else if(evtType==1) h_EvtType->Fill("1 Good AK8",wt);
     else if(evtType==50) h_EvtType->Fill("2 Good AK8",wt);
-    //    if(!(evtType==100 || evtType==150)) continue;
-    if(evtType!=200) continue;
+    if(!(evtType==100 || evtType==150)) continue;
+    //    if(evtType!=200) continue;
     //----MT and MT2
     double mt = 0, mt2j = 0, mt2 = 0.;
     mt = sqrt(2*bestAK8J1.Pt()*MET*(1-cos(DeltaPhi(METPhi,bestAK8J1.Phi()))));
@@ -455,6 +468,88 @@ int SignalReg::getEventType(){
   return -1;  
 }
 
+void SignalReg::getEventTypeWH(){
+  int nTag = 0, nMass = 0, nmass = 0;
+  int nTagH = 0, nMassH = 0, nmassH = 0;
+ 
+  bool has2AK8 = false;
+  if(JetsAK8->size()!=0){
+    for(int i=0;i<JetsAK8->size();i++){
+      if((*JetsAK8)[i].Pt() > 200 && abs((*JetsAK8)[i].Eta()) < 2.4){
+	if(((*JetsAK8_softDropMass)[i] > massLow) && ((*JetsAK8_softDropMass)[i] < massHigh))
+	  nMass++;
+	if( (((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i])) < 0.35)
+	  nTag++;
+	if(((*JetsAK8_softDropMass)[i] > massLowH) && ((*JetsAK8_softDropMass)[i] < massHighH))
+	  nMassH++;
+	if((*JetsAK8_doubleBDiscriminator)[i] > 0.3)
+	  nTagH++;
+      }
+    }
+  }
+  if(nMass>1)  nMass = 1;
+  if(nMassH>1) nMassH = 1;
+  if(nTag>1)   nTag = 1;
+  if(nTagH>1)  nTagH = 1;
+  TString catName;
+  catName = to_string(nTag)+"Wt"+to_string(nMass)+"Wm"+to_string(nTagH)+"Ht"+to_string(nMassH)+"Hm";
+  h_EvtTypeWH->Fill(catName,wt);
+}
+
+void SignalReg::getEventTypeFine(){
+  int nTag = 0, nMass = 0, nmass = 0;
+  bool has2AK8 = false;
+  if(JetsAK8->size()==0){
+    nTag = 0;
+    nMass = 0;
+  }
+  else if(JetsAK8->size()>0){
+    for(int i=0;i<JetsAK8->size();i++){
+      if((*JetsAK8)[i].Pt() > 200 && abs((*JetsAK8)[i].Eta()) < 2.4){
+	if(((*JetsAK8_softDropMass)[i] > massLow) && ((*JetsAK8_softDropMass)[i] < massHigh))
+	  nMass++;
+	if( (((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i])) < 0.35)
+	  nTag++;
+	if(i>0) has2AK8 = true;
+      }
+    }
+    if(nTag==3) nTag=2;
+    if(nMass==3) nMass = 2;
+  }
+  //--------- AK4 ---------
+  vector<TLorentzVector> ak4jNotAK8;
+  for(int i=0;i<Jets->size();i++){
+    if((*Jets)[i].Pt() > 30. && abs((*Jets)[i].Eta()) < 2.4){
+      if((*Jets)[i].DeltaR(bestAK8J1) < 0.8) continue;
+      if(bestAK8J2IdxInMainColl != -1 && (*Jets)[i].DeltaR(bestAK8J2) < 0.8) continue;
+      ak4jNotAK8.push_back((*Jets)[i]);
+    }
+  }
+    
+  TLorentzVector ak4PairBosonLike;
+  float minMassDiff = 1000;
+  if(bestAK8J2IdxInMainColl==-1){
+    if(ak4jNotAK8.size()==1) ak4PairBosonLike = ak4jNotAK8[0];//actually redundant if ak4jNotAK8.size() > 1 cut is applied.
+    else if(ak4jNotAK8.size()==2) ak4PairBosonLike = ak4jNotAK8[0] + ak4jNotAK8[1];
+    else if(ak4jNotAK8.size()>=3){
+      for(int k=0;k<ak4jNotAK8.size();k++){
+	for(int j=k+1;j<ak4jNotAK8.size();j++){
+	  if(minMassDiff > (85 - (ak4jNotAK8[k]+ak4jNotAK8[j]).M())){
+	    minMassDiff = 85 - (ak4jNotAK8[k]+ak4jNotAK8[j]).M();
+	    ak4PairBosonLike = ak4jNotAK8[k]+ak4jNotAK8[j];
+	  }
+	}
+      }
+    }
+    if(ak4jNotAK8.size() < 2 || ak4PairBosonLike.M() < 60 || ak4PairBosonLike.M() > 120) nmass = 0;
+    else nmass = 1;
+  }
+  //  cout<<nTag<<" "<<nMass<<" "<<nmass<<"||";
+  TString catName;
+  if(has2AK8) catName = to_string(nTag)+"T"+to_string(nMass)+"M";
+  else catName = to_string(nTag)+"T"+to_string(nMass)+"M"+to_string(nmass)+"m";
+  h_EvtTypeFine->Fill(catName,wt);
+}
 
 void SignalReg::print(Long64_t jentry){
   //cout<<endl;
@@ -474,62 +569,3 @@ void SignalReg::print(Long64_t jentry){
     cout<<"AK8 pT:"<<(*JetsAK8)[i].Pt()<<" eta:"<<(*JetsAK8)[i].Eta()<<" phi:"<<(*JetsAK8)[i].Phi()<<" softDropM:"<<(*JetsAK8_softDropMass)[i]<<" tau21:"<<(*JetsAK8_NsubjettinessTau2)[i]/(*JetsAK8_NsubjettinessTau1)[i]<<endl;
   }
 }
-
-    /*
-    if(JetsAK8->size()==0) continue;
-    if((*JetsAK8)[0].Pt() < 200 || abs((*JetsAK8)[0].Eta()) > 2.0) continue; //at least 1 AK8
-
-    //    int nBoostedJets = 0;
-    for(int i=0;i<JetsAK8->size();i++){
-      i_tau21 = ((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]);
-      tau21.push_back(i_tau21);
-      if(catNum==2){//good jets with tau21 > 0.35 only
-	if(((*JetsAK8)[i].Pt() > 200) && 
-	   (abs((*JetsAK8)[i].Eta()) < 2.0) && 
-	   (i_tau21 < 0.35) && 
-	   ((*JetsAK8_softDropMass)[i] > 65) && 
-	   ((*JetsAK8_softDropMass)[i] < 100)){
-	  if(bestAK8J1IdxInMainColl == -1){
-	    bestAK8J1IdxInMainColl = i;
-	    bestAK8J1 = (*JetsAK8)[i];
-	  }
-	  else if(bestAK8J2IdxInMainColl == -1){
-	    bestAK8J2IdxInMainColl = i;
-	    bestAK8J2 = (*JetsAK8)[i];
-	  }
-	  nGoodAK8TightTau21++;
-	  // goodAk8.push_back((*JetsAK8)[i]);
-	  // goodAk8Mass.push_back((*JetsAK8_softDropMass)[i]);
-	  // ak8IdxInMainColl.push_back(i);
-	}
-      }
-      else if(catNum==1){//good jets with any tau21 value
-	if(((*JetsAK8)[i].Pt() > 200) && 
-	   (abs((*JetsAK8)[i].Eta()) < 2.0) && 
-	   ((*JetsAK8_softDropMass)[i] > 65) && 
-	   ((*JetsAK8_softDropMass)[i] < 100)){
-	  if(bestAK8J1IdxInMainColl == -1 && i_tau21 < 0.35){
-	    bestAK8J1IdxInMainColl = i;
-	    bestAK8J1 = (*JetsAK8)[i];
-	  }
-	  else if(bestAK8J2IdxInMainColl == -1){
-	    bestAK8J2IdxInMainColl = i;
-	    bestAK8J2 = (*JetsAK8)[i];
-	  }	  
-	  // goodAk8.push_back((*JetsAK8)[i]);
-	  // goodAk8Mass.push_back((*JetsAK8_softDropMass)[i]);
-	  // ak8IdxInMainColl.push_back(i);
-	  if(i_tau21 < 0.35) nGoodAK8TightTau21++;
-	}
-      }
-    }
-    //    print(jentry);
-
-    if(catNum==2){
-      if(nGoodAK8TightTau21<2) continue;
-    }
-    else if(catNum==1){
-      if((bestAK8J1IdxInMainColl == -1) || (nGoodAK8TightTau21 > 1)) continue;
-    }
-    else continue;
-    */

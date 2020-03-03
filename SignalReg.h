@@ -24,6 +24,8 @@ class SignalReg : public NtupleVariables{
   void     EventLoop(const char *,const char *);
   void     BookHistogram(const char *);
   int  getEventType();
+  void getEventTypeFine();
+  void getEventTypeWH();
   void print(Long64_t);
   //
   TLorentzVector visa = TLorentzVector( -18.1222 , -14.4356 , 0 , 158.653);
@@ -35,7 +37,9 @@ class SignalReg : public NtupleVariables{
   bool isMC=true;
   double wt=0,lumiInfb=35.815165;
   double massLow = 65., massHigh = 100.;
-  //  double massLow = 0., massHigh = 1000.;
+  double massLowH = 85., massHighH = 135.;
+  double doubleBDiscriminatorValue = 0.3;
+  //    double massLow = 0., massHigh = 1000.;
 
   vector<float> tau21;
   float i_tau21;
@@ -54,6 +58,8 @@ class SignalReg : public NtupleVariables{
 
   TH1D *h_filters;
   TH1D *h_EvtType;
+  TH1D *h_EvtTypeFine;
+  TH1D *h_EvtTypeWH;
   TH1D *h_MET;
   TH1D *h_METvBin, *h_METvBinZZMET;
   TH1D *h_MHT;
@@ -73,6 +79,7 @@ class SignalReg : public NtupleVariables{
   TH1D *h_dRaK4BosonGenBoson;
   TH1D *h_dRbestAK8AK4Cand;
   TH1D *h_dPhiBestAK8AK4Cand;
+  TH1D *h_doubleBdiscrForHcand;
 
   TH1D *h_dPhibJetAK4BosonCand;
   TH1D *h_dRbJetAK4BosonCand;
@@ -116,6 +123,8 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_cutflow = new TH1F("CutFlow","cut flow",25,0,25);
   h_filters = new TH1D("Filters","Filters: Bin1 : all nEvnts, other bins: filter pass/fail",10,0,10);
   h_EvtType = new TH1D("EvtType","Event type",10,0,10);
+  h_EvtTypeFine = new TH1D("EvtTypeFine","Event type fine event category",20,0,20);
+  h_EvtTypeWH = new TH1D("EvtTypeWH","Event type for WH event category",20,0,20);
 
   h_MET = new TH1D("MET","MET",200,0,2000);
   h_MHT = new TH1D("MHT","MHT",200,0,2000);
@@ -167,6 +176,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_dPhibJetMET = new TH1D("dPhibJetMET","#Delta#Phi(leading b, MET)",40,0,4);
   h_dPhibJetAK8 = new TH1D("dPhibJetAK8","#Delta#Phi(leading b, AK8)",40,0,4);
   h_dPhibJetAK8J2 = new TH1D("dPhibJetAK8J2","#Delta#Phi(leading b, AK8J2)",40,0,4);
+  h_doubleBdiscrForHcand = new TH1D("doubleBdiscrForHcand","doubleBdiscriminator value for AK8 jet matched (dR < 0.3) to Gen H",100,-1,1);
 
   h2_AK8J1J2Tau21 = new TH2D("AK8J1J2Tau21","x:AK8J1 #tau21 vs y:AK8J2 #tau21",20,0,1,20,0,1);
   h2_AK8J1J2Mass = new TH2D("AK8J1J2Mass","x:AK8J1 Mass vs y:AK8J2 Mass",60,0,300,60,0,300);
@@ -186,6 +196,28 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_EvtType->Fill("1 Good AK8",0);
   h_EvtType->Fill("2 Good AK8",0);
   h_EvtType->Fill("0 Good AK8",0);
+
+  TString catName;
+  for(int t=2;t>=0;t--)
+    for(int M=2;M>=0;M--){
+      catName = to_string(t)+"T"+to_string(M)+"M";
+      h_EvtTypeFine->Fill(catName,0);
+    }
+  for(int t=1;t>=0;t--)
+    for(int M=1;M>=0;M--)
+      for(int m=1;m>=0;m--){
+	catName = to_string(t)+"T"+to_string(M)+"M"+to_string(m)+"m";
+	h_EvtTypeFine->Fill(catName,0);
+      }
+  //----
+  for(int t=1;t>=0;t--)
+    for(int M=1;M>=0;M--)
+      for(int th=1;th>=0;th--)
+	for(int Mh=1;Mh>=0;Mh--){
+	  catName = to_string(t)+"Wt"+to_string(M)+"Wm"+to_string(th)+"Ht"+to_string(Mh)+"Hm";
+	  h_EvtTypeWH->Fill(catName,0);
+	}
+  //-----
 }
 
 SignalReg::SignalReg(const TString &inputFileList, const char *outFileName, const char* dataset) {
