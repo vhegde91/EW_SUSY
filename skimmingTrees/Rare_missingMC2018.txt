@@ -1,0 +1,5 @@
+root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV17/tree_signal/tree_WZTo1L1Nu2Q_MC2017.root
+root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV17/tree_signal/tree_WZZ_MC2017.root
+root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV17/tree_signal/tree_ZZZ_MC2017.root
+root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV17/tree_signal/tree_ZZTo2Q2Nu_MC2016.root
+root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV17/tree_signal/tree_WWZ_MC2016.root

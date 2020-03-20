@@ -1,6 +1,7 @@
 #!/bin/sh
 root -l -q 'findFailedJobs.C("TTJets_DiLept_MC_MC2018")'
 root -l -q 'findFailedJobs.C("TTJets_SingleLeptFromT_MC2018")'
+hadd -f TTJets_MC2018.root TTJets_DiLept_MC_MC2018.root TTJets_SingleLeptFromT_MC2018.root
 root -l -q 'findFailedJobs.C("ZJetsToNuNu_HT_MC2018")'
 root -l -q 'findFailedJobs.C("WJetsToLNu_HT_MC2018")'
 root -l -q 'findFailedJobs.C("QCD_HT_MC2018")'
@@ -19,6 +20,7 @@ root -l -q 'findFailedJobs.C("TChiWZ_800_1_MC2018")'
 root -l -q 'findFailedJobs.C("TChiWZ_600_1_MC2018")'
 
 root -l -q 'findFailedJobs.C("TChiWW_800_100_MC2018")'
+root -l -q 'findFailedJobs.C("TChiWH_600_100_MC2018")'
 root -l -q 'findFailedJobs.C("TChiWH_800_100_MC2018")'
+root -l -q 'findFailedJobs.C("TChiWH_1000_100_MC2018")'
 
-hadd -f TTJets_MC2018.root TTJets_DiLept_MC_MC2018.root TTJets_SingleLeptFromT_MC2018.root

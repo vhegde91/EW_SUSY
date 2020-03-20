@@ -1,0 +1,121 @@
+#define Skimming_cxx
+#include "Skimming.h"
+#include <TH2.h>
+#include <TStyle.h>
+#include <TCanvas.h>
+#include <iostream>
+#include <vector>
+#include <cstring>
+#include <string>
+#include <fstream>
+
+using namespace std;
+
+int main(int argc, char* argv[])
+{
+
+  if (argc < 2) {
+    cerr << "Please give 3 arguments " << "runList " << " " << "outputFileName" << " " << "dataset" << endl;
+    return -1;
+  }
+  const char *inputFileList = argv[1];
+  const char *outFileName   = argv[2];
+  const char *data          = argv[3];
+
+  Skimming ana(inputFileList, outFileName, data);
+  cout << "dataset " << data << " " << endl;
+
+  ana.EventLoop(data,inputFileList);
+
+  return 0;
+}
+
+void Skimming::EventLoop(const char *data,const char *inputFileList) {
+  if (fChain == 0) return;
+
+  Long64_t nentries = fChain->GetEntriesFast();
+  cout << "nentries " << nentries << endl;
+  cout << "Analyzing dataset " << data << " " << endl;
+
+  TString s_data=inputFileList;
+  Long64_t nbytes = 0, nb = 0;
+  int decade = 0;
+  bool isFastSim = false;
+  if(s_data.Contains("TChi")){
+    isFastSim = true;
+    cout<<"Using as FastSim"<<endl;
+  }
+
+  TTree *newtree = fChain->CloneTree(0);
+  
+  //  else if(s_data.Contains("TChiWW_1000")) xsec = 0.621866e-3;
+  for (Long64_t jentry=0; jentry<nentries;jentry++) {
+    // ==============print number of events done == == == == == == == =
+    double progress = 10.0 * jentry / (1.0 * nentries);
+    int k = int (progress);
+    if (k > decade)
+      cout << 10 * k << " %" <<endl;
+    decade = k;
+    // ===============read this entry == == == == == == == == == == == 
+    Long64_t ientry = LoadTree(jentry);
+    if (ientry < 0) break;
+    nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+    if(isFastSim) JetID = true;
+    if(NJets < 2 || HT < 300 || MHT < 200 || NMuons!=0 || NElectrons!=0 || (MHT/HT > 1.0) || !JetID || !(DeltaPhi1 > 0.5 && DeltaPhi2 > 0.5 && DeltaPhi3 > 0.3 && DeltaPhi4 > 0.3) || isoMuonTracks!=0 || isoElectronTracks!=0 || isoPionTracks!=0) continue;  
+
+    wt=Weight*1000.0*lumiInfb;
+
+    h_cutflow->Fill("0",1);
+    h_cutflow->Fill("Weighted",wt);
+    h_filters->Fill("TotEvnts",1);
+    h_filters->Fill("NVtx>0",NVtx > 0);
+    h_filters->Fill("JetID",JetID);
+    h_filters->Fill("(MET/CaloMET<5.)",(MET/CaloMET < 5.));
+
+    //----Photon veto
+    int nPhotons=0;
+    for(int i=0;i<Photons->size();i++){
+      if((*Photons)[i].Pt() > 100 && (*Photons_fullID)[i] && (!(*Photons_hasPixelSeed)[i]) ){ nPhotons++; break;}
+    }
+    if(nPhotons>0) continue;
+    h_cutflow->Fill("photonVeto",wt);
+
+    if(MET < 250) continue;
+    h_cutflow->Fill("MET>250",wt);
+
+    if(NJets > 6 || NJets < 4) continue;
+    h_cutflow->Fill("4<=NJets<=6",wt);
+
+    if(DeltaPhi1 < 1.5) continue;
+    h_cutflow->Fill("DeltaPhi1 > 1.5",wt);
+
+    bool hasGoodAK8 = false;
+    for(int i=0;i<JetsAK8->size();i++){
+      if((*JetsAK8)[i].Pt() > 200 && abs((*JetsAK8)[i].Eta()) < 2.0 && (*JetsAK8_softDropMass)[i] > 60){
+	hasGoodAK8 = true;
+	break;
+      }
+    }
+    if(hasGoodAK8) continue;
+    h_cutflow->Fill("NoAK8_Pt>200_Eta2.0_SDMass>60",wt);
+    newtree->Fill();
+  }
+}
+
+/*
+    bool HEMaffected = false;
+    if(dataRun==2018 && RunNum >=319077){
+      for(int i=0;i<Jets->size();i++){
+	if((*Jets)[i].Pt() < 30) continue;
+	if( (*Jets)[i].Eta() >= -3.20 && (*Jets)[i].Eta() <= -1.2 && 
+	    (*Jets)[i].Phi() >= -1.77 && (*Jets)[i].Phi() <= -0.67 &&
+	    (abs(DeltaPhi(METPhi,(*Jets)[i].Phi())) < 0.5) ){HEMaffected = true; break;}
+      }
+    }
+    if(HEMaffected){
+      h_cutflow->Fill("HEMaffected",wt);
+      continue;
+    }
+
+ */

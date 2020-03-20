@@ -52,7 +52,6 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
   }
   Long64_t nEvtSurv = 0;
   int ak8J1Idx = -1;
-  float deepCSVvalue = 0.;
 
   h_cutflow->Fill("0",0);
   h_cutflow->Fill("Weighted",0);    
@@ -79,12 +78,12 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
   h_filters->Fill("(MET/CaloMET<5.)",0);
 
   int dataRun = 0;
-  if(s_data.Contains("MC_2016")){ dataRun = -2016; lumiInfb = 35.815165; deepCSVvalue = 0.6324;}
-  else if(s_data.Contains("MC_2017")){ dataRun = -2017; lumiInfb = 41.486136; deepCSVvalue = 0.4184;}
+  if(s_data.Contains("MC_2016")){ dataRun = -2016; lumiInfb = 35.815165; deepCSVvalue = 0.6321;}
+  else if(s_data.Contains("MC_2017")){ dataRun = -2017; lumiInfb = 41.486136; deepCSVvalue = 0.4941;}
   else if(s_data.Contains("MC_2018")){ dataRun = -2018; lumiInfb = 59.546381; deepCSVvalue = 0.4184;}
   
-  else if(s_data.Contains("2016")){ dataRun = 2016; isMC = false; deepCSVvalue = 0.6324;}
-  else if(s_data.Contains("2017")){ dataRun = 2017; isMC = false; deepCSVvalue = 0.4184;}
+  else if(s_data.Contains("2016")){ dataRun = 2016; isMC = false; deepCSVvalue = 0.6321;}
+  else if(s_data.Contains("2017")){ dataRun = 2017; isMC = false; deepCSVvalue = 0.4941;}
   else if(s_data.Contains("2018")){ dataRun = 2018; isMC = false; deepCSVvalue = 0.4184;}
   
   lumiInfb = 137.0;
@@ -227,7 +226,14 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     if(MET < 250) continue;
     if(NJets > 6) continue;
     if(DeltaPhi1 < 1.5) continue;
-    if(BTagsDeepCSV != 0) continue;
+    //    if(BTagsDeepCSV != 0) continue;
+    bjets.resize(0);
+    for(int i=0;i<Jets_bJetTagDeepCSVprobb->size();i++){
+      if((*Jets)[i].Pt() < 30 || abs((*Jets)[i].Eta()) > 2.4) continue;
+      if((*Jets_bJetTagDeepCSVprobb)[i]+(*Jets_bJetTagDeepCSVprobbb)[i] > deepCSVvalue)
+	bjets.push_back((*Jets)[i]);
+    }
+    sortTLorVec(&bjets);
     
     int evtType = getEventType();
     getEventTypeFine();//to be called only after calling getEventType();
@@ -265,15 +271,7 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     // if(goodAk8[1].Pt() < 200) continue;//ZZMET
     // if(((*JetsAK8_softDropMass)[0] < 70 || (*JetsAK8_softDropMass)[0] > 100)) continue;//ZZMET
     // if(((*JetsAK8_softDropMass)[1] < 70 || (*JetsAK8_softDropMass)[1] > 100)) continue;//ZZMET
-    
-    vector<TLorentzVector> bjets;
-    for(int i=0;i<Jets_bJetTagDeepCSVprobb->size();i++){
-      if((*Jets)[i].Pt() < 30 || abs((*Jets)[i].Eta()) > 2.4) continue;
-      if((*Jets_bJetTagDeepCSVprobb)[i]+(*Jets_bJetTagDeepCSVprobbb)[i] > deepCSVvalue)
-	bjets.push_back((*Jets)[i]);
-    }
-    sortTLorVec(&bjets);
-    
+        
     vector<TLorentzVector> ak4jNotAK8;
     for(int i=0;i<Jets->size();i++){
       if((*Jets)[i].Pt() > 30. && abs((*Jets)[i].Eta()) < 2.4){
@@ -471,29 +469,131 @@ int SignalReg::getEventType(){
 void SignalReg::getEventTypeWH(){
   int nTag = 0, nMass = 0, nmass = 0;
   int nTagH = 0, nMassH = 0, nmassH = 0;
- 
-  bool has2AK8 = false;
-  if(JetsAK8->size()!=0){
-    for(int i=0;i<JetsAK8->size();i++){
-      if((*JetsAK8)[i].Pt() > 200 && abs((*JetsAK8)[i].Eta()) < 2.4){
-	if(((*JetsAK8_softDropMass)[i] > massLow) && ((*JetsAK8_softDropMass)[i] < massHigh))
-	  nMass++;
-	if( (((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i])) < 0.35)
-	  nTag++;
-	if(((*JetsAK8_softDropMass)[i] > massLowH) && ((*JetsAK8_softDropMass)[i] < massHighH))
-	  nMassH++;
-	if((*JetsAK8_doubleBDiscriminator)[i] > 0.3)
-	  nTagH++;
+  vector<bool> jetsAK8hasb;
+  TString catName, catName0;
+
+  for(int i=0;i<JetsAK8->size();i++){
+    bool foundbInAK8 = 0;
+    for(int b=0;b<bjets.size();b++){
+      if(bjets[b].DeltaR((*JetsAK8)[i]) < 0.8){
+	foundbInAK8 = 1;
+	break;
       }
     }
-  }
+    jetsAK8hasb.push_back(foundbInAK8);    
+  }// AK8 loop for b content
+  
+  bool has2AK8 = false;
+  TLorentzVector ak8H, ak8W;
+  for(int i=0;i<JetsAK8->size();i++){
+    if((*JetsAK8)[i].Pt() > 200 && abs((*JetsAK8)[i].Eta()) < 2.4){
+      if(jetsAK8hasb[i]){
+	if(((*JetsAK8_softDropMass)[i] > massLowH) && ((*JetsAK8_softDropMass)[i] < massHighH)){
+	  nMassH++;
+	  if(ak8H.Pt() < (*JetsAK8)[i].Pt()) ak8H = (*JetsAK8)[i];
+	}
+	if((*JetsAK8_doubleBDiscriminator)[i] > doubleBDiscriminatorValue){
+	  nTagH++;
+	  if(!(((*JetsAK8_softDropMass)[i] > massLowH) && ((*JetsAK8_softDropMass)[i] < massHighH))){
+	    h_TaggedHMassFailM->Fill((*JetsAK8_softDropMass)[i],wt);
+	    for(int j=0;j<GenParticles->size();j++){
+	      if(abs((*GenParticles_PdgId)[j])==25) h_dRTaggedHFailM->Fill((*GenParticles)[j].DeltaR((*JetsAK8)[i]),wt);
+	    }
+	  }
+	}
+      }
+      else{
+	if(((*JetsAK8_softDropMass)[i] > massLow) && ((*JetsAK8_softDropMass)[i] < massHigh)){
+	  nMass++;
+	  if(ak8W.Pt() < (*JetsAK8)[i].Pt()) ak8W = (*JetsAK8)[i];
+	}
+	if( (((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i])) < 0.35){
+	  nTag++;
+	  if(!(((*JetsAK8_softDropMass)[i] > massLow) && ((*JetsAK8_softDropMass)[i] < massHigh))){
+	    h_TaggedWMassFailM->Fill((*JetsAK8_softDropMass)[i],wt);
+	    for(int j=0;j<GenParticles->size();j++){
+	      if(abs((*GenParticles_PdgId)[j])==24) h_dRTaggedWFailM->Fill((*GenParticles)[j].DeltaR((*JetsAK8)[i]),wt);
+	    }
+	  }
+	}
+      }
+    }
+  }//for AK8
   if(nMass>1)  nMass = 1;
   if(nMassH>1) nMassH = 1;
   if(nTag>1)   nTag = 1;
   if(nTagH>1)  nTagH = 1;
-  TString catName;
+
+  TLorentzVector ak4Hcand;
+  if(nMassH==0){
+    if(bjets.size() == 2) ak4Hcand = (bjets[0] + bjets[1]);
+    else if(bjets.size()>2){
+      ak4Hcand = bjets[0] + bjets[1];
+      for(int i=0;i<bjets.size();i++){
+	for(int j=i+1;j<bjets.size();j++){
+	  if(abs(ak4Hcand.M()-125) > abs((bjets[i]+bjets[j]).M()-125)) ak4Hcand = bjets[i]+bjets[j];
+	}
+      }
+    }
+    if((ak4Hcand.M() > massLowH) && (ak4Hcand.M() < massHighH)) nmassH++;
+  }
+  TLorentzVector ak4Wcand;
+  if(nMass==0){
+    for(int i=0;i<Jets_bJetTagDeepCSVprobb->size();i++){
+      if((*Jets)[i].Pt() < 30 || abs((*Jets)[i].Eta()) > 2.4) continue;
+      if((*Jets_bJetTagDeepCSVprobb)[i]+(*Jets_bJetTagDeepCSVprobbb)[i] > deepCSVvalue)	continue;
+
+      for(int j=i+1;j<Jets->size();j++){
+	if((*Jets)[j].Pt() < 30 || abs((*Jets)[j].Eta()) > 2.4) continue;
+	if((*Jets_bJetTagDeepCSVprobb)[j]+(*Jets_bJetTagDeepCSVprobbb)[j] > deepCSVvalue) continue;
+	if(abs(ak4Wcand.M()-85) > abs(((*Jets)[i]+(*Jets)[j]).M()-85)) ak4Wcand = (*Jets)[i]+(*Jets)[j];
+      }
+    }
+    if((ak4Wcand.M() > massLow) && (ak4Wcand.M() < massHigh)) nmass++;
+  }
+  if(nMassH==0 && nMass==0){
+    if(JetsAK8->size()>=1 && (*JetsAK8)[0].Pt() > 200 && abs((*JetsAK8)[0].Eta()) < 2.4)
+      catName0 = "1-"+to_string(nmass)+"Wm"+to_string(nmassH)+"Hm";
+    else  catName0 = "0-"+to_string(nmass)+"Wm"+to_string(nmassH)+"Hm";
+    h_EvtTypeWH_0AK8M->Fill(catName0,wt);
+
+    int iHist = 15 + h_EvtTypeWH_0AK8M->GetXaxis()->FindBin(catName0);
+    if(iHist < 26){
+      double mt=0,mt2j=0;
+      mt = sqrt(2*ak4Hcand.Pt()*MET*(1-cos(DeltaPhi(METPhi,ak4Hcand.Phi()))));
+      mt2j = sqrt(2*ak4Wcand.Pt()*MET*(1-cos(DeltaPhi(METPhi,ak4Wcand.Phi()))));
+      h_MET_catWH[iHist]->Fill(MET,wt);
+      h_mT_catWH[iHist]->Fill(mt,wt);
+      h_AK8Pt_catWH[iHist]->Fill(ak4Hcand.Pt(),wt);
+      h_AK8Eta_catWH[iHist]->Fill(ak4Hcand.Eta(),wt);
+      h_dPhiMETAK8_catWH[iHist]->Fill(abs(DeltaPhi(METPhi,ak4Hcand.Phi())),wt);
+      h_AK8J2Pt_catWH[iHist]->Fill(ak4Wcand.Pt(),wt);
+      h_AK8J2Eta_catWH[iHist]->Fill(ak4Wcand.Eta(),wt);
+      h_mT2J_catWH[iHist]->Fill(mt2j,wt);
+    }
+    else cout<<"Oveflow in cat for WH (0AK8)"<<endl;
+  }
+  
   catName = to_string(nTag)+"Wt"+to_string(nMass)+"Wm"+to_string(nTagH)+"Ht"+to_string(nMassH)+"Hm";
   h_EvtTypeWH->Fill(catName,wt);
+  // print(0);
+  // cout<<"nHm:"<<nMassH<<" nWm:"<<nMass<<" nHT:"<<nTagH<<" nWT:"<<nTag<<endl;
+  double mt=0,mt2j=0;
+  mt = sqrt(2*ak8H.Pt()*MET*(1-cos(DeltaPhi(METPhi,ak8H.Phi()))));
+  mt2j = sqrt(2*ak8W.Pt()*MET*(1-cos(DeltaPhi(METPhi,ak8W.Phi()))));
+
+  int iHist = h_EvtTypeWH->GetXaxis()->FindBin(catName)-1;
+  if(iHist < 16){
+    h_MET_catWH[iHist]->Fill(MET,wt);
+    h_mT_catWH[iHist]->Fill(mt,wt);
+    h_AK8Pt_catWH[iHist]->Fill(ak8H.Pt(),wt);
+    h_AK8Eta_catWH[iHist]->Fill(ak8H.Eta(),wt);
+    h_dPhiMETAK8_catWH[iHist]->Fill(abs(DeltaPhi(METPhi,ak8H.Phi())),wt);
+    h_AK8J2Pt_catWH[iHist]->Fill(ak8W.Pt(),wt);
+    h_AK8J2Eta_catWH[iHist]->Fill(ak8W.Eta(),wt);
+    h_mT2J_catWH[iHist]->Fill(mt2j,wt);
+  }
+  else cout<<"Oveflow in cat for WH: "<<catName<<endl;
 }
 
 void SignalReg::getEventTypeFine(){
@@ -566,6 +666,6 @@ void SignalReg::print(Long64_t jentry){
   }
   cout<<"MHTPhi:"<<MHTPhi<<" DPhi1:"<<DeltaPhi1<<" DeltaPhi2:"<<DeltaPhi2<<" DeltaPhi3:"<<DeltaPhi3<<" DeltaPhi4:"<<DeltaPhi4<<endl;
   for(int i=0;i<JetsAK8->size();i++){
-    cout<<"AK8 pT:"<<(*JetsAK8)[i].Pt()<<" eta:"<<(*JetsAK8)[i].Eta()<<" phi:"<<(*JetsAK8)[i].Phi()<<" softDropM:"<<(*JetsAK8_softDropMass)[i]<<" tau21:"<<(*JetsAK8_NsubjettinessTau2)[i]/(*JetsAK8_NsubjettinessTau1)[i]<<endl;
+    cout<<"AK8 pT:"<<(*JetsAK8)[i].Pt()<<" eta:"<<(*JetsAK8)[i].Eta()<<" phi:"<<(*JetsAK8)[i].Phi()<<" softDropM:"<<(*JetsAK8_softDropMass)[i]<<" tau21:"<<(*JetsAK8_NsubjettinessTau2)[i]/(*JetsAK8_NsubjettinessTau1)[i]<<" doubleBDiscr:"<<(*JetsAK8_doubleBDiscriminator)[i]<<endl;
   }
 }
