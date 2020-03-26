@@ -32,5 +32,5 @@ echo "processed. ls"
 ls
 echo "COPYING OUTPUT"
 
-xrdcp -f $outputFileTag root://cmseos.fnal.gov//store/user/vhegde/RA2bTrees_V17/EW_SUSY/skims/ForFullyResolved/
+xrdcp -f $outputFileTag root://cmseos.fnal.gov//store/user/vhegde/RA2bTrees_V17/EW_SUSY/skims/ForFullyBoosted/
 rm $outputFileTag

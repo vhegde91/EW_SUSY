@@ -96,8 +96,8 @@ void Skimming::EventLoop(const char *data,const char *inputFileList) {
 	nGoodAK8++;
       }
     }
-    if(nGoodAK8 < 2) continue;
-    h_cutflow->Fill("Min2AK8_Pt>200_Eta2.0_SDMass>60",wt);
+    if(nGoodAK8!=1) continue;
+    h_cutflow->Fill("Exct1AK8_Pt>200_Eta2.0_SDMass>60",wt);
     newtree->Fill();
   }
 }

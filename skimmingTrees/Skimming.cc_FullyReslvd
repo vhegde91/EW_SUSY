@@ -90,14 +90,15 @@ void Skimming::EventLoop(const char *data,const char *inputFileList) {
     if(DeltaPhi1 < 1.5) continue;
     h_cutflow->Fill("DeltaPhi1 > 1.5",wt);
 
-    int nGoodAK8=0;
+    bool hasGoodAK8 = false;
     for(int i=0;i<JetsAK8->size();i++){
       if((*JetsAK8)[i].Pt() > 200 && abs((*JetsAK8)[i].Eta()) < 2.0 && (*JetsAK8_softDropMass)[i] > 60){
-	nGoodAK8++;
+	hasGoodAK8 = true;
+	break;
       }
     }
-    if(nGoodAK8 < 2) continue;
-    h_cutflow->Fill("Min2AK8_Pt>200_Eta2.0_SDMass>60",wt);
+    if(hasGoodAK8) continue;
+    h_cutflow->Fill("NoAK8_Pt>200_Eta2.0_SDMass>60",wt);
     newtree->Fill();
   }
 }
