@@ -1,0 +1,23 @@
+AK8:
+	Pt: 200, Eta < 2.0
+
+W AK8: not matched to AK4 b-jet
+H AK8: matched to one of the AK4 b-jets.
+
+AK4 b-tag WP: medium
+
+H tag: doubleBDiscriminator > 0.3.
+W tag: wDiscriminatorDeep > 0.9.
+
+W mass: 65-90
+H mass: 85-135
+
+MET > 250 GeV
+mT(MET,Lead AK8) > 500
+mT(MET,AK4Hcand) > 400
+
+Min(mT(b1,MET) mT(b2,MET)) > 200 if nb>=2, else use mT(b,MET) > 200
+
+---------------
+Added categories for nMassAK8W = 0 || nMassAK8H = 0. No cut on the mass of AK8/AK4.
+
