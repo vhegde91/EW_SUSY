@@ -36,8 +36,8 @@ class SignalReg : public NtupleVariables{
   //Variables defined
   bool isMC=true;
   double wt=0,lumiInfb=35.815165;
-  double massLow = 65., massHigh = 90.;
-  double massLowH = 85., massHighH = 135.;
+  double massLow = 65., massHigh = 90.; //65-90, 55-100
+  double massLowH = 85., massHighH = 135.; //85-135, 75-145
   double deepDoubleBDiscriminatorValue = 0.45; //0.3 for DoubleBDiscriminatorValue
   double deepCSVvalue = 0;
   vector<TLorentzVector> bjets;
@@ -72,11 +72,18 @@ class SignalReg : public NtupleVariables{
   TH1D *h_BTags;
   TH1D *h_LeadbPairMass;
   TH1D *h_LeadNonbPairMass;
+  TH1D *h_DeepWdiscr;
+  TH1D *h_DeepDoubleBdiscr;
+  TH1D *h_LeadAK8Mass;
+  TH1D *h_AK8MassNearGenH;
+  TH1D *h_AK8MassNearGenW;
+  TH1D *h_AK8MassNearGenZ;
 
   TH1D *h_MT, *h_MTvBin, *h_MT2, *h_MT2vBin;
   TH1D *h_MT2J, *h_MT2JvBin;
   TH1D *h_mTRatio, *h_mTSum, *h_mTSumvBin;
   TH1D *h_mEfft;
+  TH1D *h_mTbMin, *h_mCT;
   TH1D *h_dPhiMETAK8;
   TH1D *h_dPhiAK8J1J2;
   TH1D *h_RA2bBins;
@@ -102,6 +109,7 @@ class SignalReg : public NtupleVariables{
   TH1D *h_InvMassAK8Jets,*h_dPhibJetMET,*h_dPhibJetAK8,*h_dPhibJetAK8J2;
   TH1D *h_dRbJetAK8, *h_dRbJetAK8J2, *h_AK8J1J2MassRatio;
 
+  TH2D *h2_mTbMin_mCT;
   TH2D *h2_AK8J1J2Tau21;
   TH2D *h2_AK8J1J2Mass;
   TH2D *h2_SusyPDGMass;
@@ -175,6 +183,13 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_LeadNonbPairMass = new TH1D("LeadNonbPairMass","M(Lead 2 Non-bjets)",60,0,300);
   h_LeadbPairMass = new TH1D("LeadbPairMass","M(Lead 2 bjets)",60,0,300);
 
+  h_DeepWdiscr = new TH1D("DeepWdiscr","Deep W dicriminator for leading AK8",100,0,1);
+  h_DeepDoubleBdiscr = new TH1D("DeepDoubleBdiscr","deepDoubleBdicsr for leading AK8",100,0,1);
+  h_LeadAK8Mass = new TH1D("LeadAK8Mass","Leading AK8 SD Mass",60,0,300);
+  h_AK8MassNearGenH = new TH1D("AK8MassNearGenH","AK8 SD mass near GenH (dR<0.3)",60,0,300);;
+  h_AK8MassNearGenW = new TH1D("AK8MassNearGenW","AK8 SD mass near GenW (dR<0.3)",60,0,300);
+  h_AK8MassNearGenZ = new TH1D("AK8MassNearGenZ","AK8 SD mass near GenZ (dR<0.3)",60,0,300);
+
   h_dRbosons = new TH1D("dRbosons","#DeltaR b/w Gen W/Z/H",100,0,5);
   h_nAk4jNotAK8 = new TH1D("nAk4jNotAK8","No. of AK4 jets not within 0.8 of best AK8 jet or second best, if exists, AK8 jet",8,0,8);
   h_AK4BosonCandMass = new TH1D("AK4BosonCandMass","Boson->qq Candidate mass, calc from AK4",60,0,300);
@@ -197,6 +212,9 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_MT2JvBin = new TH1D("mT2JvBin","mT(MET,AK8J2)",mT2Jvbins.size()-1,&(mT2Jvbins[0]));
   h_mTSumvBin = new TH1D("mTSumvBin","mT+mT2J",mTSumvbins.size()-1,&(mTSumvbins[0]));
   h_MT2vBin = new TH1D("MT2vBin","MT2(AKJ1, AK8J2) variable bins",MT2vbins.size()-1,&(MT2vbins[0]));
+
+  h_mTbMin = new TH1D("mTbMin","min(mTb1,mTb2)",200,0,2000);
+  h_mCT = new TH1D("mCT","mCT(b1,b2)",200,0,2000);
 
   h_mTRatio = new TH1D("mTRatio","mT/mT2J: ratio of mT1 and mT2J",500,0,5);
 
@@ -224,6 +242,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_dPhibJetAK8J2 = new TH1D("dPhibJetAK8J2","#Delta#Phi(leading b, AK8J2)",40,0,4);
   h_deepDoubleBdiscrForHcand = new TH1D("deepDoubleBdiscrForHcand","deepDoubleBdiscriminator value for AK8 jet matched (dR < 0.3) to Gen H",100,-1,1);
 
+  h2_mTbMin_mCT = new TH2D("mTbMin_mCT","x:min(mTb1,mTb2), mCT(b1,b2)",200,0,2000,200,0,2000);
   h2_AK8J1J2Tau21 = new TH2D("AK8J1J2Tau21","x:AK8J1 #tau21 vs y:AK8J2 #tau21",20,0,1,20,0,1);
   h2_AK8J1J2Mass = new TH2D("AK8J1J2Mass","x:AK8J1 Mass vs y:AK8J2 Mass",60,0,300,60,0,300);
   h2_SusyPDGMass = new TH2D("SusyPDGMass","x:PDG ID of SUSY particle, y:Mass of particle",50,1000000,1000050,300,0,3000);

@@ -173,10 +173,12 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
       else continue;
     }
     //--------------------------end of triggers   
-    vector<TLorentzVector> nlsp,lsp,boson,higgs;
+    vector<TLorentzVector> nlsp,lsp,boson,higgs,genW,genZ;
     vector<int> lspParentIdx, bosonParentIdx;
     for(int i=0;i<GenParticles->size();i++){
       if(abs((*GenParticles_ParentId)[i]) > 1e6 && abs((*GenParticles_PdgId)[i])>=23 && abs((*GenParticles_PdgId)[i])<=25){ boson.push_back((*GenParticles)[i]); bosonParentIdx.push_back((*GenParticles_ParentIdx)[i]);
+	if(abs((*GenParticles_PdgId)[i])==23) genZ.push_back((*GenParticles)[i]);
+	if(abs((*GenParticles_PdgId)[i])==24) genW.push_back((*GenParticles)[i]);
 	if(abs((*GenParticles_PdgId)[i])==25) higgs.push_back((*GenParticles)[i]);
       }
       if(abs((*GenParticles_PdgId)[i])>=1e6){
@@ -241,12 +243,42 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     getEventTypeFine();//to be called only after calling getEventType();
     TString WH_catName = getEventTypeWH();
 
-    if(!WH_catName.Contains("1Wt1Wm1Ht1Hm")){
-      if(bjets.size() >=2) h_LeadbPairMass->Fill((bjets[0]+bjets[1]).M(),wt);
-      else h_LeadbPairMass->Fill(0.,wt);
-      if(nonbjets.size() >=2) h_LeadNonbPairMass->Fill((nonbjets[0]+nonbjets[1]).M(),wt);
-      else h_LeadNonbPairMass->Fill(0.,wt);
+    if(bjets.size() >=2) h_LeadbPairMass->Fill((bjets[0]+bjets[1]).M(),wt);
+    else h_LeadbPairMass->Fill(0.,wt);
+    if(nonbjets.size() >=2) h_LeadNonbPairMass->Fill((nonbjets[0]+nonbjets[1]).M(),wt);
+    else h_LeadNonbPairMass->Fill(0.,wt);
+    
+    if(JetsAK8->size() > 0){
+      h_LeadAK8Mass->Fill((*JetsAK8_softDropMass)[0],wt);
+      h_DeepWdiscr->Fill((*JetsAK8_wDiscriminatorDeep)[0],wt);
+      h_DeepDoubleBdiscr->Fill((*JetsAK8_deepDoubleBDiscriminatorH)[0],wt);
     }
+    for(int i=0;i<JetsAK8->size();i++){
+      for(int j=0;j<genZ.size();j++)
+	if(genZ[j].DeltaR((*JetsAK8)[i]) < 0.3) h_AK8MassNearGenZ->Fill((*JetsAK8_softDropMass)[i],wt);
+      for(int j=0;j<genW.size();j++)
+	if(genW[j].DeltaR((*JetsAK8)[i]) < 0.3) h_AK8MassNearGenW->Fill((*JetsAK8_softDropMass)[i],wt);
+      for(int j=0;j<higgs.size();j++)
+	if(higgs[j].DeltaR((*JetsAK8)[i]) < 0.3) h_AK8MassNearGenH->Fill((*JetsAK8_softDropMass)[i],wt);      
+    }
+    
+    TLorentzVector b1,b2,q1,q2;
+    double mtbmin = 0, mct = 0, mtqmin = 0, mctq = 0.;
+    if(bjets.size()==1){
+      b1 = bjets[0];
+      mtbmin = sqrt(2*b1.Pt()*MET*(1-cos(DeltaPhi(METPhi,b1.Phi()))));
+    }
+    else if(bjets.size()>=2){ 
+      b1 = bjets[0]; 
+      b2 = bjets[1];
+      mtbmin = min( sqrt(2*b1.Pt()*MET*(1-cos(DeltaPhi(METPhi,b1.Phi())))),
+		    sqrt(2*b2.Pt()*MET*(1-cos(DeltaPhi(METPhi,b2.Phi())))));
+      mct = sqrt(2*b1.Pt()*b2.Pt()*(1 + cos(b1.DeltaPhi(b2))));
+      h2_mTbMin_mCT->Fill(mtbmin,mct,wt);
+    }
+    h_mTbMin->Fill(mtbmin,wt);
+    h_mCT->Fill(mct,wt);
+
     if(evtType==0){
       h_EvtType->Fill("0 Good AK8",wt);
       continue;
@@ -497,9 +529,9 @@ TString SignalReg::getEventTypeWH(){
   for(int i=0;i<JetsAK8->size();i++){
     if((*JetsAK8)[i].Pt() > 200 && abs((*JetsAK8)[i].Eta()) < 2.0){
       if(jetsAK8hasb[i]){
+	if(ak8H.Pt() < (*JetsAK8)[i].Pt()){ ak8H = (*JetsAK8)[i]; ak8Hmass = (*JetsAK8_softDropMass)[i];}
 	if(((*JetsAK8_softDropMass)[i] > massLowH) && ((*JetsAK8_softDropMass)[i] < massHighH)){
 	  nMassH++;
-	  if(ak8H.Pt() < (*JetsAK8)[i].Pt()){ ak8H = (*JetsAK8)[i]; ak8Hmass = (*JetsAK8_softDropMass)[i];}
 	}
 	if((*JetsAK8_deepDoubleBDiscriminatorH)[i] > deepDoubleBDiscriminatorValue){
 	  nTagH++;
@@ -512,9 +544,9 @@ TString SignalReg::getEventTypeWH(){
 	}
       }
       else{
+	if(ak8W.Pt() < (*JetsAK8)[i].Pt()){ ak8W = (*JetsAK8)[i]; ak8Wmass = (*JetsAK8_softDropMass)[i];}
 	if(((*JetsAK8_softDropMass)[i] > massLow) && ((*JetsAK8_softDropMass)[i] < massHigh)){
 	  nMass++;
-	  if(ak8W.Pt() < (*JetsAK8)[i].Pt()){ ak8W = (*JetsAK8)[i]; ak8Wmass = (*JetsAK8_softDropMass)[i];}
 	}
 	//	if( (((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i])) < 0.35){
 	if( (*JetsAK8_wDiscriminatorDeep)[i] > 0.9){
@@ -556,7 +588,7 @@ TString SignalReg::getEventTypeWH(){
       for(int j=i+1;j<Jets->size();j++){
 	if((*Jets)[j].Pt() < 30 || abs((*Jets)[j].Eta()) > 2.4) continue;
 	if((*Jets_bJetTagDeepCSVprobb)[j]+(*Jets_bJetTagDeepCSVprobbb)[j] > deepCSVvalue) continue;
-	if(abs(ak4Wcand.M()-85) > abs(((*Jets)[i]+(*Jets)[j]).M()-85)) ak4Wcand = (*Jets)[i]+(*Jets)[j];
+	if(abs(ak4Wcand.M()-80) > abs(((*Jets)[i]+(*Jets)[j]).M()-80)) ak4Wcand = (*Jets)[i]+(*Jets)[j];
       }
     }
     if((ak4Wcand.M() > massLow) && (ak4Wcand.M() < massHigh)) nmass++;
@@ -680,8 +712,11 @@ TString SignalReg::getEventTypeWH(){
     if(nMass==0 || nMassH==0){
       catName1 = to_string(nTag)+"Wt"+to_string(nMass)+"wm"+to_string(nTagH)+"Ht"+to_string(nMassH)+"hm";
       double mt=0,mt2j=0, mtLead = 0, mt2Lead = 0.;
-      if(nMass!=0) ak4Wcand = ak8W;
-      if(nMassH!=0) ak4Hcand = ak8H;
+      if(nMass == 0) ak8Wmass = ak4Wcand.M();
+      else ak4Wcand = ak8W;
+      if(nMassH== 0) ak8Hmass = ak4Hcand.M();
+      else ak4Hcand = ak8H;
+
       mt = sqrt(2*ak4Hcand.Pt()*MET*(1-cos(DeltaPhi(METPhi,ak4Hcand.Phi()))));
       mt2j = sqrt(2*ak4Wcand.Pt()*MET*(1-cos(DeltaPhi(METPhi,ak4Wcand.Phi()))));
       
@@ -689,7 +724,7 @@ TString SignalReg::getEventTypeWH(){
       else if(ak4Hcand.Pt() > ak4Wcand.Pt()){ mtLead = mt; mt2Lead = mt2j;}
       else if(ak4Hcand.Pt() < ak4Wcand.Pt()){ mtLead = mt2j; mt2Lead = mt;}
       
-      if(mtLead > 500. && mtbmin > 200){
+      if(mtLead > 500. && mtbmin > 200 && (ak8Wmass > massLow) && (ak8Wmass < massHigh) && (ak8Hmass > massLowH) && (ak8Hmass < massHighH) ){
 	iHist = 23 + h_EvtTypeWH_ak84->GetXaxis()->FindBin(catName1);
 	if(iHist < 36){
 	  h_EvtTypeWH_ak84->Fill(catName1,wt);
@@ -699,13 +734,11 @@ TString SignalReg::getEventTypeWH(){
 	  h_mT_catWH[iHist]->Fill(mt,wt);
 	  h_AK8HPt_catWH[iHist]->Fill(ak4Hcand.Pt(),wt);
 	  h_AK8HEta_catWH[iHist]->Fill(ak4Hcand.Eta(),wt);
-	  if(nMassH==0) h_AK8HM_catWH[iHist]->Fill(ak4Hcand.M(),wt);
-	  else h_AK8HM_catWH[iHist]->Fill(ak8Hmass,wt);
+	  h_AK8HM_catWH[iHist]->Fill(ak8Hmass,wt);
 	  h_dPhiMETAK8H_catWH[iHist]->Fill(abs(DeltaPhi(METPhi,ak4Hcand.Phi())),wt);
 	  h_AK8WPt_catWH[iHist]->Fill(ak4Wcand.Pt(),wt);
 	  h_AK8WEta_catWH[iHist]->Fill(ak4Wcand.Eta(),wt);
-	  if(nMass==0) h_AK8WM_catWH[iHist]->Fill(ak4Wcand.M(),wt);
-	  else h_AK8WM_catWH[iHist]->Fill(ak8Wmass,wt);
+	  h_AK8WM_catWH[iHist]->Fill(ak8Wmass,wt);
 	  h_mT2J_catWH[iHist]->Fill(mt2j,wt);
 
 	  if(bjets.size() >=2) h_LeadbPairMass_catWH[iHist]->Fill((bjets[0]+bjets[1]).M(),wt);
