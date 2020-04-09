@@ -57,31 +57,36 @@ void combineHists_SB(){
   vector<TString> name1;
   vector<int> rebin;
   vector<double> xLow,xHigh;
-  //name1.push_back("WH/MET_1Wt1Wm1Ht1Hm");  rebin.push_back(5); xLow.push_back(-2000000); xHigh.push_back(1000000);
-  name1.push_back("WH/MET_1Wt1Wm1Ht0Hm");  rebin.push_back(5); xLow.push_back(-2000000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_1Wt1Wm0Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/MET_1Wt1Wm0Ht0Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/MET_1Wt0Wm1Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_1Wt0Wm1Ht0Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_1Wt0Wm0Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  //name1.push_back("WH/MET_1Wt0Wm0Ht0Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_0Wt1Wm1Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_0Wt1Wm1Ht0Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_0Wt1Wm0Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_0Wt1Wm0Ht0Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/MET_0Wt0Wm1Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_0Wt0Wm1Ht0Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_0Wt0Wm0Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_0Wt0Wm0Ht0Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
 
-  // name1.push_back("WH/MET_1-1Wm1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_1-1Wm0Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_1-0Wm1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_1-0Wm0Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_0-1Wm1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_0-1Wm0Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_0-0Wm1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/MET_0-0Wm0Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
+  name1.push_back("WH/METvBin_1Wt1Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-2000000); xHigh.push_back(1000000);//WH
+  //------ Fully W-tagged only
+  // name1.push_back("WH/METvBin_1Wt1Wm1Ht0Hm");  rebin.push_back(1); xLow.push_back(-2000000); xHigh.push_back(1000000);//W
+  // name1.push_back("WH/METvBin_1Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-2000000); xHigh.push_back(1000000);//W
+  // name1.push_back("WH/METvBin_1Wt1Wm0Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//W
+
+  //------- No AK8 passing W/H tag AND nass. Use AK4 pair for W and H.
+  // name1.push_back("WH/METvBin_1Wt0wm1Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt0wm0Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt1wm0Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt0wm1Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+
+  // name1.push_back("WH/METvBin_0Wt1wm1Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt0wm0Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  
+  // name1.push_back("WH/METvBin_0Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt0wm0Ht1hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt0wm0Ht1hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+
+  //  deepWdiscr deepDoubleBdiscr
+  //------ Fully H-tagged only
+  // name1.push_back("WH/METvBin_1Wt0Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//H
+  // name1.push_back("WH/METvBin_0Wt1Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//H
+  // name1.push_back("WH/METvBin_0Wt0Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//H
+
+  //----- using AK4 jets only. No AK8 info is used.
+  // name1.push_back("WH/METvBin_0-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//hm
+  // name1.push_back("WH/METvBin_0-1Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//w
+  // name1.push_back("WH/METvBin_0-0Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//h
 
   TLegend *legend;//=new TLegend(0.6, 0.90,  0.98, 0.45);
   TCanvas *c_cA;
@@ -141,13 +146,14 @@ void combineHists_SB(){
       setLastBinAsOverFlow(h_histi);
       setMyRange(h_histi,xLow[i],xHigh[i]);
       h_histE->Add(h_histi);
-      h_histE->SetLineColor(kBlack);
-      h_histE->SetLineWidth(1);
-      //      h_histE->SetMarkerStyle(21);
-      h_histE->SetMarkerColor(col[p]);
-      h_histE->SetFillColor(col[p]);
-      hs_hist->Add(h_histE);
     }
+    h_histE->SetLineColor(kBlack);
+    h_histE->SetLineWidth(1);
+    //      h_histE->SetMarkerStyle(21);
+    h_histE->SetMarkerColor(col[p]);
+    h_histE->SetFillColor(col[p]);
+    hs_hist->Add(h_histE);
+    
     if(p==1){
       name=name1[0]+"_Sum";
       h_sum = (TH1D*)h_histE->Clone(name);
@@ -195,6 +201,7 @@ void combineHists_SB(){
   h_numr->SetLineColor(col[0]);
   h_numr->SetMarkerColor(col[0]);
   h_numr->SetMarkerStyle(21);
+  h_numr->SetMarkerSize(3);
   h_numr->SetTitle(0); name=name1[0];
   h_numr->GetXaxis()->SetTitle(getXaxisName(name));
   h_numr->GetXaxis()->SetTitleOffset(0.96);
@@ -212,7 +219,7 @@ void combineHists_SB(){
   p_bot->SetTickx();p_bot->SetTicky();
   //    c_cB->cd(i+1);    p_bot->cd();
   //    h_numr->Draw("e1 histe");
-  h_numr->Draw("hist");
+  h_numr->Draw("hist text");
   
   c_cA->cd();    p_top->cd(); gPad->RedrawAxis();
   char name2[100];
@@ -250,34 +257,31 @@ TString getLegName(TString lName){
   return lName;
 }
 TString getXaxisName(TString n){
-  if(n=="MET") return "MET (GeV)";
-  if(n=="METvBin") return "MET (GeV)";
-  if(n=="mTvBin") return "mT(MET,AK8) [GeV]";
-  if(n=="mT2JvBin") return "mT(MET,2nd AK8) [GeV]";
-  if(n=="mTSumvBin") return "mT^{AK8} + mT^{2AK8} [GeV]";
-  if(n=="MHT") return "MHT (GeV)";
-  if(n=="NJets") return "N_{jets}";
-  if(n=="BTags") return "N_{b jets}";
-  if(n=="AK8Pt") return "pT^{AK8} (GeV)";
-  if(n=="AK8J2Pt") return "pT^{2nd AK8} (GeV)";
-  if(n=="AK8Eta") return "#eta^{AK8}";
-  if(n=="AK8J2Eta") return "#eta^{2nd AK8}";
-  if(n=="AK8Tau21") return "#tau_{21}^{AK8}";
-  if(n=="AK8J2Tau21") return "#tau_{21}^{2nd AK8}";
-  if(n=="AK8Mass") return "M^{AK8} (GeV)";
-  if(n=="AK8J2Mass") return "M^{2nd AK8} (GeV)";
-  if(n=="AK8Pt") return "pT^{AK8} (GeV)";
-  if(n=="DeltaPhi1") return "#Delta#Phi_{1}";
-  if(n=="DeltaPhi2") return "#Delta#Phi_{2}";
-  if(n=="RA2bBins") return "Bin";
+  if(n.Contains("mTvBin")) return "mT(MET,AK8) [GeV]";
+  if(n.Contains("mT2JvBin")) return "mT(MET,2nd AK8) [GeV]";
+  if(n.Contains("mTSumvBin")) return "mT^{AK8} + mT^{2AK8} [GeV]";
+  if(n.Contains("MHT")) return "MHT (GeV)";
+  if(n.Contains("NJets")) return "N_{jets}";
+  if(n.Contains("BTags")) return "N_{b jets}";
+  if(n.Contains("AK8Pt")) return "pT^{AK8} (GeV)";
+  if(n.Contains("AK8J2Pt")) return "pT^{2nd AK8} (GeV)";
+  if(n.Contains("AK8Eta")) return "#eta^{AK8}";
+  if(n.Contains("AK8J2Eta")) return "#eta^{2nd AK8}";
+  if(n.Contains("AK8Tau21")) return "#tau_{21}^{AK8}";
+  if(n.Contains("AK8J2Tau21")) return "#tau_{21}^{2nd AK8}";
+  if(n.Contains("AK8Mass")) return "M^{AK8} (GeV)";
+  if(n.Contains("AK8J2Mass")) return "M^{2nd AK8} (GeV)";
+  if(n.Contains("AK8Pt")) return "pT^{AK8} (GeV)";
+  if(n.Contains("DeltaPhi1")) return "#Delta#Phi_{1}";
+  if(n.Contains("DeltaPhi2")) return "#Delta#Phi_{2}";
+  if(n.Contains("RA2bBins")) return "Bin";
+  if(n.Contains("MET")) return "MET (GeV)";
+  if(n.Contains("METvBin")) return "MET (GeV)";
 
   if(n.Contains("WH/")){
     n.ReplaceAll("WH/","");
     n.ReplaceAll("_"," for ");
-  }
-  if(n.Contains(":")){
-    n.ReplaceAll("_"," for ");
-    n.ReplaceAll("-"," AK8, ");
+    return getXaxisName(n);
   }
   return n;
 }

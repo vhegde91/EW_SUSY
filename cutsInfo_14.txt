@@ -6,7 +6,7 @@ H AK8: matched to one of the AK4 b-jets.
 
 AK4 b-tag WP: medium
 
-H tag: doubleBDiscriminator > 0.3.
+H tag: doubleBDiscriminator > 0.3.  or DeepDouble?
 W tag: wDiscriminatorDeep > 0.9.
 
 W mass: 65-90

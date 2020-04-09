@@ -28,6 +28,7 @@ int col[11]={kRed,kPink+1,kTeal+9,kGreen,kYellow,kOrange,kBlue,kCyan,kMagenta,kB
 TString name;
 bool saveCanvas=1;
 void setLastBinAsOverFlow(TH1D*);
+void resetNegativeBins(TH1D*);
 void setMyRange(TH1D*,double,double);
 void setMyRange(THStack*,double,double);
 TString getLegName(TString);
@@ -63,6 +64,7 @@ void signalVsTotalBG_EvtCat(){
   //  name1.push_back("AK8Pt");  rebin.push_back(10); xLow.push_back(200); xHigh.push_back(1000000);
   name1.push_back("EvtTypeWH");  rebin.push_back(1); xLow.push_back(-100000000); xHigh.push_back(1600000);
   name1.push_back("EvtTypeWH_0AK8M");  rebin.push_back(1); xLow.push_back(-100000000); xHigh.push_back(1000000);
+  name1.push_back("EvtTypeWH_ak84");  rebin.push_back(1); xLow.push_back(-100000000); xHigh.push_back(1000000);
 
   TLegend *legend[name1.size()];//=new TLegend(0.6, 0.90,  0.98, 0.45);
   TCanvas *c_cA[name1.size()];
@@ -84,7 +86,7 @@ void signalVsTotalBG_EvtCat(){
     p_bot[i]->Draw();p_bot[i]->SetGridx();p_bot[i]->SetGridy();    p_bot[i]->SetLogy();
     name=name1[i]+"_Stack";
     hs_hist[i] = new THStack(name,name);
-    legend[i]=new TLegend(0.55, 0.88,  0.85, 0.63);
+    legend[i]=new TLegend(0.15, 0.88,  0.45, 0.63);
     //    legend[i]=new TLegend(0.7, 0.88,  0.88, 0.43);
     //legend[i]->SetBorderSize(0);
   }
@@ -94,6 +96,7 @@ void signalVsTotalBG_EvtCat(){
     c_cA[i]->cd();
     name=name1[i];
     h_histG=(TH1D*)f[0]->FindObjectAny(name);
+    resetNegativeBins(h_histG);
     
     c_cA[i]->cd();p_top[i]->cd();
     p_top[i]->SetTickx();p_top[i]->SetTicky();
@@ -106,6 +109,7 @@ void signalVsTotalBG_EvtCat(){
     for(int p=1;p<nfiles;p++){  
       name=name1[i];
       h_histE=(TH1D*)f[p]->FindObjectAny(name);
+      resetNegativeBins(h_histE);
       h_histE->SetLineColor(kBlack);
       h_histE->SetLineWidth(1);
     
@@ -151,7 +155,7 @@ void signalVsTotalBG_EvtCat(){
 
     TH1D *h_numr=(TH1D*)h_histG->Clone();
     
-    h_numr->Scale(10);
+    //    h_numr->Scale(10);
     // for(int i=1;i<=h_histG->GetNbinsX();i++){
     //   if(h_histG->GetBinContent(i) < 1e-6)
     // 	h_histG->SetBinContent(i,1e-6);
@@ -166,13 +170,14 @@ void signalVsTotalBG_EvtCat(){
     h_numr->SetLineColor(col[0]);
     h_numr->SetMarkerColor(col[0]);
     h_numr->SetMarkerStyle(21);
+    h_numr->SetMarkerSize(2);
     h_numr->SetTitle(0); name=name1[i];
     //    h_numr->GetXaxis()->SetTitle(getXaxisName(name));
     h_numr->GetXaxis()->SetTitleOffset(0.96);
     h_numr->GetXaxis()->SetTitleSize(0.13);
-    h_numr->GetXaxis()->SetLabelSize(0.13);
+    h_numr->GetXaxis()->SetLabelSize(0.11);
 
-    h_numr->GetYaxis()->SetTitle("#frac{10*Signal}{BG}");
+    h_numr->GetYaxis()->SetTitle("#frac{Signal}{BG}");
     h_numr->GetYaxis()->SetTitleOffset(0.47);
     h_numr->GetYaxis()->SetTitleSize(0.11);
     h_numr->GetYaxis()->SetLabelSize(0.1);
@@ -183,7 +188,7 @@ void signalVsTotalBG_EvtCat(){
     p_bot[i]->SetTickx();p_bot[i]->SetTicky();
     //    c_cB->cd(i+1);    p_bot[i]->cd();
     //    h_numr->Draw("e1 histe");
-    h_numr->Draw("hist");
+    h_numr->Draw("hist text");
 
     c_cA[i]->cd();    p_top[i]->cd(); gPad->RedrawAxis();
     char name2[100];
@@ -289,7 +294,6 @@ void setLastBinAsOverFlow(TH1D* h_hist){
   lastBinCt = lastBinCt+overflCt;
   h_hist->SetBinContent(h_hist->GetNbinsX(),lastBinCt);
   h_hist->SetBinError(h_hist->GetNbinsX(),lastBinErr);
-    
 }
 
 TH1D* sqrtHist(TH1D *h1){
@@ -304,4 +308,13 @@ TH1D* sqrtHist(TH1D *h1){
     }
   }
   return h1;
+}
+
+void resetNegativeBins(TH1D *h_hist){
+  for(int i=1;i<=h_hist->GetNbinsX();i++){
+    if(h_hist->GetBinContent(i) < 0){
+      h_hist->SetBinContent(i,0);
+      h_hist->SetBinError(i,0);
+    }
+  }
 }

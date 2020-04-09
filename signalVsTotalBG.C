@@ -57,53 +57,59 @@ void signalVsTotalBG(){
   vector<string> name1;
   vector<int> rebin;
   vector<double> xLow,xHigh;
-  name1.push_back("WH/LeadbPairMass_1Wt1Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_1Wt1Wm1Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_1Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_1Wt1Wm0Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_1Wt0Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_1Wt0Wm1Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_1Wt0Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_1Wt0Wm0Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_0Wt1Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_0Wt1Wm1Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_0Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_0Wt1Wm0Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_0Wt0Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_0Wt0Wm1Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_0Wt0Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_0Wt0Wm0Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt1Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt1Wm1Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt1Wm0Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt0Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt0Wm1Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt0Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt0Wm0Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt1Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt1Wm1Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  //  name1.push_back("WH/METvBin_0Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt1Wm0Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt0Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt0Wm1Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt0Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt0Wm0Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
 
-  // name1.push_back("WH/LeadbPairMass_1-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_1-1Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_1-0Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_1-0Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_0-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_0-1Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_0-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/LeadbPairMass_0-0Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  name1.push_back("WH/METvBin_0Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  name1.push_back("WH/deepDoubleBdiscr_0Wt1Wm0Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
+  name1.push_back("WH/deepWdiscr_0Wt1Wm0Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
+  
+  // name1.push_back("WH/METvBin_1-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1-1Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1-0Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1-0Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0-1Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0-0Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0-0Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
 
-  name1.push_back("WH/AK8HM_1Wt1wm1Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/AK8HM_1Wt1wm0Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/AK8HM_1Wt0wm1Ht1hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/AK8HM_1Wt0wm1Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/AK8HM_1Wt0wm0Ht1hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/AK8HM_1Wt0wm0Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/AK8HM_0Wt1wm1Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/AK8HM_0Wt1wm0Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/AK8HM_0Wt0wm1Ht1hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/AK8HM_0Wt0wm1Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/AK8HM_0Wt0wm0Ht1hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/AK8HM_0Wt0wm0Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt1wm1Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt1wm0Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt0wm1Ht1hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt0wm1Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt0wm0Ht1hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_1Wt0wm0Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt1wm1Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt1wm0Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt0wm1Ht1hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt0wm1Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt0wm0Ht1hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt0wm0Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
 
-  //  name1.push_back("WH/mT_1Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  //  name1.push_back("WH/AK8Pt_1Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  //  name1.push_back("WH/dPhiMETAK8_1Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  //  name1.push_back("WH/mT2J_1Wt1Wm0Ht1Hm");  rebin.push_back(10); xLow.push_back(-100000); xHigh.push_back(1000000);
+  //name1.push_back("WH/METvBin_1Wt1Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("AK8MassNearGenH");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("AK8MassNearGenW");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("LeadAK8Mass");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("DeepWdiscr");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("DeepDoubleBdiscr");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
   //  name1.push_back("mTvBin");  rebin.push_back(1); xLow.push_back(200); xHigh.push_back(1000000);
   //  name1.push_back("MT2vBin");  rebin.push_back(1); xLow.push_back(200); xHigh.push_back(1000000);
   //  name1.push_back("AK8Pt");  rebin.push_back(10); xLow.push_back(200); xHigh.push_back(1000000);
-
+			      
   TLegend *legend[name1.size()];//=new TLegend(0.6, 0.90,  0.98, 0.45);
   TCanvas *c_cA[name1.size()];
   TPad *p_top[name1.size()];
@@ -220,6 +226,7 @@ void signalVsTotalBG(){
     h_numr->SetLineColor(col[0]);
     h_numr->SetMarkerColor(col[0]);
     h_numr->SetMarkerStyle(21);
+    h_numr->SetMarkerSize(3);
     h_numr->SetTitle(0); name=name1[i];
     h_numr->GetXaxis()->SetTitle(getXaxisName(name));
     h_numr->GetXaxis()->SetTitleOffset(0.96);
@@ -237,7 +244,7 @@ void signalVsTotalBG(){
     p_bot[i]->SetTickx();p_bot[i]->SetTicky();
     //    c_cB->cd(i+1);    p_bot[i]->cd();
     //    h_numr->Draw("e1 histe");
-    h_numr->Draw("hist");
+    h_numr->Draw("hist text");
 
     c_cA[i]->cd();    p_top[i]->cd(); gPad->RedrawAxis();
     char name2[100];
@@ -271,6 +278,7 @@ TString getLegName(TString lName){
   else if(lName.Contains("TChiWZ_800_100")){lName="TChiWZ_800_100";}
   else if(lName.Contains("TChiWW_800_100")){lName="TChiWW_800_100";}
   else if(lName.Contains("TChiWH_800_100")){lName="TChiWH_800_100";}
+  else if(lName.Contains("TChiWH_600_100")){lName="TChiWH_600_100";}
   else if(lName.Contains("TChiWZ_1000_1")){lName="TChiWZ_1000_1";}
   else if(lName.Contains("TChiWZ_800_1")){lName="TChiWZ_800_1";}
   else if(lName.Contains("TChiWZ_600")){lName="TChiWZ(600)";}

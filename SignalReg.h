@@ -38,7 +38,7 @@ class SignalReg : public NtupleVariables{
   double wt=0,lumiInfb=35.815165;
   double massLow = 65., massHigh = 90.; //65-90, 55-100
   double massLowH = 85., massHighH = 135.; //85-135, 75-145
-  double deepDoubleBDiscriminatorValue = 0.45; //0.3 for DoubleBDiscriminatorValue
+  double deepDoubleBDiscriminatorValue = 0.7; //0.3 for DoubleBDiscriminatorValue
   double deepCSVvalue = 0;
   vector<TLorentzVector> bjets;
   vector<TLorentzVector> nonbjets;
@@ -139,6 +139,9 @@ class SignalReg : public NtupleVariables{
 
   TH1D *h_mTLead_catWH[36];
   TH1D *h_mT2Lead_catWH[36];
+
+  TH1D *h_deepDoubleBdiscr_catWH[36];
+  TH1D *h_deepWdiscr_catWH[36];
 
   TH1D *h_mEfft_catWH[36];
   TH1D *h_mTbMin_catWH[36];
@@ -308,7 +311,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
 	for(int Mh=1;Mh>=0;Mh--){
 	  catName = to_string(t)+"Wt"+to_string(M)+"Wm"+to_string(th)+"Ht"+to_string(Mh)+"Hm";
 	  h_MET_catWH[iHist] = new TH1D("MET_"+catName,"MET for "+catName,200,0,2000);
-	  h_METvBin_catWH[iHist] = new TH1D("METvBin_"+catName,"MET for "+catName,METvbins.size()-1,&(METvbins[0]));
+	  h_METvBin_catWH[iHist] = new TH1D("METvBin_"+catName,"METvBin for "+catName,METvbins.size()-1,&(METvbins[0]));
 	  h_mT_catWH[iHist] = new TH1D("mT_"+catName,"mT for "+catName,200,0,2000);
 	  h_AK8HPt_catWH[iHist] = new TH1D("AK8HPt_"+catName,"H cand AK8 Pt for "+catName,200,0,2000);
 	  h_AK8HEta_catWH[iHist] = new TH1D("AK8HEta_"+catName,"H cand AK8 Eta for "+catName,120,-6,6);
@@ -321,6 +324,9 @@ void SignalReg::BookHistogram(const char *outFileName) {
 
 	  h_mTLead_catWH[iHist] = new TH1D("mTLead_"+catName,"mT(Leading AK8,MET) for "+catName,200,0,2000);
 	  h_mT2Lead_catWH[iHist] = new TH1D("mT2Lead_"+catName,"mT(2nd leading AK8,MET) for "+catName,200,0,2000);
+
+	  h_deepWdiscr_catWH[iHist] = new TH1D("deepWdiscr_"+catName,"Best value of deep W dicriminator for "+catName,100,0,1);
+	  h_deepDoubleBdiscr_catWH[iHist] = new TH1D("deepDoubleBdiscr_"+catName,"best value of deepDoubleBdicsr for "+catName,100,0,1);
 
 	  h_LeadNonbPairMass_catWH[iHist] = new TH1D("LeadNonbPairMass_"+catName,"M(Lead 2 Non-bjets) for "+catName,60,0,300);
 	  h_LeadbPairMass_catWH[iHist] = new TH1D("LeadbPairMass_"+catName,"M(Lead 2 bjets) for "+catName,60,0,300);
@@ -338,7 +344,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
       for(int H=1;H>=0;H--){
 	catName = to_string(j)+"-"+to_string(W)+"Wm"+to_string(H)+"Hm";
 	h_MET_catWH[iHist] = new TH1D("MET_"+catName,"MET for "+catName,200,0,2000);
-	h_METvBin_catWH[iHist] = new TH1D("METvBin_"+catName,"MET for "+catName,METvbins.size()-1,&(METvbins[0]));
+	h_METvBin_catWH[iHist] = new TH1D("METvBin_"+catName,"METvBin for "+catName,METvbins.size()-1,&(METvbins[0]));
 	h_mT_catWH[iHist] = new TH1D("mT_"+catName,"mT for "+catName,200,0,2000);
 	h_AK8HPt_catWH[iHist] = new TH1D("AK8HPt_"+catName,"H cand AK8 Pt for "+catName,200,0,2000);
 	h_AK8HEta_catWH[iHist] = new TH1D("AK8HEta_"+catName,"H cand AK8 Eta for "+catName,120,-6,6);
@@ -351,6 +357,9 @@ void SignalReg::BookHistogram(const char *outFileName) {
 
 	h_mTLead_catWH[iHist] = new TH1D("mTLead_"+catName,"mT(Leading AK4 cand,MET) for "+catName,200,0,2000);
 	h_mT2Lead_catWH[iHist] = new TH1D("mT2Lead_"+catName,"mT(2nd leading AK4 cand,MET) for "+catName,200,0,2000);
+
+	  h_deepWdiscr_catWH[iHist] = new TH1D("deepWdiscr_"+catName,"Best value of deep W dicriminator for "+catName,100,0,1);
+	  h_deepDoubleBdiscr_catWH[iHist] = new TH1D("deepDoubleBdiscr_"+catName,"best value of deepDoubleBdicsr for "+catName,100,0,1);
 	  
 	h_LeadNonbPairMass_catWH[iHist] = new TH1D("LeadNonbPairMass_"+catName,"M(Lead 2 Non-bjets) for "+catName,60,0,300);
 	h_LeadbPairMass_catWH[iHist] = new TH1D("LeadbPairMass_"+catName,"M(Lead 2 bjets) for "+catName,60,0,300);
@@ -369,7 +378,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
 	  if(M==1 && Mh==1) continue;
 	  catName = to_string(t)+"Wt"+to_string(M)+"wm"+to_string(th)+"Ht"+to_string(Mh)+"hm";
 	  h_MET_catWH[iHist] = new TH1D("MET_"+catName,"MET for "+catName,200,0,2000);
-	  h_METvBin_catWH[iHist] = new TH1D("METvBin_"+catName,"MET for "+catName,METvbins.size()-1,&(METvbins[0]));
+	  h_METvBin_catWH[iHist] = new TH1D("METvBin_"+catName,"METvBin for "+catName,METvbins.size()-1,&(METvbins[0]));
 	  h_mT_catWH[iHist] = new TH1D("mT_"+catName,"mT for "+catName,200,0,2000);
 	  h_AK8HPt_catWH[iHist] = new TH1D("AK8HPt_"+catName,"H cand AK8/AK4 pair Pt for "+catName,200,0,2000);
 	  h_AK8HEta_catWH[iHist] = new TH1D("AK8HEta_"+catName,"H cand AK8/AK4 pair Eta for "+catName,120,-6,6);
@@ -383,6 +392,9 @@ void SignalReg::BookHistogram(const char *outFileName) {
 	  h_mTLead_catWH[iHist] = new TH1D("mTLead_"+catName,"mT(Leading AK8,MET) for "+catName,200,0,2000);
 	  h_mT2Lead_catWH[iHist] = new TH1D("mT2Lead_"+catName,"mT(2nd leading AK8,MET) for "+catName,200,0,2000);
 	  
+	  h_deepWdiscr_catWH[iHist] = new TH1D("deepWdiscr_"+catName,"Best value of deep W dicriminator for "+catName,100,0,1);
+	  h_deepDoubleBdiscr_catWH[iHist] = new TH1D("deepDoubleBdiscr_"+catName,"best value of deepDoubleBdicsr for "+catName,100,0,1);
+
 	  h_LeadNonbPairMass_catWH[iHist] = new TH1D("LeadNonbPairMass_"+catName,"M(Lead 2 Non-bjets) for "+catName,60,0,300);
 	  h_LeadbPairMass_catWH[iHist] = new TH1D("LeadbPairMass_"+catName,"M(Lead 2 bjets) for "+catName,60,0,300);
 	  

@@ -54,9 +54,9 @@ void plotKinStack(TString varName, int rebin){
   f[2] = new TFile("TTJets_MC2018.root");
   f[3] = new TFile("WJetsToLNu_HT_MC2018.root");
   f[4] = new TFile("ZJetsToNuNu_HT_MC2018.root");
-  f[5] = new TFile("TChiWZ_800_1_MC2018.root");
+  f[5] = new TFile("TChiWZ_800_100_MC2018.root");
   //f[6] = new TFile("TChiWZ_800_400_MC2018.root");
-  f[6] = new TFile("TChiWZ_800_700_MC2018.root");
+  f[6] = new TFile("TChiWH_800_100_MC2018.root");
   f[7] = new TFile("TChiWW_800_100_MC2018.root");
   // f[9] = new TFile("TChiWZ_1000_1_MC2018.root");
 
