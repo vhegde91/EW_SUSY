@@ -26,7 +26,7 @@ int col[11]={kRed,kPink+1,kTeal+9,kGreen,kYellow,kOrange,kBlue,kCyan,kMagenta,kB
 //int col[10]={kBlack,kPink-2,kGreen,kYellow,kBlue,kCyan,kPink+1,kCyan,kBlue,kRed};  //Specify Colors
 
 TString name;
-bool saveCanvas=0;
+bool saveCanvas=1;
 void setLastBinAsOverFlow(TH1D*);
 void setMyRange(TH1D*,double,double);
 void setMyRange(THStack*,double,double);
@@ -40,7 +40,7 @@ void combineHists_SB(){
   TH1::SetDefaultSumw2(1);
   gStyle->SetOptStat(0);
   //  gStyle->SetOptStat("nemri");
-  f[0] = new TFile("TChiWH_800_100_MC2018.root");
+  f[0] = new TFile("TChiWH_800_600_MC2018.root");
   f[1] = new TFile("ST__MC2018.root");
   f[2] = new TFile("Rare_MC2018MC2017MC2016.root");
   //f[2] = new TFile("Rare_MC2018.root");
@@ -57,8 +57,8 @@ void combineHists_SB(){
   vector<TString> name1;
   vector<int> rebin;
   vector<double> xLow,xHigh;
-
-  name1.push_back("WH/METvBin_1Wt1Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-2000000); xHigh.push_back(1000000);//WH
+  
+  //name1.push_back("WH/METvBin_1Wt1Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-2000000); xHigh.push_back(1000000);//WH
   //------ Fully W-tagged only
   // name1.push_back("WH/METvBin_1Wt1Wm1Ht0Hm");  rebin.push_back(1); xLow.push_back(-2000000); xHigh.push_back(1000000);//W
   // name1.push_back("WH/METvBin_1Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-2000000); xHigh.push_back(1000000);//W
@@ -84,8 +84,8 @@ void combineHists_SB(){
   // name1.push_back("WH/METvBin_0Wt0Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//H
 
   //----- using AK4 jets only. No AK8 info is used.
-  // name1.push_back("WH/METvBin_0-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//hm
-  // name1.push_back("WH/METvBin_0-1Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//w
+  //name1.push_back("WH/METvBin_0-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//hm
+  //  name1.push_back("WH/METvBin_0-1Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//w
   // name1.push_back("WH/METvBin_0-0Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//h
 
   TLegend *legend;//=new TLegend(0.6, 0.90,  0.98, 0.45);
@@ -254,6 +254,7 @@ TString getLegName(TString lName){
   else if(lName.Contains("TChiWZ_1000_1")){lName="TChiWZ_1000_1";}
   else if(lName.Contains("TChiWZ_800_1")){lName="TChiWZ_800_1";}
   else if(lName.Contains("TChiWZ_600")){lName="TChiWZ(600)";}
+  else if(lName.Contains("_MC2018.root")){lName.ReplaceAll("_MC2018.root","");}
   return lName;
 }
 TString getXaxisName(TString n){
@@ -317,7 +318,7 @@ void setLastBinAsOverFlow(TH1D* h_hist){
   double lastBinErr=h_hist->GetBinError(h_hist->GetNbinsX()),  overflErr=h_hist->GetBinError(h_hist->GetNbinsX()+1);
   
   if(lastBinCt!=0 && overflCt!=0)
-    lastBinErr = (lastBinCt+overflCt)* (sqrt( ((lastBinErr/lastBinCt)*(lastBinErr/lastBinCt)) + ((overflErr/overflCt)*(overflErr/overflCt)) ) );
+    lastBinErr = sqrt( (lastBinErr*lastBinErr) + (overflErr*overflErr) );
   
   else if(lastBinCt==0 && overflCt!=0)
     lastBinErr = overflErr;

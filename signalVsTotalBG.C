@@ -74,17 +74,17 @@ void signalVsTotalBG(){
   // name1.push_back("WH/METvBin_0Wt0Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
   // name1.push_back("WH/METvBin_0Wt0Wm0Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
 
-  name1.push_back("WH/METvBin_0Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/deepDoubleBdiscr_0Wt1Wm0Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/deepWdiscr_0Wt1Wm0Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/deepDoubleBdiscr_0Wt1Wm0Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/deepWdiscr_0Wt1Wm0Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
   
   // name1.push_back("WH/METvBin_1-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
   // name1.push_back("WH/METvBin_1-1Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
   // name1.push_back("WH/METvBin_1-0Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
   // name1.push_back("WH/METvBin_1-0Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/METvBin_0-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/METvBin_0-1Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/METvBin_0-0Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  name1.push_back("WH/METvBin_0-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  name1.push_back("WH/METvBin_0-1Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  name1.push_back("WH/METvBin_0-0Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
   // name1.push_back("WH/METvBin_0-0Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
 
   // name1.push_back("WH/METvBin_1Wt1wm1Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
@@ -348,7 +348,7 @@ void setLastBinAsOverFlow(TH1D* h_hist){
   double lastBinErr=h_hist->GetBinError(h_hist->GetNbinsX()),  overflErr=h_hist->GetBinError(h_hist->GetNbinsX()+1);
   
   if(lastBinCt!=0 && overflCt!=0)
-    lastBinErr = (lastBinCt+overflCt)* (sqrt( ((lastBinErr/lastBinCt)*(lastBinErr/lastBinCt)) + ((overflErr/overflCt)*(overflErr/overflCt)) ) );
+    lastBinErr = sqrt( (lastBinErr*lastBinErr) + (overflErr*overflErr) );
   
   else if(lastBinCt==0 && overflCt!=0)
     lastBinErr = overflErr;

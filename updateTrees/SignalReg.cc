@@ -55,6 +55,9 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
   else if(s_data.Contains("TChiWZ_500")) mass = 500.0;
   else if(s_data.Contains("TChiWZ_400")) mass = 400.0;
   else if(s_data.Contains("TChiWZ_300")) mass = 300.0;
+  else if(s_data.Contains("TChiWH_300")) mass = 300.0;
+  else if(s_data.Contains("TChiWH_400")) mass = 400.0;
+  else if(s_data.Contains("TChiWH_500")) mass = 500.0;
   else if(s_data.Contains("TChiWH_600")) mass = 600.0;
   else if(s_data.Contains("TChiWH_800")) mass = 800.0;
   else if(s_data.Contains("TChiWH_1000")) mass = 1000.0;

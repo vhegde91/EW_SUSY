@@ -1,4 +1,4 @@
-EvtTypeWH_0AK8M: focuses on AK4 pairs for W and H cands.
+EvtTypeWH_0AK8M: focuses on AK4 pairs for W and H cands. Exclude events with 1Wt1Wm1Ht1Hm.
 AK8:
 	Pt: 200, Eta < 2.0
 
@@ -10,8 +10,8 @@ AK4 b-tag WP: medium
 H tag: DeepdoubleBDiscriminator > 0.7.
 W tag: wDiscriminatorDeep > 0.9.
 
-W mass: 55-100, shift W-mass exp peak to 80 from 85.
-H mass: 75-145
+W mass: 65-90, shift W-mass exp peak to 80 from 85.
+H mass: 85-135
 Cut on the mass of AK4 for nMassWAK8=0 || nMassHAK8 = 0 with values same as AK8.
 
 MET > 250 GeV

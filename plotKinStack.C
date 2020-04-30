@@ -22,7 +22,7 @@ char name[100];
 char name2[100];
 TString name3;
 TLatex textOnTop,intLumiE;
-const int nfiles=8,nBG=5;    //Specify no. of files
+const int nfiles=9,nBG=5;    //Specify no. of files
 TFile *f[nfiles];
 //int col[11]={kPink+1,kTeal+9,kGreen,kYellow,kOrange,kBlue,kCyan,kRed,kMagenta,kBlue+2,kPink+1};  //Specify Colors b's
 vector<int> col={kTeal+9,kGreen,kYellow,kOrange,kGray+1,kBlue,kCyan,kRed,kMagenta,kBlue+2};  //Specify Colors b's
@@ -54,10 +54,10 @@ void plotKinStack(TString varName, int rebin){
   f[2] = new TFile("TTJets_MC2018.root");
   f[3] = new TFile("WJetsToLNu_HT_MC2018.root");
   f[4] = new TFile("ZJetsToNuNu_HT_MC2018.root");
-  f[5] = new TFile("TChiWZ_800_100_MC2018.root");
-  //f[6] = new TFile("TChiWZ_800_400_MC2018.root");
-  f[6] = new TFile("TChiWH_800_100_MC2018.root");
-  f[7] = new TFile("TChiWW_800_100_MC2018.root");
+  f[5] = new TFile("TChiWH_600_100_MC2018.root");
+  f[6] = new TFile("TChiWH_600_400_MC2018.root");
+  f[7] = new TFile("TChiWH_800_100_MC2018.root");
+  f[8] = new TFile("TChiWH_800_600_MC2018.root");
   // f[9] = new TFile("TChiWZ_1000_1_MC2018.root");
 
   TCanvas *c_cA=new TCanvas(varName,"plot of a kin var",1500,900);  
@@ -74,7 +74,8 @@ void plotKinStack(TString varName, int rebin){
   TLatex tl1;
   for(int i=0;i<nfiles;i++){
         
-    TH1D *h_MET=(TH1D*)f[i]->FindObjectAny(varName);
+    TH1D *h_MET;
+    f[i]->GetObject(varName,h_MET);
     h_MET->Rebin(rebin);
     //    h_MET->GetYaxis()->SetRangeUser(100.5,20000);
     //    h_MET->SetMinimum(100);
@@ -129,7 +130,7 @@ void plotKinStack(TString varName, int rebin){
   intLumiE.DrawLatexNDC(0.68,0.91,name2);
 
   name3 = varName+".png";
-  c_cA->SaveAs(name3);
+  //  c_cA->SaveAs(name3);
   cout<<"*****************************************************"<<endl;
   cout<<"Int Lumi(inv.fb) for file1:"<<setprecision(4)<<intLumi<<endl;
     
@@ -204,7 +205,7 @@ void setLastBinAsOverFlow(TH1D* h_hist){
   double lastBinErr=h_hist->GetBinError(h_hist->GetNbinsX()),  overflErr=h_hist->GetBinError(h_hist->GetNbinsX()+1);
   
   if(lastBinCt!=0 && overflCt!=0)
-    lastBinErr = (lastBinCt+overflCt)* (sqrt( ((lastBinErr/lastBinCt)*(lastBinErr/lastBinCt)) + ((overflErr/overflCt)*(overflErr/overflCt)) ) );
+    lastBinErr = sqrt( (lastBinErr*lastBinErr) + (overflErr*overflErr) );
   
   else if(lastBinCt==0 && overflCt!=0)
     lastBinErr = overflErr;

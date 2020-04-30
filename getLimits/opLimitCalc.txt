@@ -1,0 +1,18 @@
+TChiWW_800_100_MC2018
+Expected 50.0%: r < 1.0547
+TChiWZ_800_1_MC2018
+Expected 50.0%: r < 0.6660
+TChiWZ_800_100_MC2018
+Expected 50.0%: r < 0.6914
+TChiWZ_800_400_MC2018
+Expected 50.0%: r < 1.6797
+TChiWZ_800_700_MC2018
+Expected 50.0%: r < 851.0000
+TChiWZ_1000_1_MC2018
+Expected 50.0%: r < 1.2930
+TChiWZ_1000_100_MC2018
+Expected 50.0%: r < 1.4062
+TChiWZ_600_1_MC2018
+Expected 50.0%: r < 0.3701
+TChiWZ_600_100_MC2018
+Expected 50.0%: r < 0.4004

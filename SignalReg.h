@@ -24,7 +24,8 @@ class SignalReg : public NtupleVariables{
   void     EventLoop(const char *,const char *);
   void     BookHistogram(const char *);
   int  getEventType();
-  void getEventTypeFine();
+  void getEventTypeFine(int);
+  void getEventTypeWZW();
   TString getEventTypeWH();
   void print(Long64_t);
   //
@@ -36,16 +37,21 @@ class SignalReg : public NtupleVariables{
   //Variables defined
   bool isMC=true;
   double wt=0,lumiInfb=35.815165;
-  double massLow = 65., massHigh = 90.; //65-90, 55-100
+  double massLow = 65., massHigh = 105.; //65-90
   double massLowH = 85., massHighH = 135.; //85-135, 75-145
   double deepDoubleBDiscriminatorValue = 0.7; //0.3 for DoubleBDiscriminatorValue
+  double dwdisValue = 0.918;
+  double dzdisValue = 0.918;
+  double dwdisMDvalue = 0.704;
+  double dzhdisMDvalue = 0.175;
+  double tau21Value = 0.35;
   double deepCSVvalue = 0;
   vector<TLorentzVector> bjets;
   vector<TLorentzVector> nonbjets;
   //    double massLow = 0., massHigh = 1000.;
 
-  vector<float> tau21;
-  float i_tau21;
+  vector<float> mainWdisc;
+  float i_mainWdisc;
   TLorentzVector bestAK8J1, bestAK8J2;
   int bestAK8J1IdxInMainColl = -1, bestAK8J2IdxInMainColl = -1;
   vector<TLorentzVector> goodAk8;
@@ -73,7 +79,10 @@ class SignalReg : public NtupleVariables{
   TH1D *h_LeadbPairMass;
   TH1D *h_LeadNonbPairMass;
   TH1D *h_DeepWdiscr;
+  TH1D *h_DeepZdiscr;
   TH1D *h_DeepDoubleBdiscr;
+  TH1D *h_DeepWdiscrMD;
+  TH1D *h_DeepZHdiscrMD;
   TH1D *h_LeadAK8Mass;
   TH1D *h_AK8MassNearGenH;
   TH1D *h_AK8MassNearGenW;
@@ -101,16 +110,17 @@ class SignalReg : public NtupleVariables{
 
   TH1D *h_dPhibJetAK4BosonCand;
   TH1D *h_dRbJetAK4BosonCand;
+  TH1D *h_dPhiLSPs;
 
   TH1D *h_nAK8;
-  TH1D *h_AK8J1Pt, *h_AK8J1Mass, *h_AK8J1Eta, *h_AK8J1Tau21;
-  TH1D *h_AK8J2Pt, *h_AK8J2Mass, *h_AK8J2Eta, *h_AK8J2Tau21;
+  TH1D *h_AK8J1Pt, *h_AK8J1Mass, *h_AK8J1Eta, *h_AK8J1MainWdisc;
+  TH1D *h_AK8J2Pt, *h_AK8J2Mass, *h_AK8J2Eta, *h_AK8J2MainWdisc;
 
   TH1D *h_InvMassAK8Jets,*h_dPhibJetMET,*h_dPhibJetAK8,*h_dPhibJetAK8J2;
   TH1D *h_dRbJetAK8, *h_dRbJetAK8J2, *h_AK8J1J2MassRatio;
 
   TH2D *h2_mTbMin_mCT;
-  TH2D *h2_AK8J1J2Tau21;
+  TH2D *h2_AK8J1J2MainWdisc;
   TH2D *h2_AK8J1J2Mass;
   TH2D *h2_SusyPDGMass;
   TH2D *h2_LSPPtBosonPt;
@@ -149,6 +159,28 @@ class SignalReg : public NtupleVariables{
   TH1D *h_mTqMin_catWH[36];
   TH1D *h_mCTq_catWH[36];
 
+  //  vector<TString> wzwCats = {"Wmc_Wmc","Wmc_Wmd","Wmd_Wmd","Wmc_Tau21","Wmd_Tau21","Tau21_Tau21","Wmc_AK4"};
+  TH1D *h_MET_Wmc_WWZ;
+  TH1D *h_SDMass_Wmc_WWZ;
+  TH1D *h_MET_Wmd_WWZ;
+  TH1D *h_SDMass_Wmd_WWZ;
+  TH1D *h_MET_Tau21_WWZ;
+  TH1D *h_SDMass_Tau21_WWZ;
+
+  TH1D *h_MET_WZW[17];
+  TH1D *h_METvBin_WZW[17];
+  TH1D *h_NJets_WZW[17];
+  TH1D *h_mTBest_WZW[17];
+  TH1D *h_AK8Pt_WZW[17];
+  TH1D *h_AK8Eta_WZW[17];
+  TH1D *h_AK8M_WZW[17];
+  TH1D *h_dPhiMETAK8_WZW[17];
+  TH1D *h_deepWdiscr_WZW[17];
+  TH1D *h_AK4PairPt_WZW[17];
+  TH1D *h_AK4PairEta_WZW[17];
+  TH1D *h_AK4PairM_WZW[17];
+  TH1D *h_dPhiMETAK4Pair_WZW[17];
+  
   TH1F *h_cutflow;
   TFile *oFile;
   
@@ -170,7 +202,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_cutflow = new TH1F("CutFlow","cut flow",25,0,25);
   h_filters = new TH1D("Filters","Filters: Bin1 : all nEvnts, other bins: filter pass/fail",10,0,10);
   h_EvtType = new TH1D("EvtType","Event type",10,0,10);
-  h_EvtTypeFine = new TH1D("EvtTypeFine","Event type fine event category",20,0,20);
+  h_EvtTypeFine = new TH1D("EvtTypeFine","Event type fine event category",17,0,17);
   h_EvtTypeWH = new TH1D("EvtTypeWH","Event type for WH event category",16,0,16);
   h_EvtTypeWH_ak84 = new TH1D("EvtTypeWH_ak84","Event type for WH event category, if W/H AK8 mass fail, use AK4 pair mass",12,0,12);
   h_EvtTypeWH_0AK8M = new TH1D("EvtTypeWH_0AK8M","Event type for WH event category, no AK8 jet within W/H mass window",10,0,10);
@@ -187,6 +219,9 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_LeadbPairMass = new TH1D("LeadbPairMass","M(Lead 2 bjets)",60,0,300);
 
   h_DeepWdiscr = new TH1D("DeepWdiscr","Deep W dicriminator for leading AK8",100,0,1);
+  h_DeepZdiscr = new TH1D("DeepZdiscr","Deep Z dicriminator for leading AK8",100,0,1);
+  h_DeepWdiscrMD = new TH1D("DeepWdiscrMD","Deep W dicriminator for leading AK8 mass decorrl",100,0,1);
+  h_DeepZHdiscrMD = new TH1D("DeepZHdiscrMD","Deep Z/H dicriminator for leading AK8 mass decorrl",100,0,1);
   h_DeepDoubleBdiscr = new TH1D("DeepDoubleBdiscr","deepDoubleBdicsr for leading AK8",100,0,1);
   h_LeadAK8Mass = new TH1D("LeadAK8Mass","Leading AK8 SD Mass",60,0,300);
   h_AK8MassNearGenH = new TH1D("AK8MassNearGenH","AK8 SD mass near GenH (dR<0.3)",60,0,300);;
@@ -206,6 +241,8 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_dRTaggedHFailM = new TH1D("dRTaggedHFailM","dR(H tagged AK8 and failing H mass,Gen H)",60,0,3);
   h_TaggedWMassFailM = new TH1D("TaggedWMassFailM","SD mass of AK8 tagged as W, but not within W-mass",200,0,200);
   h_dRTaggedWFailM = new TH1D("dRTaggedWFailM","dR(W tagged AK8 and failing W mass,Gen W)",60,0,3);
+
+  h_dPhiLSPs = new TH1D("dPhiLSPs","dPhi b/w LSPs",40,0,4);
 
   h_MT2 = new TH1D("MT2","MT2(AKJ1, AK8J2)",200,0,2000);
   h_MT = new TH1D("mT","mT(MET,AK8J)",200,0,2000);
@@ -228,12 +265,12 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_AK8J1Pt = new TH1D("AK8Pt","Leading AK8 jets Pt",200,0,2000);
   h_AK8J1Eta = new TH1D("AK8Eta","AK8 Eta",120,-6,6);
   h_AK8J1Mass = new TH1D("AK8Mass","AK8 Mass",60,0,300);
-  h_AK8J1Tau21 = new TH1D("AK8Tau21","AK8 Tau21",20,0,1);
+  h_AK8J1MainWdisc = new TH1D("AK8MainWdisc","AK8 MainWdisc",20,0,1);
 
   h_AK8J2Pt = new TH1D("AK8J2Pt","2nd leading AK8 jets Pt",200,0,2000);
   h_AK8J2Eta = new TH1D("AK8J2Eta","AK8J2 Eta",120,-6,6);
   h_AK8J2Mass = new TH1D("AK8J2Mass","AK8J2 Mass",60,0,300);
-  h_AK8J2Tau21 = new TH1D("AK8J2Tau21","AK8J2 Tau21",20,0,1);
+  h_AK8J2MainWdisc = new TH1D("AK8J2MainWdisc","AK8J2 MainWdisc",20,0,1);
 
   h_InvMassAK8Jets = new TH1D("InvMassAK8Jets","Invariant mass of leading 2 AK8 jets",200,0,2000);
   h_AK8J1J2MassRatio = new TH1D("AK8J1J2MassRatio","AK8J2 mass/AK8J1 mass",100,0,5);
@@ -246,7 +283,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_deepDoubleBdiscrForHcand = new TH1D("deepDoubleBdiscrForHcand","deepDoubleBdiscriminator value for AK8 jet matched (dR < 0.3) to Gen H",100,-1,1);
 
   h2_mTbMin_mCT = new TH2D("mTbMin_mCT","x:min(mTb1,mTb2), mCT(b1,b2)",200,0,2000,200,0,2000);
-  h2_AK8J1J2Tau21 = new TH2D("AK8J1J2Tau21","x:AK8J1 #tau21 vs y:AK8J2 #tau21",20,0,1,20,0,1);
+  h2_AK8J1J2MainWdisc = new TH2D("AK8J1J2MainWdisc","x:AK8J1 mainWdisc vs y:AK8J2 mainWdisc",20,0,1,20,0,1);
   h2_AK8J1J2Mass = new TH2D("AK8J1J2Mass","x:AK8J1 Mass vs y:AK8J2 Mass",60,0,300,60,0,300);
   h2_SusyPDGMass = new TH2D("SusyPDGMass","x:PDG ID of SUSY particle, y:Mass of particle",50,1000000,1000050,300,0,3000);
   h2_LSPPtBosonPt = new TH2D("LSPPtBosonPt","x:LSP Pt, y:Boson Pt",200,0,2000,200,0,2000);
@@ -265,6 +302,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_EvtType->Fill("2 Good AK8",0);
   h_EvtType->Fill("0 Good AK8",0);
 
+  
   TString catName;
   for(int t=2;t>=0;t--)
     for(int M=2;M>=0;M--){
@@ -406,15 +444,40 @@ void SignalReg::BookHistogram(const char *outFileName) {
 	  
 	  iHist++;
 	}
-  cout<<"iHist"<<iHist<<endl;
   
+  TDirectory *dir_WZW = oFile->mkdir("WZW","WZW hist");
+  dir_WZW->cd();
+  h_SDMass_Wmc_WWZ = new TH1D("SDMass_Wmc_WWZ","SD mass of 2nd W/Z cand for 2 W/Z tagged events (Wmc_Wmc)",60,0,300);
+  h_MET_Wmc_WWZ = new TH1D("MET_Wmc_WWZ","MET for 2 W-mass corrl AK8 tagged events (Wmc_Wmc)",200,0,2000);
+  h_SDMass_Wmd_WWZ = new TH1D("SDMass_Wmd_WWZ","SD mass of 2nd W/Z MD cand for 2 W/Z tagged events (Wmc_Wmd)",60,0,300);
+  h_MET_Wmd_WWZ = new TH1D("MET_Wmd_WWZ","MET for 1 W-mass corrl and 1W MD AK8 tagged events (Wmc_Wmd)",200,0,2000);
+  h_SDMass_Tau21_WWZ = new TH1D("SDMass_Tau21_WWZ","SD mass of 2nd W/Z cand for 2 W/Z tagged events (Wmc_Tau21)",60,0,300);
+  h_MET_Tau21_WWZ = new TH1D("MET_Tau21_WWZ","MET for 1 W-mass corrl and 1 Tau21 AK8 tagged events (Wmc_Tau21)",200,0,2000);
+  for(int i=1;i<=h_EvtTypeFine->GetNbinsX();i++){
+    catName = h_EvtTypeFine->GetXaxis()->GetBinLabel(i);
+    h_MET_WZW[i-1] = new TH1D("MET_"+catName,"MET for WZW for "+catName,200,0,2000);
+    h_METvBin_WZW[i-1] = new TH1D("METvBin_"+catName,"MET for WZW for "+catName,METvbins.size()-1,&(METvbins[0]));
+    h_NJets_WZW[i-1] = new TH1D("NJets_"+catName,"Njets for WZW for "+catName,10,0,10);
+    h_mTBest_WZW[i-1] = new TH1D("mTBest_"+catName,"mT(Best AK8/AK4pair, MET) for "+catName,200,0,2000);
+    h_AK8Pt_WZW[i-1] = new TH1D("AK8Pt_"+catName,"Best AK8 Pt for "+catName,200,0,2000);
+    h_AK8Eta_WZW[i-1] = new TH1D("AK8Eta_"+catName,"Best AK8 eta for "+catName,120,-6,6);
+    h_AK8M_WZW[i-1] = new TH1D("AK8M_"+catName,"AK8 pair mass for "+catName,60,0,300);
+    h_dPhiMETAK8_WZW[i-1] = new TH1D("dPhiMETAK8_"+catName,"DPhi(MET, Best AK8) for "+catName,40,0,4);
+    h_deepWdiscr_WZW[i-1] = new TH1D("deepWdiscr_"+catName,"deepWdiscr of best AK8 for "+catName,100,0,1);
+
+    h_AK4PairPt_WZW[i-1] = new TH1D("AK4PairPt_"+catName,"Best AK4pair Pt for "+catName,200,0,2000);
+    h_AK4PairEta_WZW[i-1] = new TH1D("AK4PairEta_"+catName,"Best AK4pair eta for "+catName,120,-6,6);
+    h_AK4PairM_WZW[i-1] = new TH1D("AK4PairM_"+catName,"AK4Pair pair mass for "+catName,60,0,300);
+    h_dPhiMETAK4Pair_WZW[i-1] = new TH1D("dPhiMETAK4Pair_"+catName,"DPhi(MET, Best AK4Pair"+catName,40,0,4);
+
+  }
 }
 
 SignalReg::SignalReg(const TString &inputFileList, const char *outFileName, const char* dataset) {
   string nameData=dataset;
   TString nameData2 = nameData;
   TChain *tree = new TChain("tree");
-  //  if(nameData2.Contains("TChiWZ")) tree = new TChain("TreeMaker2/PreSelection");
+  //  tree = new TChain("TreeMaker2/PreSelection");
   if( ! FillChain(tree, inputFileList) ) {
     std::cerr << "Cannot get the tree " << std::endl;
   } else {

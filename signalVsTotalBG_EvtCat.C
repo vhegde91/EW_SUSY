@@ -41,7 +41,7 @@ void signalVsTotalBG_EvtCat(){
   TH1::SetDefaultSumw2(1);
   gStyle->SetOptStat(0);
   //  gStyle->SetOptStat("nemri");
-  f[0] = new TFile("TChiWH_800_100_MC2018.root");
+  f[0] = new TFile("TChiWH_800_400_MC2018.root");
   //f[0] = new TFile("TChiWH_800_100_MC2018.root");
   f[1] = new TFile("ST__MC2018.root");
   f[2] = new TFile("Rare_MC2018MC2017MC2016.root");
@@ -283,7 +283,7 @@ void setLastBinAsOverFlow(TH1D* h_hist){
   double lastBinErr=h_hist->GetBinError(h_hist->GetNbinsX()),  overflErr=h_hist->GetBinError(h_hist->GetNbinsX()+1);
   
   if(lastBinCt!=0 && overflCt!=0)
-    lastBinErr = (lastBinCt+overflCt)* (sqrt( ((lastBinErr/lastBinCt)*(lastBinErr/lastBinCt)) + ((overflErr/overflCt)*(overflErr/overflCt)) ) );
+    lastBinErr = sqrt( (lastBinErr*lastBinErr) + (overflErr*overflErr) );
   
   else if(lastBinCt==0 && overflCt!=0)
     lastBinErr = overflErr;
