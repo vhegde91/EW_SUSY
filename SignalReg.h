@@ -42,7 +42,7 @@ class SignalReg : public NtupleVariables{
   double deepDoubleBDiscriminatorValue = 0.7; //0.3 for DoubleBDiscriminatorValue
   double dwdisValue = 0.918;
   double dzdisValue = 0.918;
-  double dwdisMDvalue = 0.704;
+  double dwdisMDvalue = 0.479;//0.245;//0.479;//0.704;
   double dzhdisMDvalue = 0.175;
   double tau21Value = 0.35;
   double deepCSVvalue = 0;
@@ -87,6 +87,26 @@ class SignalReg : public NtupleVariables{
   TH1D *h_AK8MassNearGenH;
   TH1D *h_AK8MassNearGenW;
   TH1D *h_AK8MassNearGenZ;
+
+  TH1D *h_DeepWdisc_BG;
+  TH1D *h_DeepWdiscMD_BG;
+  TH1D *h_Tau21_BG;
+  TH1D *h_AK8Pt_BG;
+
+  TH1D *h_DeepWdisc_SigW;
+  TH1D *h_DeepWdiscMD_SigW;
+  TH1D *h_Tau21_SigW;
+  TH1D *h_AK8Pt_SigW;
+  TH1D *h_AK8M_SigW;
+  TH1D *h_GenWmassDeepWpass;
+  TH1D *h_SDmassDeepWpassGenWmatch;
+  TH1D *h_DeepWdisc_SigZ;
+  TH1D *h_DeepWdiscMD_SigZ;
+  TH1D *h_Tau21_SigZ;
+  TH1D *h_AK8Pt_SigZ;
+  TH1D *h_AK8M_SigZ;
+  TH1D *h_GenZmassDeepWpass;
+  TH1D *h_SDmassDeepWpassGenZmatch;
 
   TH1D *h_MT, *h_MTvBin, *h_MT2, *h_MT2vBin;
   TH1D *h_MT2J, *h_MT2JvBin;
@@ -161,10 +181,13 @@ class SignalReg : public NtupleVariables{
 
   //  vector<TString> wzwCats = {"Wmc_Wmc","Wmc_Wmd","Wmd_Wmd","Wmc_Tau21","Wmd_Tau21","Tau21_Tau21","Wmc_AK4"};
   TH1D *h_MET_Wmc_WWZ;
+  TH1D *h_METvBin_Wmc_WWZ;
   TH1D *h_SDMass_Wmc_WWZ;
   TH1D *h_MET_Wmd_WWZ;
+  TH1D *h_METvBin_Wmd_WWZ;
   TH1D *h_SDMass_Wmd_WWZ;
   TH1D *h_MET_Tau21_WWZ;
+  TH1D *h_METvBin_Tau21_WWZ;
   TH1D *h_SDMass_Tau21_WWZ;
 
   TH1D *h_MET_WZW[17];
@@ -223,6 +246,27 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_DeepWdiscrMD = new TH1D("DeepWdiscrMD","Deep W dicriminator for leading AK8 mass decorrl",100,0,1);
   h_DeepZHdiscrMD = new TH1D("DeepZHdiscrMD","Deep Z/H dicriminator for leading AK8 mass decorrl",100,0,1);
   h_DeepDoubleBdiscr = new TH1D("DeepDoubleBdiscr","deepDoubleBdicsr for leading AK8",100,0,1);
+
+  h_DeepWdisc_BG = new TH1D("DeepWdisc_BG","Deep W disc for AK8 not matched to W->qq",1000,0,1);
+  h_DeepWdiscMD_BG = new TH1D("DeepWdiscMD_BG","Deep W disc MD for AK8 not matched to W->qq",1000,0,1);
+  h_Tau21_BG = new TH1D("Tau21_BG","Tau21 for AK8 not matched to W->qq",1000,0,1);
+  h_AK8Pt_BG = new TH1D("AK8Pt_BG","Pt for AK8 not matched to W->qq",200,0,2000);
+
+  h_DeepWdisc_SigZ = new TH1D("DeepWdisc_SigZ","Deep W disc for AK8 matched to Z->qq, minDR < 0.1",1000,0,1);
+  h_DeepWdiscMD_SigZ = new TH1D("DeepWdiscMD_SigZ","Deep W disc MD for AK8 matched to Z->qq, minDR < 0.1",1000,0,1);
+  h_Tau21_SigZ = new TH1D("Tau21_SigZ","Tau21 for AK8 matched to Z->qq, minDR < 0.1",1000,0,1);
+  h_AK8Pt_SigZ = new TH1D("AK8Pt_SigZ","Pt for AK8 matched to Z->qq",200,0,2000);
+  h_AK8M_SigZ = new TH1D("AK8M_SigZ","Mass for AK8 matched to Z->qq",100,0,200);
+  h_GenZmassDeepWpass = new TH1D("GenZmassDeepWpass","Mass of Gen Z->qq, minDR < 0.1, AK8 jet passes DeepWdisc",100,0,200);
+  h_SDmassDeepWpassGenZmatch = new TH1D("SDmassDeepWpassGenZmatch","SD Mass of AK8 matched to Gen Z->qq, minDR < 0.1, AK8 jet passes DeepWdisc",100,0,200);
+  h_DeepWdisc_SigW = new TH1D("DeepWdisc_SigW","Deep W disc for AK8 matched to W->qq, minDR < 0.1",1000,0,1);
+  h_DeepWdiscMD_SigW = new TH1D("DeepWdiscMD_SigW","Deep W disc MD for AK8 matched to W->qq, minDR < 0.1",1000,0,1);
+  h_Tau21_SigW = new TH1D("Tau21_SigW","Tau21 for AK8 matched to W->qq, minDR < 0.1",1000,0,1);
+  h_AK8Pt_SigW = new TH1D("AK8Pt_SigW","Pt for AK8 matched to W->qq",200,0,2000);
+  h_AK8M_SigW = new TH1D("AK8M_SigW","Mass for AK8 matched to W->qq",100,0,200);
+  h_GenWmassDeepWpass = new TH1D("GenWmassDeepWpass","Mass of Gen W->qq, minDR < 0.1, AK8 jet passes DeepWdisc",100,0,200);
+  h_SDmassDeepWpassGenWmatch = new TH1D("SDmassDeepWpassGenWmatch","SD Mass of AK8 matched to Gen W->qq, minDR < 0.1, AK8 jet passes DeepWdisc",100,0,200);
+
   h_LeadAK8Mass = new TH1D("LeadAK8Mass","Leading AK8 SD Mass",60,0,300);
   h_AK8MassNearGenH = new TH1D("AK8MassNearGenH","AK8 SD mass near GenH (dR<0.3)",60,0,300);;
   h_AK8MassNearGenW = new TH1D("AK8MassNearGenW","AK8 SD mass near GenW (dR<0.3)",60,0,300);
@@ -449,10 +493,13 @@ void SignalReg::BookHistogram(const char *outFileName) {
   dir_WZW->cd();
   h_SDMass_Wmc_WWZ = new TH1D("SDMass_Wmc_WWZ","SD mass of 2nd W/Z cand for 2 W/Z tagged events (Wmc_Wmc)",60,0,300);
   h_MET_Wmc_WWZ = new TH1D("MET_Wmc_WWZ","MET for 2 W-mass corrl AK8 tagged events (Wmc_Wmc)",200,0,2000);
+  h_METvBin_Wmc_WWZ = new TH1D("METvBin_Wmc_WWZ","MET for 2 W-mass corrl AK8 tagged events (Wmc_Wmc)",METvbins.size()-1,&(METvbins[0]));
   h_SDMass_Wmd_WWZ = new TH1D("SDMass_Wmd_WWZ","SD mass of 2nd W/Z MD cand for 2 W/Z tagged events (Wmc_Wmd)",60,0,300);
   h_MET_Wmd_WWZ = new TH1D("MET_Wmd_WWZ","MET for 1 W-mass corrl and 1W MD AK8 tagged events (Wmc_Wmd)",200,0,2000);
+  h_METvBin_Wmd_WWZ = new TH1D("METvBin_Wmd_WWZ","MET for 1 W-mass corrl and 1W MD AK8 tagged events (Wmc_Wmd)",METvbins.size()-1,&(METvbins[0]));
   h_SDMass_Tau21_WWZ = new TH1D("SDMass_Tau21_WWZ","SD mass of 2nd W/Z cand for 2 W/Z tagged events (Wmc_Tau21)",60,0,300);
   h_MET_Tau21_WWZ = new TH1D("MET_Tau21_WWZ","MET for 1 W-mass corrl and 1 Tau21 AK8 tagged events (Wmc_Tau21)",200,0,2000);
+  h_METvBin_Tau21_WWZ = new TH1D("METvBin_Tau21_WWZ","MET for 1 W-mass corrl and 1 Tau21 AK8 tagged events (Wmc_Tau21)",METvbins.size()-1,&(METvbins[0]));
   for(int i=1;i<=h_EvtTypeFine->GetNbinsX();i++){
     catName = h_EvtTypeFine->GetXaxis()->GetBinLabel(i);
     h_MET_WZW[i-1] = new TH1D("MET_"+catName,"MET for WZW for "+catName,200,0,2000);

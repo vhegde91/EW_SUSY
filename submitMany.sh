@@ -18,6 +18,7 @@ root -l -q 'splitRunList.C("TChiWZ_800_1_MC2018.txt",1)'
 root -l -q 'splitRunList.C("TChiWZ_600_100_MC2018.txt",1)'
 root -l -q 'splitRunList.C("TChiWZ_1000_1_MC2018.txt",1)'
 root -l -q 'splitRunList.C("TChiWZ_600_1_MC2018.txt",1)'
+root -l -q 'splitRunList.C("TChiWZ_300_1_MC2018.txt",1)'
 
 root -l -q 'splitRunList.C("TChiWW_800_100_MC2018.txt",1)'
 

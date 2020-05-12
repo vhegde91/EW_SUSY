@@ -40,11 +40,9 @@ void signalVsTotalBG(){
   TH1::SetDefaultSumw2(1);
   gStyle->SetOptStat(0);
   //  gStyle->SetOptStat("nemri");
-  f[0] = new TFile("TChiWH_800_100_MC2018.root");
+  f[0] = new TFile("TChiWZ_800_100_MC2018.root");
   f[1] = new TFile("ST__MC2018.root");
   f[2] = new TFile("Rare_MC2018MC2017MC2016.root");
-  //f[2] = new TFile("Rare_MC2018.root");
-  //  f[3] = new TFile("QCD_HT_MC2018.root");
   f[3] = new TFile("TTJets_MC2018.root");
   f[4] = new TFile("WJetsToLNu_HT_MC2018.root");
   f[5] = new TFile("ZJetsToNuNu_HT_MC2018.root");
@@ -57,7 +55,24 @@ void signalVsTotalBG(){
   vector<string> name1;
   vector<int> rebin;
   vector<double> xLow,xHigh;
-  // name1.push_back("WH/METvBin_1Wt1Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  //  name1.push_back("WZW/METvBin_Wmc_WWZ");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  name1.push_back("WZW/METvBin_Wmd_WWZ");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  name1.push_back("WZW/METvBin_Tau21_WWZ");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+
+  // name1.push_back("WZW/MET_Wmc_WWZ");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WZW/MET_Wmd_WWZ");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WZW/MET_Tau21_WWZ");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WZW/METvBin_2T2M");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WZW/METvBin_2T1M");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WZW/METvBin_1T2M");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WZW/METvBin_1T1M");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WZW/METvBin_0T2M");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WZW/METvBin_0T1M");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WZW/METvBin_1T1M1m");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WZW/METvBin_1T1M0m");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WZW/METvBin_0T1M0m");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  
+  //  name1.push_back("WH/METvBin_1Wt1Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
   // name1.push_back("WH/METvBin_1Wt1Wm1Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
   // name1.push_back("WH/METvBin_1Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
   // name1.push_back("WH/METvBin_1Wt1Wm0Ht0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
@@ -77,14 +92,12 @@ void signalVsTotalBG(){
   // name1.push_back("WH/METvBin_0Wt1Wm0Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
   // name1.push_back("WH/deepDoubleBdiscr_0Wt1Wm0Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
   // name1.push_back("WH/deepWdiscr_0Wt1Wm0Ht1Hm");  rebin.push_back(5); xLow.push_back(-100000); xHigh.push_back(1000000);
-  
-  // name1.push_back("WH/METvBin_1-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  // name1.push_back("WH/METvBin_1-1Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+    
   // name1.push_back("WH/METvBin_1-0Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
   // name1.push_back("WH/METvBin_1-0Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/METvBin_0-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/METvBin_0-1Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
-  name1.push_back("WH/METvBin_0-0Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0-1Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
+  // name1.push_back("WH/METvBin_0-0Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
   // name1.push_back("WH/METvBin_0-0Wm0Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);
 
   // name1.push_back("WH/METvBin_1Wt1wm1Ht0hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);

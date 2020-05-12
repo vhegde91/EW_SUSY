@@ -17,6 +17,7 @@ root -l -q 'findFailedJobs.C("TChiWZ_600_100_MC2018")'
 root -l -q 'findFailedJobs.C("TChiWZ_1000_1_MC2018")'
 root -l -q 'findFailedJobs.C("TChiWZ_800_1_MC2018")'
 root -l -q 'findFailedJobs.C("TChiWZ_600_1_MC2018")'
+root -l -q 'findFailedJobs.C("TChiWZ_300_1_MC2018")'
 
 root -l -q 'findFailedJobs.C("TChiWW_800_100_MC2018")'
 

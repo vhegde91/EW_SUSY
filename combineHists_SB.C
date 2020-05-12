@@ -40,7 +40,7 @@ void combineHists_SB(){
   TH1::SetDefaultSumw2(1);
   gStyle->SetOptStat(0);
   //  gStyle->SetOptStat("nemri");
-  f[0] = new TFile("TChiWH_800_600_MC2018.root");
+  f[0] = new TFile("TChiWH_800_100_MC2018.root");
   f[1] = new TFile("ST__MC2018.root");
   f[2] = new TFile("Rare_MC2018MC2017MC2016.root");
   //f[2] = new TFile("Rare_MC2018.root");
@@ -79,9 +79,9 @@ void combineHists_SB(){
 
   //  deepWdiscr deepDoubleBdiscr
   //------ Fully H-tagged only
-  // name1.push_back("WH/METvBin_1Wt0Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//H
-  // name1.push_back("WH/METvBin_0Wt1Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//H
-  // name1.push_back("WH/METvBin_0Wt0Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//H
+  name1.push_back("WH/METvBin_1Wt0Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//H
+  name1.push_back("WH/METvBin_0Wt1Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//H
+  name1.push_back("WH/METvBin_0Wt0Wm1Ht1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//H
 
   //----- using AK4 jets only. No AK8 info is used.
   //name1.push_back("WH/METvBin_0-1Wm1Hm");  rebin.push_back(1); xLow.push_back(-100000); xHigh.push_back(1000000);//hm
@@ -219,7 +219,7 @@ void combineHists_SB(){
   p_bot->SetTickx();p_bot->SetTicky();
   //    c_cB->cd(i+1);    p_bot->cd();
   //    h_numr->Draw("e1 histe");
-  h_numr->Draw("hist text");
+  h_numr->Draw("hist");
   
   c_cA->cd();    p_top->cd(); gPad->RedrawAxis();
   char name2[100];

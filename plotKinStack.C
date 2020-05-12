@@ -22,7 +22,7 @@ char name[100];
 char name2[100];
 TString name3;
 TLatex textOnTop,intLumiE;
-const int nfiles=9,nBG=5;    //Specify no. of files
+const int nfiles=8,nBG=5;    //Specify no. of files
 TFile *f[nfiles];
 //int col[11]={kPink+1,kTeal+9,kGreen,kYellow,kOrange,kBlue,kCyan,kRed,kMagenta,kBlue+2,kPink+1};  //Specify Colors b's
 vector<int> col={kTeal+9,kGreen,kYellow,kOrange,kGray+1,kBlue,kCyan,kRed,kMagenta,kBlue+2};  //Specify Colors b's
@@ -54,10 +54,10 @@ void plotKinStack(TString varName, int rebin){
   f[2] = new TFile("TTJets_MC2018.root");
   f[3] = new TFile("WJetsToLNu_HT_MC2018.root");
   f[4] = new TFile("ZJetsToNuNu_HT_MC2018.root");
-  f[5] = new TFile("TChiWH_600_100_MC2018.root");
-  f[6] = new TFile("TChiWH_600_400_MC2018.root");
-  f[7] = new TFile("TChiWH_800_100_MC2018.root");
-  f[8] = new TFile("TChiWH_800_600_MC2018.root");
+  f[5] = new TFile("TChiWZ_800_100_MC2018.root");
+  f[6] = new TFile("TChiWZ_800_400_MC2018.root");
+  f[7] = new TFile("TChiWZ_800_700_MC2018.root");
+  //  f[8] = new TFile("TChiWH_800_600_MC2018.root");
   // f[9] = new TFile("TChiWZ_1000_1_MC2018.root");
 
   TCanvas *c_cA=new TCanvas(varName,"plot of a kin var",1500,900);  

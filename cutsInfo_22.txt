@@ -1,8 +1,8 @@
 b-Tag veto: Medium WP.
 
 WZW Hists are filled.
-NJ: 2-6
-Tagged/antiTagged
+NJ: 2-4
+Tagged
 
 Based on cuts_17 for WH (except wDiscriminatorDeep > 0.918 instead of 0.9). But hists are empty.
 

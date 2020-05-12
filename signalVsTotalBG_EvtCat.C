@@ -41,12 +41,10 @@ void signalVsTotalBG_EvtCat(){
   TH1::SetDefaultSumw2(1);
   gStyle->SetOptStat(0);
   //  gStyle->SetOptStat("nemri");
-  f[0] = new TFile("TChiWH_800_400_MC2018.root");
-  //f[0] = new TFile("TChiWH_800_100_MC2018.root");
+  //  f[0] = new TFile("TChiWH_800_400_MC2018.root");
+  f[0] = new TFile("TChiWZ_800_100_MC2018.root");
   f[1] = new TFile("ST__MC2018.root");
   f[2] = new TFile("Rare_MC2018MC2017MC2016.root");
-  //f[2] = new TFile("Rare_MC2018.root");
-  //  f[3] = new TFile("QCD_HT_MC2018.root");
   f[3] = new TFile("TTJets_MC2018.root");
   f[4] = new TFile("WJetsToLNu_HT_MC2018.root");
   f[5] = new TFile("ZJetsToNuNu_HT_MC2018.root");
@@ -62,10 +60,11 @@ void signalVsTotalBG_EvtCat(){
   //  name1.push_back("mTvBin");  rebin.push_back(1); xLow.push_back(200); xHigh.push_back(1000000);
   //  name1.push_back("MT2vBin");  rebin.push_back(1); xLow.push_back(200); xHigh.push_back(1000000);
   //  name1.push_back("AK8Pt");  rebin.push_back(10); xLow.push_back(200); xHigh.push_back(1000000);
-  name1.push_back("EvtTypeWH");  rebin.push_back(1); xLow.push_back(-100000000); xHigh.push_back(1600000);
-  name1.push_back("EvtTypeWH_0AK8M");  rebin.push_back(1); xLow.push_back(-100000000); xHigh.push_back(1000000);
-  name1.push_back("EvtTypeWH_ak84");  rebin.push_back(1); xLow.push_back(-100000000); xHigh.push_back(1000000);
-
+  // name1.push_back("EvtTypeWH");  rebin.push_back(1); xLow.push_back(-100000000); xHigh.push_back(1600000);
+  // name1.push_back("EvtTypeWH_0AK8M");  rebin.push_back(1); xLow.push_back(-100000000); xHigh.push_back(1000000);
+  // name1.push_back("EvtTypeWH_ak84");  rebin.push_back(1); xLow.push_back(-100000000); xHigh.push_back(1000000);
+  name1.push_back("EvtTypeFine");  rebin.push_back(1); xLow.push_back(-100000000); xHigh.push_back(1000000);
+  
   TLegend *legend[name1.size()];//=new TLegend(0.6, 0.90,  0.98, 0.45);
   TCanvas *c_cA[name1.size()];
   TPad *p_top[name1.size()];

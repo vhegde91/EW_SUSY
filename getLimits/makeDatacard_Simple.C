@@ -34,7 +34,7 @@ void makeDatacard_Simple(TString sigFile,TString apndname,TString histname){
   f[3] = new TFile("TTJets_MC2018"+apndname+".root");
   f[4] = new TFile("WJetsToLNu_HT_MC2018"+apndname+".root");
   f[5] = new TFile("ZJetsToNuNu_HT_MC2018"+apndname+".root");
-  TString dirName="WZW/";
+  TString dirName="WH/";
   // if(apndname.Contains("/")) dirName="WH/";
 
   //  TString histname = "METvBin_1Wt1Wm1Ht1Hm"; //"METvBin_0-1Wm1Hm";

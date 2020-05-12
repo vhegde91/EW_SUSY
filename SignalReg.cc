@@ -106,7 +106,7 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
-    //print(jentry);
+    //    print(jentry);
     // if(dataRun==-2016 || dataRun==-2017) wt=Weight*1000.0*lumiInfb*NonPrefiringProb;
     // else if(dataRun <=0) wt=Weight*1000.0*lumiInfb;
     //    else wt = 1.0;
@@ -176,7 +176,7 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     vector<TLorentzVector> nlsp,lsp,boson,higgs,genW,genZ;
     vector<int> lspParentIdx, bosonParentIdx;
     for(int i=0;i<GenParticles->size();i++){
-      if(abs((*GenParticles_ParentId)[i]) > 1e6 && abs((*GenParticles_PdgId)[i])>=23 && abs((*GenParticles_PdgId)[i])<=25){ boson.push_back((*GenParticles)[i]); bosonParentIdx.push_back((*GenParticles_ParentIdx)[i]);
+      if(abs((*GenParticles_PdgId)[i])>=23 && abs((*GenParticles_PdgId)[i])<=25){ boson.push_back((*GenParticles)[i]); bosonParentIdx.push_back((*GenParticles_ParentIdx)[i]);
 	if(abs((*GenParticles_PdgId)[i])==23) genZ.push_back((*GenParticles)[i]);
 	if(abs((*GenParticles_PdgId)[i])==24) genW.push_back((*GenParticles)[i]);
 	if(abs((*GenParticles_PdgId)[i])==25) higgs.push_back((*GenParticles)[i]);
@@ -198,6 +198,61 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
       }
     }
     if(mindr<0.3) h_deepDoubleBdiscrForHcand->Fill((*JetsAK8_deepDoubleBDiscriminatorH)[mindrIdx],wt);
+
+    if(genW.size()==0 && genZ.size()==0){
+      for(int i=0;i<JetsAK8->size();i++){
+	if((*JetsAK8_softDropMass)[i] < massLow || (*JetsAK8_softDropMass)[i] > massHigh || (*JetsAK8)[i].Pt() < 200 || abs((*JetsAK8)[i].Eta()) > 2.4) continue;
+	h_DeepWdisc_BG->Fill((*JetsAK8_wDiscriminatorDeep)[i],wt);
+	h_DeepWdiscMD_BG->Fill((*JetsAK8_wDiscriminatorDeepDecorrel)[i],wt);
+	h_Tau21_BG->Fill(((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]),wt);
+	h_AK8Pt_BG->Fill((*JetsAK8)[i].Pt(),wt);
+      }
+    }
+    else{
+      for(int i=0;i<JetsAK8->size();i++){
+	if((*JetsAK8_softDropMass)[i] < massLow || (*JetsAK8_softDropMass)[i] > massHigh || (*JetsAK8)[i].Pt() < 200 || abs((*JetsAK8)[i].Eta()) > 2.4) continue;
+	float minDR_boson = 9999.;
+	int pdgBoson = 0, bosonIdx = -1;
+	for(int j=0;j<GenParticles->size();j++){
+	  if((abs((*GenParticles_PdgId)[j]) < 6) && (*GenParticles_ParentIdx)[j] >= 0 &&
+	     (minDR_boson > (*JetsAK8)[i].DeltaR((*GenParticles)[(*GenParticles_ParentIdx)[j]])) ){
+	    minDR_boson = (*JetsAK8)[i].DeltaR((*GenParticles)[(*GenParticles_ParentIdx)[j]]);
+	    pdgBoson = abs((*GenParticles_PdgId)[(*GenParticles_ParentIdx)[j]]);
+	    bosonIdx = (*GenParticles_ParentIdx)[j];
+	  }
+	}
+	if(minDR_boson < 0.1){
+	  if(pdgBoson == 23){
+	    h_DeepWdisc_SigZ->Fill((*JetsAK8_wDiscriminatorDeep)[i],wt);
+	    h_DeepWdiscMD_SigZ->Fill((*JetsAK8_wDiscriminatorDeepDecorrel)[i],wt);
+	    h_Tau21_SigZ->Fill(((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]),wt);
+	    h_AK8Pt_SigZ->Fill((*JetsAK8)[i].Pt(),wt);
+	    h_AK8M_SigZ->Fill((*JetsAK8_softDropMass)[i],wt);
+	    if((*JetsAK8_wDiscriminatorDeep)[i] > dwdisValue){
+	      h_GenZmassDeepWpass->Fill((*GenParticles)[bosonIdx].M(),wt);
+	      h_SDmassDeepWpassGenZmatch->Fill((*JetsAK8_softDropMass)[i],wt);
+	    }
+	  }
+	  else if(pdgBoson == 24){
+	    h_DeepWdisc_SigW->Fill((*JetsAK8_wDiscriminatorDeep)[i],wt);
+	    h_DeepWdiscMD_SigW->Fill((*JetsAK8_wDiscriminatorDeepDecorrel)[i],wt);
+	    h_Tau21_SigW->Fill(((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]),wt);
+	    h_AK8Pt_SigW->Fill((*JetsAK8)[i].Pt(),wt);
+	    h_AK8M_SigW->Fill((*JetsAK8_softDropMass)[i],wt);
+	    if((*JetsAK8_wDiscriminatorDeep)[i] > dwdisValue){
+	      h_GenWmassDeepWpass->Fill((*GenParticles)[bosonIdx].M(),wt);
+	      h_SDmassDeepWpassGenWmatch->Fill((*JetsAK8_softDropMass)[i],wt);
+	    }
+	  }
+	}
+	else if(minDR_boson > 1.0){
+	  h_DeepWdisc_BG->Fill((*JetsAK8_wDiscriminatorDeep)[i],wt);
+	  h_DeepWdiscMD_BG->Fill((*JetsAK8_wDiscriminatorDeepDecorrel)[i],wt);
+	  h_Tau21_BG->Fill(((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]),wt);
+	  h_AK8Pt_BG->Fill((*JetsAK8)[i].Pt(),wt);
+	}
+      }
+    }
     //--------------
     //----MET
     //    if(MET < 200) continue;
@@ -522,10 +577,10 @@ void SignalReg::getEventTypeWZW(){
   int bestWidx = -1, nWmd = 0, nZmd = 0, nWmc = 0, nZmc = 0, nTau21 = 0;
   double mt = 0., sdMass_Wmd = 0., sdMass_Zmd = 0., sdMass_Wmc = 0., sdMass_Zmc = 0., sdMass_tau21 = 0., sdMass = 0.;
   for(int i=0; i < JetsAK8->size(); i++){
+    if(mt < 0.1) mt = sqrt(2*(*JetsAK8)[i].Pt()*MET*(1-cos(DeltaPhi(METPhi,(*JetsAK8)[i].Phi()))));
     sdMass = (*JetsAK8_softDropMass)[i];
     if(sdMass < massLow || sdMass > massHigh) continue;
     if((*JetsAK8)[i].Pt() < 200 || abs((*JetsAK8)[i].Eta()) > 2.0) continue;
-    if(mt < 0.1) mt = sqrt(2*(*JetsAK8)[i].Pt()*MET*(1-cos(DeltaPhi(METPhi,(*JetsAK8)[i].Phi()))));
     if((*JetsAK8_wDiscriminatorDeep)[i] > dwdisValue && bestWidx < 0) bestWidx = i;
   }
   if(bestWidx < 0) return;
@@ -534,7 +589,7 @@ void SignalReg::getEventTypeWZW(){
   for(int i=0; i < JetsAK8->size(); i++){
     if((*JetsAK8)[i].Pt() < 200 || abs((*JetsAK8)[i].Eta()) > 2.0 || i==bestWidx) continue;
     sdMass = (*JetsAK8_softDropMass)[i];
-    //    if(sdMass < massLow || sdMass > massHigh) continue;
+    if(sdMass < massLow || sdMass > massHigh) continue;
     if((*JetsAK8_wDiscriminatorDeep)[i] > dwdisValue){
       nWmc++;
       if(nWmc==1) sdMass_Wmc = sdMass;
@@ -563,14 +618,17 @@ void SignalReg::getEventTypeWZW(){
   if(nWmc>=1){
     h_SDMass_Wmc_WWZ->Fill(sdMass_Wmc,wt);
     h_MET_Wmc_WWZ->Fill(MET,wt);
+    h_METvBin_Wmc_WWZ->Fill(MET,wt);
   }
   if(nWmd>=1){
     h_SDMass_Wmd_WWZ->Fill(sdMass_Wmd,wt);
     h_MET_Wmd_WWZ->Fill(MET,wt);
+    h_METvBin_Wmd_WWZ->Fill(MET,wt);
   }
   if(nTau21>=1){
     h_SDMass_Tau21_WWZ->Fill(sdMass_tau21,wt);
     h_MET_Tau21_WWZ->Fill(MET,wt);
+    h_METvBin_Tau21_WWZ->Fill(MET,wt);
   }
 }
 
@@ -842,11 +900,12 @@ TString SignalReg::getEventTypeWH(){
 }
 
 void SignalReg::getEventTypeFine(int evtType){
-  int nTag = 0, nMass = 0, nmass = 0;
+  int nTag = 0, nMass = 0, nmass = 0, nTagTau21 = 0;
   bool has2AK8 = false;
   if(JetsAK8->size()==0){
     nTag = 0;
     nMass = 0;
+    nTagTau21 = 0;
   }
   else if(JetsAK8->size()>0){
     for(int i=0;i<JetsAK8->size();i++){
@@ -854,12 +913,15 @@ void SignalReg::getEventTypeFine(int evtType){
 	if(((*JetsAK8_softDropMass)[i] > massLow) && ((*JetsAK8_softDropMass)[i] < massHigh))
 	  nMass++;
 	//	if( (((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i])) < mainWdiscValue)
-	if( (*JetsAK8_wDiscriminatorDeep)[i] > dwdisValue)
+	if( ((*JetsAK8_wDiscriminatorDeep)[i] > dwdisValue))
 	  nTag++;
+	if(bestAK8J1IdxInMainColl >=0 && bestAK8J1IdxInMainColl != i && (((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]) < tau21Value))
+	  nTagTau21++;
 	if(i>0) has2AK8 = true;
       }
     }
-    if(nTag>=3) nTag=2;
+    if(nTag>=1)
+      nTag = (nTagTau21 == 0) ? 1 : 2;
     if(nMass>=3) nMass = 2;
   }
   //--------- AK4 ---------
@@ -898,11 +960,14 @@ void SignalReg::getEventTypeFine(int evtType){
     if(bestAK8J1IdxInMainColl >=0){
       catName = to_string(nTag)+"T"+to_string(nMass)+"M";
       h_EvtTypeFine->Fill(catName,wt);
-      mt = sqrt(2*bestAK8J1.Pt()*MET*(1-cos(DeltaPhi(METPhi,bestAK8J1.Phi()))));
+      if(JetsAK8->size() > 0 && (*JetsAK8)[0].Pt() > 200. && abs((*JetsAK8)[0].Eta()) < 2.0) 
+      	mt = sqrt(2*(*JetsAK8)[0].Pt()*MET*(1-cos(DeltaPhi(METPhi,(*JetsAK8)[0].Phi()))));
+      //      mt = sqrt(2*bestAK8J1.Pt()*MET*(1-cos(DeltaPhi(METPhi,bestAK8J1.Phi()))));
+
       if(mt > 500){
 	iHist = h_EvtTypeFine->GetXaxis()->FindBin(catName) - 1;
-	if(iHist >= 17) cout<<"Overflow in EvtTypeFine WZW."<<endl;
-	
+	if(iHist >= 17) cout<<catName<<":Overflow in EvtTypeFine WZW."<<endl;
+
 	h_MET_WZW[iHist]->Fill(MET,wt);
 	h_METvBin_WZW[iHist]->Fill(MET,wt);
 	h_NJets_WZW[iHist]->Fill(NJets,wt);
@@ -922,12 +987,13 @@ void SignalReg::getEventTypeFine(int evtType){
   }
   else{
     if(bestAK8J1IdxInMainColl >= 0){
-      mt = sqrt(2*bestAK8J1.Pt()*MET*(1-cos(DeltaPhi(METPhi,bestAK8J1.Phi()))));
+      if(JetsAK8->size() > 0 && (*JetsAK8)[0].Pt() > 200. && abs((*JetsAK8)[0].Eta()) < 2.0) 
+      	mt = sqrt(2*(*JetsAK8)[0].Pt()*MET*(1-cos(DeltaPhi(METPhi,(*JetsAK8)[0].Phi()))));
       catName = to_string(nTag)+"T"+to_string(nMass)+"M"+to_string(nmass)+"m";
       h_EvtTypeFine->Fill(catName,wt);
       if(mt > 500){
 	iHist = h_EvtTypeFine->GetXaxis()->FindBin(catName) - 1;
-	if(iHist >= 17) cout<<"Overflow in EvtTypeFine WZW 2."<<endl;
+	if(iHist >= 17) cout<<catName<<":Overflow in EvtTypeFine WZW 2."<<endl;
       
 	h_MET_WZW[iHist]->Fill(MET,wt);
 	h_METvBin_WZW[iHist]->Fill(MET,wt);
@@ -951,8 +1017,8 @@ void SignalReg::getEventTypeFine(int evtType){
       h_EvtTypeFine->Fill(catName,wt);
       if(mt > 500){
 	iHist = h_EvtTypeFine->GetXaxis()->FindBin(catName) - 1;
-	if(iHist >= 17) cout<<"Overflow in EvtTypeFine WZW 3."<<endl;
-	
+	if(iHist >= 17) cout<<catName<<":Overflow in EvtTypeFine WZW 3."<<nTagTau21<<endl;
+
 	h_MET_WZW[iHist]->Fill(MET,wt);
 	h_METvBin_WZW[iHist]->Fill(MET,wt);
 	h_NJets_WZW[iHist]->Fill(NJets,wt);

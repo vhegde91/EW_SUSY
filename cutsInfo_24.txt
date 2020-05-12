@@ -2,7 +2,9 @@ b-Tag veto: Medium WP.
 
 WZW Hists are filled.
 NJ: 2-6
-Tagged/antiTagged
+Tagged
+W tag MD: 0.245 (5% mistag) instead of 0.704.
+Tau21: < 0.45
 
 Based on cuts_17 for WH (except wDiscriminatorDeep > 0.918 instead of 0.9). But hists are empty.
 
