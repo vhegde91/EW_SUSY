@@ -38,7 +38,7 @@ class SignalReg : public NtupleVariables{
   bool isMC=true;
   double wt=0,lumiInfb=35.815165;
   double massLow = 65., massHigh = 105.; //65-90
-  double massLowH = 105., massHighH = 135.; //85-135, 75-145
+  double massLowH = 85., massHighH = 135.; //85-135, 75-145
   double deepDoubleBDiscriminatorValue = 0.7; //0.3 for DoubleBDiscriminatorValue
   double dwdisValue = 0.918;
   double dzdisValue = 0.918;

@@ -138,6 +138,10 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     h_filters->Fill("JetID",JetID);
     h_filters->Fill("(MET/CaloMET<5.)",(MET/CaloMET < 5.));
 
+    if(MET < 250) continue;
+    if(NJets > 6) continue;
+    if(DeltaPhi1 < 1.5) continue;
+    
     if(!isFastSim){
       if(!(globalSuperTightHalo2016Filter==1 && HBHENoiseFilter==1 && HBHEIsoNoiseFilter==1 && eeBadScFilter==1 && EcalDeadCellTriggerPrimitiveFilter==1 && BadChargedCandidateFilter && BadPFMuonFilter && NVtx > 0 && JetID && (MET/CaloMET < 5.))) continue;
       h_cutflow->Fill("Filters",wt);
@@ -284,10 +288,6 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     //if(Photons->size()!=0) continue;
     h_cutflow->Fill("photonVeto",wt);
 
-    if(MET < 250) continue;
-    if(NJets > 6) continue;
-    if(DeltaPhi1 < 1.5) continue;
-    
     nonbjets.resize(0);
     bjets.resize(0);
     for(int i=0;i<Jets_bJetTagDeepCSVprobb->size();i++){
@@ -297,16 +297,13 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
       else nonbjets.push_back((*Jets)[i]);
     }
     sortTLorVec(&bjets);
+    sortTLorVec(&nonbjets);
     
     TString WH_catName = getEventTypeWH();
     if(BTagsDeepCSV != 0) continue;
     int evtType = getEventType();
     getEventTypeFine(evtType);//to be called only after calling getEventType();
     getEventTypeWZW();
-    if(JetsAK8->size() >=2){
-      float mt = sqrt(2*(*JetsAK8)[0].Pt()*MET*(1-cos(DeltaPhi(METPhi,(*JetsAK8)[0].Phi()))));
-      if(mt > 500) h_cutflow->Fill("PassBaseline",wt);
-    }
     
     if(bjets.size() >=2) h_LeadbPairMass->Fill((bjets[0]+bjets[1]).M(),wt);
     else h_LeadbPairMass->Fill(0.,wt);
@@ -347,7 +344,7 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     h_mTbMin->Fill(mtbmin,wt);
     h_mCT->Fill(mct,wt);
 
-    //----MT and MT2
+    //----MT, MT2j and MT2
     double mt = 0, mt2j = 0, mt2 = 0.;
     mt = sqrt(2*bestAK8J1.Pt()*MET*(1-cos(DeltaPhi(METPhi,bestAK8J1.Phi()))));
     if(bestAK8J2IdxInMainColl != -1) {
@@ -361,13 +358,6 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     }
     else mt2 = 0.;
     //    cout<<goodAk8.size()<<" :"<<ak8JBoosted.size()<<" nBoosted:"<<goodAk8.size()<<endl;
-    //------------ZZMET-----------
-    // if(MET < 300 || HT < 400) continue;//ZZMET
-    // if(goodAk8.size()<2) continue;//ZZMET
-    // if(goodAk8[0].Pt() < 200) continue;//ZZMET
-    // if(goodAk8[1].Pt() < 200) continue;//ZZMET
-    // if(((*JetsAK8_softDropMass)[0] < 70 || (*JetsAK8_softDropMass)[0] > 100)) continue;//ZZMET
-    // if(((*JetsAK8_softDropMass)[1] < 70 || (*JetsAK8_softDropMass)[1] > 100)) continue;//ZZMET
         
     vector<TLorentzVector> ak4jNotAK8;
     for(int i=0;i<Jets->size();i++){
@@ -396,12 +386,7 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
       if(ak4jNotAK8.size() < 2) continue;
       if(ak4PairBosonLike.M() < 60 || ak4PairBosonLike.M() > 120) continue;
     }
-    //    if(evtType!=200) continue;
-    //    if(goodAk8.size()>=1 && tau21J2 > 0.45) continue;
-    // if(bjets.size()>0 && goodAk8.size()>1){
-    //   if(goodAk8[1].DeltaR(bjets[0]) < 0.8) continue;//ZZMET
-    // }
-
+        
     h_MET->Fill(MET,wt);
     h_METvBin->Fill(MET,wt);
     h_METvBinZZMET->Fill(MET,wt);
@@ -542,6 +527,38 @@ int SignalReg::getEventType(){
       }
     }//good ak8s
   }
+  //-------------tagging variables
+  vector<int> deepWIdx, tau21Idx;
+  double sdMass = 0, maxDeepW = 0., minTau21 = 100.;
+  int bestTau21ak8Idx = -2, bestDeepWIdx = -1;
+  for(int i=0;i<JetsAK8->size();i++){
+    if((*JetsAK8)[i].Pt() < 200 || abs((*JetsAK8)[i].Eta()) > 2.0) continue;
+    sdMass = (*JetsAK8_softDropMass)[i];
+    if(sdMass > massLow && sdMass < massHigh){
+      if((*JetsAK8_wDiscriminatorDeep)[i] > dwdisValue){
+	deepWIdx.push_back(i);
+	if(maxDeepW < (*JetsAK8_wDiscriminatorDeep)[i]){
+	  maxDeepW = (*JetsAK8_wDiscriminatorDeep)[i];
+	  bestDeepWIdx = i;
+	}
+      }
+      if(((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]) < tau21Value){
+	tau21Idx.push_back(i);
+	if(minTau21 > ((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i])){
+	  minTau21 = ((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]);
+	  bestTau21ak8Idx = i;
+	}	  
+      }
+    }
+  }
+  if(bestDeepWIdx == bestTau21ak8Idx){
+    if(deepWIdx.size()==1 && tau21Idx.size()==1) bestTau21ak8Idx = -2;//forget about tau21, potential 1TxM
+    if(deepWIdx.size()>=1 && tau21Idx.size()>=2){ bestTau21ak8Idx = (bestTau21ak8Idx==tau21Idx[0]) ? tau21Idx[1] : tau21Idx[0];}
+    if(deepWIdx.size()>=2 && tau21Idx.size()==1){ bestDeepWIdx = (bestDeepWIdx==deepWIdx[0]) ? deepWIdx[1] : deepWIdx[0];}
+  }
+  bestAK8J1IdxInMainColl = bestDeepWIdx;
+  if(bestDeepWIdx >=0) bestAK8J1 = (*JetsAK8)[bestDeepWIdx];
+  //-----------------------------------------------
   if(bestAK8J1IdxInMainColl >= 0 && bestAK8J2IdxInMainColl >= 0) evtType =  200;
   //-----------2 boosted jets? ends here
   //-----------0 boosted jets? start
@@ -579,8 +596,9 @@ int SignalReg::getEventType(){
 void SignalReg::getEventTypeWZW(){
   if(BTagsDeepCSV > 0) return;
   vector<TString> name;
-  int bestWidx = -1, nWmd = 0, nZmd = 0, nWmc = 0, nZmc = 0, nTau21 = 0;
-  double mt = 0., sdMass_Wmd = 0., sdMass_Zmd = 0., sdMass_Wmc = 0., sdMass_Zmc = 0., sdMass_tau21 = 0., sdMass = 0.;
+  int bestWidx = -1, nWmd = 0, nZmd = 0, nWmc = 0, nZmc = 0, nTau21 = 0, nTau21AntiTag = 0;
+  double mt = 0., sdMass_Wmd = 0., sdMass_Zmd = 0., sdMass_Wmc = 0., sdMass_Zmc = 0., sdMass_tau21 = 0., sdMass_tau21AntiTag = 0., sdMass = 0.;
+
   for(int i=0; i < JetsAK8->size(); i++){
     if(mt < 0.1) mt = sqrt(2*(*JetsAK8)[i].Pt()*MET*(1-cos(DeltaPhi(METPhi,(*JetsAK8)[i].Phi()))));
     sdMass = (*JetsAK8_softDropMass)[i];
