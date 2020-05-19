@@ -38,13 +38,15 @@ class SignalReg : public NtupleVariables{
   bool isMC=true;
   double wt=0,lumiInfb=35.815165;
   double massLow = 65., massHigh = 105.; //65-90
-  double massLowH = 85., massHighH = 135.; //85-135, 75-145
+  double massLowH = 105., massHighH = 135.; //85-135, 75-145
   double deepDoubleBDiscriminatorValue = 0.7; //0.3 for DoubleBDiscriminatorValue
   double dwdisValue = 0.918;
   double dzdisValue = 0.918;
   double dwdisMDvalue = 0.479;//0.245;//0.479;//0.704;
   double dzhdisMDvalue = 0.175;
   double tau21Value = 0.35;
+  double tau21LPValue = 0.45;
+  double tau21CRValue = 0.45;
   double deepCSVvalue = 0;
   vector<TLorentzVector> bjets;
   vector<TLorentzVector> nonbjets;
@@ -151,6 +153,13 @@ class SignalReg : public NtupleVariables{
   TH1D *h_dPhi3;
   TH1D *h_dPhi4;
 
+  TH1D *h_METvBin_FBWH;
+  TH1D *h_METvBin_FBW;
+  TH1D *h_METvBin_FBH;
+  TH1D *h_METvBin_2T2M;
+  TH1D *h_METvBin_1T2M;
+  TH1D *h_METvBin_1T1M;
+
   TH1D *h_EvtTypeWH_0AK8M;
   TH1D *h_MET_catWH[36];
   TH1D *h_METvBin_catWH[36];
@@ -189,6 +198,10 @@ class SignalReg : public NtupleVariables{
   TH1D *h_MET_Tau21_WWZ;
   TH1D *h_METvBin_Tau21_WWZ;
   TH1D *h_SDMass_Tau21_WWZ;
+  TH1D *h_MET_Tau21AntiTag_WWZ;
+  TH1D *h_METvBin_Tau21AntiTag_WWZ;
+  TH1D *h_SDMass_Tau21AntiTag_WWZ;
+  TH1D *h_Tau21NotDeepWTagged;
 
   TH1D *h_MET_WZW[17];
   TH1D *h_METvBin_WZW[17];
@@ -346,6 +359,12 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_EvtType->Fill("2 Good AK8",0);
   h_EvtType->Fill("0 Good AK8",0);
 
+  h_METvBin_FBWH  = new TH1D("METvBin_FBWH","MET for fully boosted W & H",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_FBW  = new TH1D("METvBin_FBW","MET for fully boosted W only",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_FBH  = new TH1D("METvBin_FBH","MET for fully boosted H only",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_2T2M  = new TH1D("METvBin_2T2M","MET for 2T2M of WZW",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_1T2M  = new TH1D("METvBin_1T2M","MET for 1T2M of WZW",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_1T1M  = new TH1D("METvBin_1T1M","MET for 1T1M of WZW",METvbins.size()-1,&(METvbins[0]));
   
   TString catName;
   for(int t=2;t>=0;t--)
@@ -500,6 +519,10 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_SDMass_Tau21_WWZ = new TH1D("SDMass_Tau21_WWZ","SD mass of 2nd W/Z cand for 2 W/Z tagged events (Wmc_Tau21)",60,0,300);
   h_MET_Tau21_WWZ = new TH1D("MET_Tau21_WWZ","MET for 1 W-mass corrl and 1 Tau21 AK8 tagged events (Wmc_Tau21)",200,0,2000);
   h_METvBin_Tau21_WWZ = new TH1D("METvBin_Tau21_WWZ","MET for 1 W-mass corrl and 1 Tau21 AK8 tagged events (Wmc_Tau21)",METvbins.size()-1,&(METvbins[0]));
+  h_SDMass_Tau21AntiTag_WWZ = new TH1D("SDMass_Tau21AntiTag_WWZ","SD mass of 2nd W/Z cand for 2 W/Z tagged events (Wmc_Tau21AntiTag)",60,0,300);
+  h_MET_Tau21AntiTag_WWZ = new TH1D("MET_Tau21AntiTag_WWZ","MET for 1 W-mass corrl and 1 Tau21AntiTag AK8 tagged events (Wmc_Tau21AntiTag)",200,0,2000);
+  h_METvBin_Tau21AntiTag_WWZ = new TH1D("METvBin_Tau21AntiTag_WWZ","MET for 1 W-mass corrl and 1 Tau21AntiTag AK8 tagged events (Wmc_Tau21AntiTag)",METvbins.size()-1,&(METvbins[0]));
+  h_Tau21NotDeepWTagged = new TH1D("Tau21NotDeepWTagged","Tau21 of the AK8 not tagged by DeepW for WZW",100,0,1);
   for(int i=1;i<=h_EvtTypeFine->GetNbinsX();i++){
     catName = h_EvtTypeFine->GetXaxis()->GetBinLabel(i);
     h_MET_WZW[i-1] = new TH1D("MET_"+catName,"MET for WZW for "+catName,200,0,2000);

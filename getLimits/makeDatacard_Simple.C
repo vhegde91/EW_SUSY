@@ -22,20 +22,19 @@ string getfname(const char *fname1){string fname=fname1;fname.pop_back();fname.p
 void setLastBinAsOverFlow(TH1D*);
 
 //void makeDatacard_Simple(double mParent,double mKid,TString sigFile,TString histname){
-void makeDatacard_Simple(TString sigFile,TString apndname,TString histname){
+void makeDatacard_Simple(TString sigFile,TString histname){
   TString name;
   int jmax=5;//no. of backgrounds
   int nSig=1;//1 signal
   int nFiles=nSig+jmax;
   TFile *f[nFiles];
-  f[0] = new TFile(sigFile+apndname+".root");
-  f[1] = new TFile("ST__MC2018"+apndname+".root");
-  f[2] = new TFile("Rare_MC2018MC2017MC2016"+apndname+".root");
-  f[3] = new TFile("TTJets_MC2018"+apndname+".root");
-  f[4] = new TFile("WJetsToLNu_HT_MC2018"+apndname+".root");
-  f[5] = new TFile("ZJetsToNuNu_HT_MC2018"+apndname+".root");
-  TString dirName="WH/";
-  // if(apndname.Contains("/")) dirName="WH/";
+  f[0] = new TFile(sigFile+".root");
+  f[1] = new TFile("ST__MC2018.root");
+  f[2] = new TFile("Rare_MC2018MC2017MC2016.root");
+  f[3] = new TFile("TTJets_MC2018.root");
+  f[4] = new TFile("WJetsToLNu_HT_MC2018.root");
+  f[5] = new TFile("ZJetsToNuNu_HT_MC2018.root");
+  TString dirName="";
 
   //  TString histname = "METvBin_1Wt1Wm1Ht1Hm"; //"METvBin_0-1Wm1Hm";
   TH1D *hist1[nFiles];
@@ -113,7 +112,7 @@ void makeDatacard_Simple(TString sigFile,TString apndname,TString histname){
     //delete hist2;
     TString exe_cmd = "mv " + name + " .temp.tmp; combineCards.py .temp.tmp > "+name + ";rm .temp.tmp";
     //    cout<<exe_cmd<<endl;
-    system(exe_cmd);
+    //    system(exe_cmd);
   }
 }
 
