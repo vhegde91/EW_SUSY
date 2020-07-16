@@ -12,6 +12,7 @@
 #include "TFile.h"
 #include "TLorentzVector.h"
 #include "TDirectory.h"
+#include "TF1.h"
 #include "MT2_ROOT.h"
 
 class SignalReg : public NtupleVariables{
@@ -28,17 +29,24 @@ class SignalReg : public NtupleVariables{
   void getEventTypeWZW();
   TString getEventTypeWH();
   void print(Long64_t);
+  void applySDmassCorrAllAK8();
   //
   TLorentzVector visa = TLorentzVector( -18.1222 , -14.4356 , 0 , 158.653);
   TLorentzVector visb = TLorentzVector( 48.2681 , 38.449 , 0 , 62.513);
   TLorentzVector met4 = TLorentzVector( -30.1459 , -24.0134 , 0 , 74.8509);
   //  ComputeMT2 mycalc;
   //
+  TFile *sdCorrFile;
+  TF1 *puppisd_corrGEN, *puppisd_corrRECO_cen, *puppisd_corrRECO_for;
+  TH1D *CRweightsHist;
+  vector<TLorentzVector> uncorrAK8SubjSum;
+  vector<double> SDmassCorrFac;
   //Variables defined
   bool isMC=true;
   double wt=0,lumiInfb=35.815165;
   double massLow = 65., massHigh = 105.; //65-90
-  double massLowH = 85., massHighH = 135.; //85-135, 75-145
+  double massLowH = 105., massHighH = 135.; //85-135, 75-145
+  double massLowZ = 75., massHighZ = 105.;
   double deepDoubleBDiscriminatorValue = 0.7; //0.3 for DoubleBDiscriminatorValue
   double dwdisValue = 0.918;
   double dzdisValue = 0.918;
@@ -50,7 +58,6 @@ class SignalReg : public NtupleVariables{
   double deepCSVvalue = 0;
   vector<TLorentzVector> bjets;
   vector<TLorentzVector> nonbjets;
-  //    double massLow = 0., massHigh = 1000.;
 
   vector<float> mainWdisc;
   float i_mainWdisc;
@@ -62,6 +69,7 @@ class SignalReg : public NtupleVariables{
 
   vector<double> METvbinsZZMET={300,450,600,800,1000,1200,2000};
   vector<double> METvbins={200,250,300,350,400,450,550,650,800,1200};
+  vector<double> ptvbins={200,300,400,500,600,800,1200,2000};
   vector<double> mTvbins={400,500,600,700,800,900,1050,1300,2000};
   vector<double> mT2Jvbins={0,100,200,300,400,500,600,800,1000,1400};
   vector<double> mTSumvbins={500,700,900,1100,1400,1700,2000,2500};
@@ -109,6 +117,7 @@ class SignalReg : public NtupleVariables{
   TH1D *h_AK8M_SigZ;
   TH1D *h_GenZmassDeepWpass;
   TH1D *h_SDmassDeepWpassGenZmatch;
+  TH1D *h_dRGenWb;
 
   TH1D *h_MT, *h_MTvBin, *h_MT2, *h_MT2vBin;
   TH1D *h_MT2J, *h_MT2JvBin;
@@ -130,6 +139,10 @@ class SignalReg : public NtupleVariables{
   TH1D *h_dRTaggedHFailM;
   TH1D *h_dRTaggedWFailM;
 
+  TH1D *h_Zkids;
+  TH1D *h_GenPartInDeepDoubleBpassAK8;
+  TH1D *h_GenPartInDeepDoubleBfailAK8;
+  
   TH1D *h_dPhibJetAK4BosonCand;
   TH1D *h_dRbJetAK4BosonCand;
   TH1D *h_dPhiLSPs;
@@ -154,14 +167,17 @@ class SignalReg : public NtupleVariables{
   TH1D *h_dPhi4;
 
   TH1D *h_METvBin_FBWH;
+  TH1D *h_METvBin_FBWZ;
   TH1D *h_METvBin_FBW;
   TH1D *h_METvBin_FBH;
+  TH1D *h_METvBin_FBZ;
   TH1D *h_METvBin_2T2M;
   TH1D *h_METvBin_1T2M;
   TH1D *h_METvBin_1T1M;
 
   TH1D *h_EvtTypeWH_0AK8M;
   TH1D *h_MET_catWH[36];
+  TH1D *h_HT_catWH[36];
   TH1D *h_METvBin_catWH[36];
   TH1D *h_mT_catWH[36];
   TH1D *h_AK8HPt_catWH[36];
@@ -172,6 +188,7 @@ class SignalReg : public NtupleVariables{
   TH1D *h_AK8WEta_catWH[36];
   TH1D *h_AK8WM_catWH[36];
   TH1D *h_mT2J_catWH[36];
+  TH1D *h_nAK8_catWH[36];
 
   TH1D *h_LeadbPairMass_catWH[36];
   TH1D *h_LeadNonbPairMass_catWH[36];
@@ -204,9 +221,16 @@ class SignalReg : public NtupleVariables{
   TH1D *h_Tau21NotDeepWTagged;
 
   TH1D *h_MET_WZW[17];
+  TH1D *h_HT_WZW[17];
   TH1D *h_METvBin_WZW[17];
   TH1D *h_NJets_WZW[17];
+  TH1D *h_nAK8_WZW[17];
   TH1D *h_mTBest_WZW[17];
+  TH1D *h_LeadAK8Pt_WZW[17];
+  TH1D *h_LeadAK8PtvBin_WZW[17];
+  TH2D *h2_LeadAK8PtMET_WZW[17];
+  TH2D *h2_nJetsMET_WZW[17];
+  TH2D *h2_HTMET_WZW[17];
   TH1D *h_AK8Pt_WZW[17];
   TH1D *h_AK8Eta_WZW[17];
   TH1D *h_AK8M_WZW[17];
@@ -216,7 +240,10 @@ class SignalReg : public NtupleVariables{
   TH1D *h_AK4PairEta_WZW[17];
   TH1D *h_AK4PairM_WZW[17];
   TH1D *h_dPhiMETAK4Pair_WZW[17];
-  
+  TH1D *h_massAK8WAK4nonb_WZW[17];
+  TH1D *h_nAK8_0T1M_shapeCorr_WZW;
+  TH1D *h_METvBin_0T1M_shapeCorr_WZW;
+
   TH1F *h_cutflow;
   TFile *oFile;
   
@@ -272,6 +299,11 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_AK8M_SigZ = new TH1D("AK8M_SigZ","Mass for AK8 matched to Z->qq",100,0,200);
   h_GenZmassDeepWpass = new TH1D("GenZmassDeepWpass","Mass of Gen Z->qq, minDR < 0.1, AK8 jet passes DeepWdisc",100,0,200);
   h_SDmassDeepWpassGenZmatch = new TH1D("SDmassDeepWpassGenZmatch","SD Mass of AK8 matched to Gen Z->qq, minDR < 0.1, AK8 jet passes DeepWdisc",100,0,200);
+  h_Zkids = new TH1D("Zkids","PID of daughters of Z",25,0,25);
+  h_GenPartInDeepDoubleBpassAK8 = new TH1D("GenPartInDeepDoubleBpassAK8","PDG ID particles inside (dR < 0.4) AK8 passing DeepDoubleB disc",25,0,25);
+  h_GenPartInDeepDoubleBfailAK8 = new TH1D("GenPartInDeepDoubleBfailAK8","PDG ID particles inside (dR < 0.4) AK8 failing DeepDoubleB disc",25,0,25);
+
+  h_dRGenWb = new TH1D("dRGenWb","dR(GenW,b)",40,0,2);
   h_DeepWdisc_SigW = new TH1D("DeepWdisc_SigW","Deep W disc for AK8 matched to W->qq, minDR < 0.1",1000,0,1);
   h_DeepWdiscMD_SigW = new TH1D("DeepWdiscMD_SigW","Deep W disc MD for AK8 matched to W->qq, minDR < 0.1",1000,0,1);
   h_Tau21_SigW = new TH1D("Tau21_SigW","Tau21 for AK8 matched to W->qq, minDR < 0.1",1000,0,1);
@@ -281,9 +313,9 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_SDmassDeepWpassGenWmatch = new TH1D("SDmassDeepWpassGenWmatch","SD Mass of AK8 matched to Gen W->qq, minDR < 0.1, AK8 jet passes DeepWdisc",100,0,200);
 
   h_LeadAK8Mass = new TH1D("LeadAK8Mass","Leading AK8 SD Mass",60,0,300);
-  h_AK8MassNearGenH = new TH1D("AK8MassNearGenH","AK8 SD mass near GenH (dR<0.3)",60,0,300);;
-  h_AK8MassNearGenW = new TH1D("AK8MassNearGenW","AK8 SD mass near GenW (dR<0.3)",60,0,300);
-  h_AK8MassNearGenZ = new TH1D("AK8MassNearGenZ","AK8 SD mass near GenZ (dR<0.3)",60,0,300);
+  h_AK8MassNearGenH = new TH1D("AK8MassNearGenH","AK8 SD mass near GenH (dR<0.1)",60,0,300);;
+  h_AK8MassNearGenW = new TH1D("AK8MassNearGenW","AK8 SD mass near GenW (dR<0.1)",60,0,300);
+  h_AK8MassNearGenZ = new TH1D("AK8MassNearGenZ","AK8 SD mass near GenZ (dR<0.1)",60,0,300);
 
   h_dRbosons = new TH1D("dRbosons","#DeltaR b/w Gen W/Z/H",100,0,5);
   h_nAk4jNotAK8 = new TH1D("nAk4jNotAK8","No. of AK4 jets not within 0.8 of best AK8 jet or second best, if exists, AK8 jet",8,0,8);
@@ -360,8 +392,10 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_EvtType->Fill("0 Good AK8",0);
 
   h_METvBin_FBWH  = new TH1D("METvBin_FBWH","MET for fully boosted W & H",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_FBWZ  = new TH1D("METvBin_FBWZ","MET for fully boosted W & Z",METvbins.size()-1,&(METvbins[0]));
   h_METvBin_FBW  = new TH1D("METvBin_FBW","MET for fully boosted W only",METvbins.size()-1,&(METvbins[0]));
   h_METvBin_FBH  = new TH1D("METvBin_FBH","MET for fully boosted H only",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_FBZ  = new TH1D("METvBin_FBZ","MET for fully boosted Z only",METvbins.size()-1,&(METvbins[0]));
   h_METvBin_2T2M  = new TH1D("METvBin_2T2M","MET for 2T2M of WZW",METvbins.size()-1,&(METvbins[0]));
   h_METvBin_1T2M  = new TH1D("METvBin_1T2M","MET for 1T2M of WZW",METvbins.size()-1,&(METvbins[0]));
   h_METvBin_1T1M  = new TH1D("METvBin_1T1M","MET for 1T1M of WZW",METvbins.size()-1,&(METvbins[0]));
@@ -412,6 +446,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
 	for(int Mh=1;Mh>=0;Mh--){
 	  catName = to_string(t)+"Wt"+to_string(M)+"Wm"+to_string(th)+"Ht"+to_string(Mh)+"Hm";
 	  h_MET_catWH[iHist] = new TH1D("MET_"+catName,"MET for "+catName,200,0,2000);
+	  h_HT_catWH[iHist] = new TH1D("HT_"+catName,"HT for "+catName,300,0,3000);
 	  h_METvBin_catWH[iHist] = new TH1D("METvBin_"+catName,"METvBin for "+catName,METvbins.size()-1,&(METvbins[0]));
 	  h_mT_catWH[iHist] = new TH1D("mT_"+catName,"mT for "+catName,200,0,2000);
 	  h_AK8HPt_catWH[iHist] = new TH1D("AK8HPt_"+catName,"H cand AK8 Pt for "+catName,200,0,2000);
@@ -422,6 +457,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
 	  h_AK8WEta_catWH[iHist] = new TH1D("AK8WEta_"+catName,"W cand AK8 Eta for "+catName,120,-6,6);
 	  h_AK8WM_catWH[iHist] = new TH1D("AK8WM_"+catName,"W cand AK8 Mass for "+catName,40,0,200);
 	  h_mT2J_catWH[iHist] = new TH1D("mT2J_"+catName,"mT(2ndAK8,MET) for "+catName,200,0,2000);
+	  h_nAK8_catWH[iHist] = new TH1D("nAK8_"+catName,"no. of AK8 jets with Pt > 200, |eta| < 2.0 for WH for "+catName,10,0,10);
 
 	  h_mTLead_catWH[iHist] = new TH1D("mTLead_"+catName,"mT(Leading AK8,MET) for "+catName,200,0,2000);
 	  h_mT2Lead_catWH[iHist] = new TH1D("mT2Lead_"+catName,"mT(2nd leading AK8,MET) for "+catName,200,0,2000);
@@ -437,7 +473,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
 	  h_mCT_catWH[iHist] = new TH1D("mCT_"+catName,"mCT(b1,b2) for "+catName,100,0,1000);
 	  h_mTqMin_catWH[iHist] = new TH1D("mTqMin_"+catName,"min(mT_q1, mT_q2) from W for "+catName,100,0,1000);
 	  h_mCTq_catWH[iHist] = new TH1D("mCTq_"+catName,"mCT(q1, q2) from W for ",100,0,1000);
-
+	  
 	  iHist++;
 	}
   for(int j=1;j>=0;j--)
@@ -445,6 +481,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
       for(int H=1;H>=0;H--){
 	catName = to_string(j)+"-"+to_string(W)+"Wm"+to_string(H)+"Hm";
 	h_MET_catWH[iHist] = new TH1D("MET_"+catName,"MET for "+catName,200,0,2000);
+	h_HT_catWH[iHist] = new TH1D("HT_"+catName,"HT for "+catName,300,0,3000);
 	h_METvBin_catWH[iHist] = new TH1D("METvBin_"+catName,"METvBin for "+catName,METvbins.size()-1,&(METvbins[0]));
 	h_mT_catWH[iHist] = new TH1D("mT_"+catName,"mT for "+catName,200,0,2000);
 	h_AK8HPt_catWH[iHist] = new TH1D("AK8HPt_"+catName,"H cand AK8 Pt for "+catName,200,0,2000);
@@ -455,6 +492,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
 	h_AK8WEta_catWH[iHist] = new TH1D("AK8WEta_"+catName,"W cand AK8 Eta for "+catName,120,-6,6);
 	h_AK8WM_catWH[iHist] = new TH1D("AK8WM_"+catName,"W cand AK8 Mass for "+catName,40,0,200);
 	h_mT2J_catWH[iHist] = new TH1D("mT2J_"+catName,"mT(2ndAK8,MET) for "+catName,200,0,2000);
+	h_nAK8_catWH[iHist] = new TH1D("nAK8_"+catName,"no. of AK8 jets with Pt > 200, |eta| < 2.0 for WH for "+catName,10,0,10);
 
 	h_mTLead_catWH[iHist] = new TH1D("mTLead_"+catName,"mT(Leading AK4 cand,MET) for "+catName,200,0,2000);
 	h_mT2Lead_catWH[iHist] = new TH1D("mT2Lead_"+catName,"mT(2nd leading AK4 cand,MET) for "+catName,200,0,2000);
@@ -479,6 +517,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
 	  if(M==1 && Mh==1) continue;
 	  catName = to_string(t)+"Wt"+to_string(M)+"wm"+to_string(th)+"Ht"+to_string(Mh)+"hm";
 	  h_MET_catWH[iHist] = new TH1D("MET_"+catName,"MET for "+catName,200,0,2000);
+	  h_HT_catWH[iHist] = new TH1D("HT_"+catName,"HT for "+catName,300,0,3000);
 	  h_METvBin_catWH[iHist] = new TH1D("METvBin_"+catName,"METvBin for "+catName,METvbins.size()-1,&(METvbins[0]));
 	  h_mT_catWH[iHist] = new TH1D("mT_"+catName,"mT for "+catName,200,0,2000);
 	  h_AK8HPt_catWH[iHist] = new TH1D("AK8HPt_"+catName,"H cand AK8/AK4 pair Pt for "+catName,200,0,2000);
@@ -489,6 +528,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
 	  h_AK8WEta_catWH[iHist] = new TH1D("AK8WEta_"+catName,"W cand AK8/AK4 pair Eta for "+catName,120,-6,6);
 	  h_AK8WM_catWH[iHist] = new TH1D("AK8WM_"+catName,"W cand AK8/AK4 pair Mass for "+catName,40,0,200);
 	  h_mT2J_catWH[iHist] = new TH1D("mT2J_"+catName,"mT(2ndAK8,MET) for "+catName,200,0,2000);
+	  h_nAK8_catWH[iHist] = new TH1D("nAK8_"+catName,"no. of AK8 jets with Pt > 200, |eta| < 2.0 for WH for "+catName,10,0,10);
 
 	  h_mTLead_catWH[iHist] = new TH1D("mTLead_"+catName,"mT(Leading AK8,MET) for "+catName,200,0,2000);
 	  h_mT2Lead_catWH[iHist] = new TH1D("mT2Lead_"+catName,"mT(2nd leading AK8,MET) for "+catName,200,0,2000);
@@ -523,12 +563,21 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_MET_Tau21AntiTag_WWZ = new TH1D("MET_Tau21AntiTag_WWZ","MET for 1 W-mass corrl and 1 Tau21AntiTag AK8 tagged events (Wmc_Tau21AntiTag)",200,0,2000);
   h_METvBin_Tau21AntiTag_WWZ = new TH1D("METvBin_Tau21AntiTag_WWZ","MET for 1 W-mass corrl and 1 Tau21AntiTag AK8 tagged events (Wmc_Tau21AntiTag)",METvbins.size()-1,&(METvbins[0]));
   h_Tau21NotDeepWTagged = new TH1D("Tau21NotDeepWTagged","Tau21 of the AK8 not tagged by DeepW for WZW",100,0,1);
+
   for(int i=1;i<=h_EvtTypeFine->GetNbinsX();i++){
     catName = h_EvtTypeFine->GetXaxis()->GetBinLabel(i);
     h_MET_WZW[i-1] = new TH1D("MET_"+catName,"MET for WZW for "+catName,200,0,2000);
+    h_HT_WZW[i-1] = new TH1D("HT_"+catName,"HT for WZW for "+catName,300,0,3000);
     h_METvBin_WZW[i-1] = new TH1D("METvBin_"+catName,"MET for WZW for "+catName,METvbins.size()-1,&(METvbins[0]));
     h_NJets_WZW[i-1] = new TH1D("NJets_"+catName,"Njets for WZW for "+catName,10,0,10);
+    h_nAK8_WZW[i-1] = new TH1D("nAK8_"+catName,"no. of AK8 jets with Pt > 200, |eta| < 2.0 for WZW for "+catName,10,0,10);
     h_mTBest_WZW[i-1] = new TH1D("mTBest_"+catName,"mT(Best AK8/AK4pair, MET) for "+catName,200,0,2000);
+    h_LeadAK8Pt_WZW[i-1] = new TH1D("LeadAK8Pt_"+catName,"Leading AK8 Pt for "+catName,200,0,2000);
+    h_LeadAK8PtvBin_WZW[i-1] = new TH1D("LeadAK8PtvBin_"+catName,"Leading AK8 Pt, vbin, for "+catName,ptvbins.size()-1,&(ptvbins[0]));
+    h2_LeadAK8PtMET_WZW[i-1] = new TH2D("LeadAK8PtMET_"+catName,"x:Leading AK8 Pt vs MET for "+catName,200,0,2000,200,0,2000);
+    h2_nJetsMET_WZW[i-1] = new TH2D("nJetsMET_"+catName,"x:n AK4 jets vs MET for "+catName,10,0,10,METvbins.size()-1,&(METvbins[0]));
+    h2_HTMET_WZW[i-1] = new TH2D("HTMET_"+catName,"x:HT jets vs MET for "+catName,300,0,3000,METvbins.size()-1,&(METvbins[0]));
+
     h_AK8Pt_WZW[i-1] = new TH1D("AK8Pt_"+catName,"Best AK8 Pt for "+catName,200,0,2000);
     h_AK8Eta_WZW[i-1] = new TH1D("AK8Eta_"+catName,"Best AK8 eta for "+catName,120,-6,6);
     h_AK8M_WZW[i-1] = new TH1D("AK8M_"+catName,"AK8 pair mass for "+catName,60,0,300);
@@ -539,8 +588,10 @@ void SignalReg::BookHistogram(const char *outFileName) {
     h_AK4PairEta_WZW[i-1] = new TH1D("AK4PairEta_"+catName,"Best AK4pair eta for "+catName,120,-6,6);
     h_AK4PairM_WZW[i-1] = new TH1D("AK4PairM_"+catName,"AK4Pair pair mass for "+catName,60,0,300);
     h_dPhiMETAK4Pair_WZW[i-1] = new TH1D("dPhiMETAK4Pair_"+catName,"DPhi(MET, Best AK4Pair"+catName,40,0,4);
-
+    h_massAK8WAK4nonb_WZW[i-1] = new TH1D("massAK8WAK4nonb_"+catName,"mass of AK8 W and nearest (0.8 < dR < 1.2) AK4 "+catName,60,0,300);
   }
+  h_nAK8_0T1M_shapeCorr_WZW = new TH1D("nAK8_0T1M_shapeCorr_WZW","no. of AK8 jets with Pt > 200, |eta| < 2.0 for 0T1M with shape corr from 1T1M",10,0,10);
+  h_METvBin_0T1M_shapeCorr_WZW = new TH1D("METvBin_0T1M_shapeCorr_WZW","MET for WZW for 0T1M with shape corr from 1T1M",METvbins.size()-1,&(METvbins[0]));
 }
 
 SignalReg::SignalReg(const TString &inputFileList, const char *outFileName, const char* dataset) {

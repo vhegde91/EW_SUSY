@@ -1,0 +1,31 @@
+Combination of dataCards/TChiWH_1000_100_MC2018_METvBin_2T2M_bin2.txt
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+bin          A_bin1	B_bin1      C_bin1     D_bin1
+observation  10.1	50	    10.1       50.1
+----------------------------------------------------------------------------------------------------------------------------------
+bin         A_bin1	 B_bin1     C_bin1     D_bin1	  A_bin1   D_bin1
+process     data_0l_Prd  data_1l    Wtt_MC_0l  Wtt_MC_1l  sig_SR   sig_1l
+process     1		 1	    1	       1	  0	   0
+rate        1		 1	    1	       1	  5.5	   0.1
+----------------------------------------------------------------------------------------------------------------------------------
+Syst1  lnN  -		 -	    1.2	       -	  -	   -		
+Syst2  lnN  -		 -	    -	       1.05	  -	   -
+Syst3  lnN  -		 -	    -	       -	  1.1	   1.1
+----------------------------------------------------------------------------------------------------------------------------------
+N_0l_Wtt_Prd    rateParam	A_bin1	data_0l_Prd	((@0/@1)*@2) N_Wtt_0l,N_Wtt_1l,N_data_1l
+N_data_1l	rateParam	B_bin1	data_1l		50
+N_Wtt_0l	rateParam	C_bin1	Wtt_MC_0l	10.1
+N_Wtt_1l	rateParam	D_bin1	Wtt_MC_1l	50.1
+
+n_0l_Wtt_Prd    rateParam	a_bin1	_data_0l_Prd	((@0/@1)*@2) n_Wtt_0l,n_Wtt_1l,n_data_1l
+n_data_1l	rateParam	b_bin1	_data_1l	25
+n_Wtt_0l	rateParam	c_bin1	_Wtt_MC_0l	5.1
+n_Wtt_1l	rateParam	d_bin1	_Wtt_MC_1l	25.1
+
+N_Tot_Prd	rateParam	AZ_bin1 data_TotPrd	 ((@0-@1)*@2) n_data_0l_AntiTag,n_0l_Wtt_Prd,PassFailR
+n_data_0l_AntiTag rateParam 	BZ_bin1 _data_0l_AntiTag 30
+n_0l_Wtt_Prd	rateParam	CZ_bin1	_data_0l_Prd	 ((@0/@1)*@2) n_Wtt_0l,n_Wtt_1l,n_data_1l
+PassFailR	rateParam	DZ_bin1 process_PFR	 0.33

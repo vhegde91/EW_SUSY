@@ -1,0 +1,15 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+-------------------------------------
+bin		SR 
+observation     181.6
+-------------------------------------
+bin     SR      SR      SR
+process sig     tt_wjet zjets
+process 0       1       2   
+rate    150     100     81.6  
+-------------------------------------
+sy1 lnN	1.02	-	-	
+sy2 lnN	-	1.05	-	
+# sy3 lnN	-	-	1.08
