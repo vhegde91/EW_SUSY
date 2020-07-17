@@ -8,23 +8,19 @@ observation     181.6                   200                     270         	200
 bin     SR      SR      SR      CR_1l_tag       CR_1l_tag       CR_1l_tag       CR_0l_antiT     CR_0l_antiT     CR_0l_antiT     CR_1l_antiT
 process sig     tt_wjet zjets   sig     	tt_wjet 	zjets   	sig     	tt_wjet 	zjets   	tt_wjet		
 process 0       1       2       0       	1       	2       	0       	1       	2       	1
-rate    150     200     240     0.0     	400      	0.0    		0.0    		200      	500      	400
+rate    150     1     	1     	0.0     	1		0.0    		0.0    		1 		1		1
 -------------------------------------
 sy0 lnN	1.02	-	-	-		-		-		-		-		-	        -
 sy1 lnN	-	1.05	-	-		-		-		-		-		-		-
 sy2 lnN	-	-	1.08	-		-		-		-		-		-		-
-# sy3 lnN	-	-	-	-		-		-		-		1.1		-		-
 -------------------------------------
-rateparam1      rateParam       CR_1l_tag       tt_wjet 1
-rateparam1      rateParam       SR      	tt_wjet 1
-rateparam2      rateParam       SR      	zjets   1
-rateparam2      rateParam       CR_0l_antiT     zjets   1
-rateparam3      rateParam       CR_0l_antiT     tt_wjet 1
-rateparam3      rateParam       CR_1l_antiT     tt_wjet 1
--------------------------------------
--------------------------------------
-# sy1 lnN	-	1.05	-	-		-		-		-		-		-		-
-# sy2 lnN	-	-	1.08	-		-		-		-		-		-		-
-# sy3 lnN	-	-	-	-		-		-		-		1.1		-		-
+ttwPred		rateParam	SR		tt_wjet  ((@0/@1)*(@2)) rateparam0,rateparam1,rateparam2
+rateparam0      rateParam           tt_wjet 200
+rateparam1      rateParam       CR_1l_tag      	tt_wjet	 200
 
-# sy3 lnN	-	-	-	-		-		-		-		1.1		-		1.1
+
+rateparam2      rateParam       SR      	zjets   120
+rateparam2      rateParam       CR_0l_antiT     zjets   250
+rateparam3      rateParam       CR_0l_antiT     tt_wjet 100
+rateparam3      rateParam       CR_1l_antiT     tt_wjet 200
+-------------------------------------
