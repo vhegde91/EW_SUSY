@@ -68,8 +68,6 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
   h_cutflow->Fill("PassedTrigger",0);
   h_cutflow->Fill("mT>500",0);
   h_cutflow->Fill("0b_GoodAK8",0);
-  h_cutflow->Fill("mTbMin>200",wt);
-  h_cutflow->Fill("1b_GoodAK8",0);
   h_cutflow->Fill("NEvtsNoWtLeft",0);
 
   h_filters->Fill("TotEvnts",0);
@@ -137,7 +135,7 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     //   NumEvents = numEvents;
     //   Weight = xsec/numEvents;
     // }
-    //    if(jentry>200) break;
+    //    if(jentry>100) break;
     //#################### RA2b cuts
     h_cutflow->Fill("0",1);
     h_cutflow->Fill("Weighted",wt);    
@@ -202,7 +200,7 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     if(dataRun==-2018){//for MC 2018
       if( (EvtNum % 1000 > 1000*21.0/59.6) && !passHEMjetVeto(30.)) HEMaffected = true;
     }
-    //    if(HEMaffected) continue;
+    if(HEMaffected) continue;
       h_cutflow->Fill("!HEMaffected",wt);
     //--------------------------triggers
     if(!isMC){
@@ -340,35 +338,18 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
       }
       jetsAK8hasb.push_back(foundbInAK8);    
     }// AK8 loop for b content
-    TLorentzVector b1,b2,q1,q2;
-    double mtbmin = 0, mct = 0, mtqmin = 0, mctq = 0.;
-    if(bjets.size()==1){
-      b1 = bjets[0];
-      mtbmin = sqrt(2*b1.Pt()*MET*(1-cos(DeltaPhi(METPhi,b1.Phi()))));
-    }
-    else if(bjets.size()>=2){ 
-      b1 = bjets[0]; 
-      b2 = bjets[1];
-      mtbmin = min( sqrt(2*b1.Pt()*MET*(1-cos(DeltaPhi(METPhi,b1.Phi())))),
-		    sqrt(2*b2.Pt()*MET*(1-cos(DeltaPhi(METPhi,b2.Phi())))));
-      mct = sqrt(2*b1.Pt()*b2.Pt()*(1 + cos(b1.DeltaPhi(b2))));
-      h2_mTbMin_mCT->Fill(mtbmin,mct,wt);
-    }
-    h_mTbMin->Fill(mtbmin,wt);
-    h_mCT->Fill(mct,wt);
-
     if(applySDmassCorr) applySDmassCorrAllAK8();//SD mass corrections
     vector<TLorentzVector> ak8jets;
     vector<double> sdMass;
     vector<int> idxInMainAK8;
-    vector<bool> passWmass, passHmass;
+    vector<bool> passDeepW;
+    vector<bool> passDeepbb;
+    vector<bool> passTTau21SR, passMTau21SR, passLTau21CR;
     int nDeepW = 0, nDeepbb = 0, nTTau21SR = 0, nMTau21SR = 0, nLTau21CR = 0, nDeepWTau21 = 0, nDeepWTau21LP = 0, nDeepWTau21CR = 0;
-    TLorentzVector bestW, bestH;
-    int bestWidx = -1, nAK8PtEta = 0, bestHidx = -1, nHmass = 0, nWmass = 0;
+    int nDeepWanti = 0, nDeepbbanti = 0;
+    TLorentzVector bestW;
+    int bestWidx = -1;
     double mt = 0;
-    TString catname;
-    bool ptnow = 0;
-
     if(JetsAK8->size()>0 && (*JetsAK8)[0].Pt() > 200 && abs((*JetsAK8)[0].Eta()) < 2.0)
       mt = sqrt(2*(*JetsAK8)[0].Pt()*MET*(1-cos(DeltaPhi(METPhi,(*JetsAK8)[0].Phi()))));
     if(mt < 500) continue;
@@ -376,14 +357,12 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
     if(BTagsDeepCSV==0){
       for(int i=0;i<JetsAK8->size();i++){
 	if((*JetsAK8)[i].Pt() < 200 || abs((*JetsAK8)[i].Eta()) > 2.0) continue;
-	nAK8PtEta++;
 	double temp1 = (*JetsAK8_softDropMass)[i];
 	if(temp1 < massLow || temp1 > massHigh) continue;
 	ak8jets.push_back((*JetsAK8)[i]);
 	sdMass.push_back(temp1);
 	idxInMainAK8.push_back(i);
       }
-      if(nAK8PtEta < 2) continue;
       if(ak8jets.size()==0) continue;
       h_cutflow->Fill("0b_GoodAK8",wt);
 
@@ -391,95 +370,54 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
 	int i = idxInMainAK8[j];
 	float dWv = (*JetsAK8_wDiscriminatorDeep)[i], tau21V = ((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]);
 	if(dWv > dwdisValue){
-	  nDeepW++;
+	  passDeepW.push_back(true); nDeepW++;
 	  if(bestWidx < 0){ bestWidx = i; bestW = ak8jets[j];}
 	}
+	else{
+	  passDeepW.push_back(false); nDeepWanti++;	  
+	}
 
-	if(dWv > dwdisValue || tau21V < tau21Value) nDeepWTau21++;
-	if(dWv > dwdisValue || tau21V > tau21Value && tau21V < tau21LPValue) nDeepWTau21LP++;
-	if(dWv > dwdisValue || tau21V > tau21LPValue) nDeepWTau21CR++;
+	if(dWv > dwdisValue && tau21V < tau21Value) nDeepWTau21++;
+	if(dWv > dwdisValue && tau21V > tau21Value && tau21V < tau21LPValue) nDeepWTau21LP++;
+	if(dWv > dwdisValue && tau21V > tau21LPValue) nDeepWTau21CR++;
 	
-	if(tau21V < tau21Value) nTTau21SR++;
-	else if(tau21V < tau21LPValue) nMTau21SR++;
-	else nLTau21CR++;
+	if(tau21V < tau21Value){
+	  passTTau21SR.push_back(true); nTTau21SR++; }
+	else if(tau21V < tau21LPValue){
+	  passMTau21SR.push_back(true); nMTau21SR++; }
+	else{
+	  passLTau21CR.push_back(true); nLTau21CR++;}
       }
+      TString catname;
       int nTag = 0, nTagLP = 0;
-      if(nDeepW>=1){
-	if(nDeepWTau21>=2 && nTTau21SR>=1){ nTag = 2; catname = "2T2M_SR";}
-	else if(nDeepWTau21LP>=2 && nMTau21SR>=1){ nTag = 1; catname = "1T2M_SR";}
-	else if(nDeepWTau21CR>=2 && nLTau21CR>=1){ nTag = 1; catname = "2T2M_CR";}
-	else {nTag = 1; catname = "1T1M_SR";}
-      }
-      else{
-	if(ak8jets.size()>=2) catname = "0T2M_CR";
-	else if(ak8jets.size()==1) catname = "0T1M_CR";
-	else cout<<"ERROR .... This event with 0 good AK8 must have been rejected before."<<endl;
-      }
-      h_RegionCat->Fill(catname,wt);
-      if(catname=="2T2M_SR") h_METvBin_2T2M_SR->Fill(MET,wt);
-      else if(catname=="1T2M_SR") h_METvBin_1T2M_SR->Fill(MET,wt);
-      else if(catname=="1T1M_SR") h_METvBin_1T1M_SR->Fill(MET,wt);
-      else if(catname=="2T2M_CR") h_METvBin_2T2M_CR->Fill(MET,wt);
-      else if(catname=="0T2M_CR") h_METvBin_0T2M_CR->Fill(MET,wt);
-      else if(catname=="0T1M_CR") h_METvBin_0T1M_CR->Fill(MET,wt);
-      else cout<<"!!!Cannot find category 0b"<<endl;      
-    }//if 0b
-    else{
-      if(mtbmin < 200) continue;
-      h_cutflow->Fill("mTbMin>200",wt);
+      if(nDeepW==0) nTag = 0;
+      else if(nDeepW==1 && nTTau21SR==1 && nDeepWTau21==1) nTag = 1;
+      else if(nDeepW==1 && nTTau21SR==1 && nDeepWTau21==0) nTag = 2;
+      else if(nDeepW>=2 && nTTau21SR>=1) nTag = 2;
+      else if(nDeepW>=1 && nTTau21SR>=2) nTag = 2;
 
-      for(int i=0;i<JetsAK8->size();i++){
-	if((*JetsAK8)[i].Pt() < 200 || abs((*JetsAK8)[i].Eta()) > 2.0) continue;
-	nAK8PtEta++;
-	bool foundbInAK8 = jetsAK8hasb[i];
-	double temp1 = (*JetsAK8_softDropMass)[i];
-	if(!foundbInAK8 && temp1 > massLow && temp1 < massHigh){ nWmass++; passWmass.push_back(1);}
-	else passWmass.push_back(0);
-	if(foundbInAK8 && temp1 > massLowH && temp1 < massHighH){ nHmass++; passHmass.push_back(1);}
-	else passHmass.push_back(0);
-	ak8jets.push_back((*JetsAK8)[i]);
-	sdMass.push_back(temp1);
-	idxInMainAK8.push_back(i);
+      if(nTag<=1){
+	if(nDeepW==1 && nMTau21SR==1 && nDeepWTau21LP==1) nTag = 1;
+	else if(nDeepW==1 && nMTau21SR==1 && nDeepWTau21LP==0){ nTag = 1; nTagLP = 1;}
+	else if(nDeepW>=2 && nMTau21SR>=1){ nTag = 1; nTagLP = 1;}
+	else if(nDeepW>=1 && nMTau21SR>=2){ nTag = 1; nTagLP = 1;}
+	else if(nDeepW>=1) nTag = 1;
       }
-      if(nAK8PtEta < 2) continue;
-      if(ak8jets.size()==0) continue;
-      h_cutflow->Fill("1b_GoodAK8",wt);
-      int nFBW = 0, nFBH = 0;
-      for(int j=0;j<ak8jets.size();j++){
-	int i = idxInMainAK8[j];
-	float dWv = (*JetsAK8_wDiscriminatorDeep)[i], dbbV = (*JetsAK8_deepDoubleBDiscriminatorH)[i];
-	if(dWv > dwdisValue && !(jetsAK8hasb[i])){
-	  nDeepW++;
-	  if(passWmass[j]){ 
-	    nFBW++;
-	    if(bestWidx < 0){ bestWidx = i; bestW = ak8jets[j];}
-	  }
-	}
-	if(dbbV > deepDoubleBDiscriminatorValue && jetsAK8hasb[i]){
-	  nDeepbb++;
-	  if(passHmass[j]){
-	    nFBH++;
-	    if(bestHidx < 0){ bestHidx = i; bestH = ak8jets[j];}
-	  }
-	}
+      if(ak8jets.size()>=2){
+	if(nDeepW==1 && nLTau21CR==1 && nDeepWTau21CR ==1) catname = "";
+	else if(nDeepW>=1 && nLTau21CR>=1) catname = "2T2M_CR";
+	
+	if(nTag==2) catname = "2T2M_SR";
+	else if(nTag==1 && nTagLP==1) catname = "1T2M_SR";
+	else if(nTag==0) catname = "0T2M_CR";
       }
-
-      if(nFBW>=1 && nFBH>=1) catname = "FBWH_SR";
-      else if(nFBW>=1) catname = "FBW_SR";
-      else if(nFBH>=1) catname = "FBH_SR";
-      else if(nDeepbb==0 && nDeepW==0 && nHmass>=1 && nWmass>=1) catname = "FBWH_CR";
-      else if(nDeepbb==0 && nHmass>=1) catname = "FBH_CR";
-      else if(nDeepW==0 && nWmass>=1) catname = "FBW_CR";
+      else if(ak8jets.size()==1){
+	if(nTag==1) catname = "1T1M_SR";
+	else if(nTag==0) catname = "0T1M_CR";
+      }
       else continue;
-
       h_RegionCat->Fill(catname,wt);
-      if(catname=="FBWH_SR") h_METvBin_FBWH_SR->Fill(MET,wt);
-      else if(catname=="FBW_SR") h_METvBin_FBW_SR->Fill(MET,wt);
-      else if(catname=="FBH_SR") h_METvBin_FBH_SR->Fill(MET,wt);
-      else if(catname=="FBWH_CR") h_METvBin_FBWH_CR->Fill(MET,wt);
-      else if(catname=="FBW_CR") h_METvBin_FBW_CR->Fill(MET,wt);
-      else if(catname=="FBH_CR") h_METvBin_FBH_CR->Fill(MET,wt);
-    }//>=1b
+    }//if 0b
     TString WH_catName;
     int evtType = 0;
     if(BTagsDeepCSV==0){
@@ -487,10 +425,7 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
       getEventTypeFine(evtType);//to be called only after calling getEventType();
       getEventTypeWZW();
     }
-    else{
-      WH_catName = getEventTypeWH();
-    }
-    //    if(WH_catName.Contains("1Wt0Wm0Ht1Hm") || WH_catName.Contains("0Wt1Wm0Ht1Hm") || WH_catName.Contains("0Wt0Wm0Ht1Hm") && catname!="FBH_CR"){ print(jentry);cout<<catname<<" "<<WH_catName<<endl;}
+    else WH_catName = getEventTypeWH();
 
     if(bjets.size() >=2) h_LeadbPairMass->Fill((bjets[0]+bjets[1]).M(),wt);
     else h_LeadbPairMass->Fill(0.,wt);
@@ -514,6 +449,23 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
 	if(higgs[j].DeltaR((*JetsAK8)[i]) < 0.1) h_AK8MassNearGenH->Fill((*JetsAK8_softDropMass)[i],wt);      
     }
     
+    TLorentzVector b1,b2,q1,q2;
+    double mtbmin = 0, mct = 0, mtqmin = 0, mctq = 0.;
+    if(bjets.size()==1){
+      b1 = bjets[0];
+      mtbmin = sqrt(2*b1.Pt()*MET*(1-cos(DeltaPhi(METPhi,b1.Phi()))));
+    }
+    else if(bjets.size()>=2){ 
+      b1 = bjets[0]; 
+      b2 = bjets[1];
+      mtbmin = min( sqrt(2*b1.Pt()*MET*(1-cos(DeltaPhi(METPhi,b1.Phi())))),
+		    sqrt(2*b2.Pt()*MET*(1-cos(DeltaPhi(METPhi,b2.Phi())))));
+      mct = sqrt(2*b1.Pt()*b2.Pt()*(1 + cos(b1.DeltaPhi(b2))));
+      h2_mTbMin_mCT->Fill(mtbmin,mct,wt);
+    }
+    h_mTbMin->Fill(mtbmin,wt);
+    h_mCT->Fill(mct,wt);
+
     //----MT, MT2j and MT2
     double mt2j = 0, mt2 = 0.;
     mt = sqrt(2*bestAK8J1.Pt()*MET*(1-cos(DeltaPhi(METPhi,bestAK8J1.Phi()))));
@@ -852,10 +804,8 @@ void SignalReg::getEventTypeFine(int evtType){
 	    nTagTau21++;
 	  if(bestAK8J1IdxInMainColl >=0 && bestAK8J1IdxInMainColl != i && (((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]) > tau21Value) && (((*JetsAK8_NsubjettinessTau2)[i])/((*JetsAK8_NsubjettinessTau1)[i]) < tau21LPValue))
 	    nTagTau21LP++;
-	  if( ((*JetsAK8_wDiscriminatorDeep)[i] > dwdisValue)) nDeepWTag++;//Should this be inside mass cut? 0T1M vvvv
 	}
-	//	if( ((*JetsAK8_wDiscriminatorDeep)[i] > dwdisValue)) nDeepWTag++;//Should this be inside mass cut? 0T1M vvv
-	//	cout<<((*JetsAK8_wDiscriminatorDeep)[i])<<"----";
+	if( ((*JetsAK8_wDiscriminatorDeep)[i] > dwdisValue)) nDeepWTag++;
 	if(i>0) has2AK8 = true;
       }
     }
@@ -915,11 +865,10 @@ void SignalReg::getEventTypeFine(int evtType){
       mt = sqrt(2*(*JetsAK8)[0].Pt()*MET*(1-cos(DeltaPhi(METPhi,(*JetsAK8)[0].Phi()))));
     //      mt = sqrt(2*bestAK8J1.Pt()*MET*(1-cos(DeltaPhi(METPhi,bestAK8J1.Phi()))));
     //      if(nTag==1 && nMass==2){print(0);cout<<"nTagTau21LP:"<<nTagTau21LP<<" accEvt:"<<accEvt<<endl;}
-    //    if(!accEvt) {cout<<"!!! oooo nMass:"<<nMass<<" nTag:"<<nTag<<" has2ndAK8:"<<has2AK8<<" accEvt:"<<accEvt<<" catName:"<<catName<<" nDeepWTag:"<<nDeepWTag<<" bestAK8J1IdxInMainColl:"<<bestAK8J1IdxInMainColl<<endl; print(0);}
     if(mt > 500 && accEvt){
       iHist = h_EvtTypeFine->GetXaxis()->FindBin(catName) - 1;
       if(iHist >= 17) cout<<catName<<":Overflow in EvtTypeFine WZW."<<endl;
-
+      
       h_MET_WZW[iHist]->Fill(MET,wt);
       h_HT_WZW[iHist]->Fill(HT,wt);
       h_METvBin_WZW[iHist]->Fill(MET,wt);
@@ -1214,7 +1163,7 @@ TString SignalReg::getEventTypeWH(){
   
   
   catName = to_string(nTag)+"Wt"+to_string(nMass)+"Wm"+to_string(nTagH)+"Ht"+to_string(nMassH)+"Hm";
-  //  if(nTagH!=0 || nMassH==0 || (nTag>=1 && nMass>=1)){ cout<<"nHm:"<<nMassH<<" nWm:"<<nMass<<" nHT:"<<nTagH<<" nWT:"<<nTag<<endl; print(0);}
+  //  cout<<"nHm:"<<nMassH<<" nWm:"<<nMass<<" nHT:"<<nTagH<<" nWT:"<<nTag<<endl;
   double mt=0,mt2j=0, mtLead = 0, mt2Lead = 0.;
   mt = sqrt(2*ak8H.Pt()*MET*(1-cos(DeltaPhi(METPhi,ak8H.Phi()))));
   mt2j = sqrt(2*ak8W.Pt()*MET*(1-cos(DeltaPhi(METPhi,ak8W.Phi()))));

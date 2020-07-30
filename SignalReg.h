@@ -30,6 +30,7 @@ class SignalReg : public NtupleVariables{
   TString getEventTypeWH();
   void print(Long64_t);
   void applySDmassCorrAllAK8();
+  bool passHEMjetVeto(double);
   //
   TLorentzVector visa = TLorentzVector( -18.1222 , -14.4356 , 0 , 158.653);
   TLorentzVector visb = TLorentzVector( 48.2681 , 38.449 , 0 , 62.513);
@@ -45,8 +46,8 @@ class SignalReg : public NtupleVariables{
   bool isMC=true;
   double wt=0,lumiInfb=35.815165;
   double massLow = 65., massHigh = 105.; //65-90
-  double massLowH = 105., massHighH = 135.; //85-135, 75-145
-  double massLowZ = 75., massHighZ = 105.;
+  double massLowH = 75., massHighH = 135.; //85-135, 75-145
+  double massLowZ = 75., massHighZ = 135.;
   double deepDoubleBDiscriminatorValue = 0.7; //0.3 for DoubleBDiscriminatorValue
   double dwdisValue = 0.918;
   double dzdisValue = 0.918;
@@ -76,6 +77,7 @@ class SignalReg : public NtupleVariables{
   vector<double> MT2vbins={0,50,100,150,200,250,300,350,400,450,550,650,800,1200};
 
   TH1D *h_filters;
+  TH1D *h_RegionCat;
   TH1D *h_EvtType;
   TH1D *h_EvtTypeFine;
   TH1D *h_EvtTypeWH;
@@ -165,6 +167,20 @@ class SignalReg : public NtupleVariables{
   TH1D *h_dPhi2;
   TH1D *h_dPhi3;
   TH1D *h_dPhi4;
+
+  TH1D *h_METvBin_2T2M_SR;
+  TH1D *h_METvBin_1T2M_SR;
+  TH1D *h_METvBin_1T1M_SR;
+  TH1D *h_METvBin_2T2M_CR;
+  TH1D *h_METvBin_0T2M_CR;
+  TH1D *h_METvBin_0T1M_CR;
+
+  TH1D *h_METvBin_FBWH_SR;
+  TH1D *h_METvBin_FBW_SR;
+  TH1D *h_METvBin_FBH_SR;
+  TH1D *h_METvBin_FBWH_CR;
+  TH1D *h_METvBin_FBW_CR;
+  TH1D *h_METvBin_FBH_CR;
 
   TH1D *h_METvBin_FBWH;
   TH1D *h_METvBin_FBWZ;
@@ -264,6 +280,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
 
   h_cutflow = new TH1F("CutFlow","cut flow",25,0,25);
   h_filters = new TH1D("Filters","Filters: Bin1 : all nEvnts, other bins: filter pass/fail",10,0,10);
+  h_RegionCat = new TH1D("RegionCat","SR and CRs total yield",12,0,12);
   h_EvtType = new TH1D("EvtType","Event type",10,0,10);
   h_EvtTypeFine = new TH1D("EvtTypeFine","Event type fine event category",17,0,17);
   h_EvtTypeWH = new TH1D("EvtTypeWH","Event type for WH event category",16,0,16);
@@ -390,6 +407,33 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_EvtType->Fill("1 Good AK8",0);
   h_EvtType->Fill("2 Good AK8",0);
   h_EvtType->Fill("0 Good AK8",0);
+
+  h_RegionCat->Fill("2T2M_SR",0);
+  h_RegionCat->Fill("1T2M_SR",0);
+  h_RegionCat->Fill("1T1M_SR",0);
+  h_RegionCat->Fill("2T2M_CR",0);
+  h_RegionCat->Fill("0T2M_CR",0);
+  h_RegionCat->Fill("0T1M_CR",0);
+  h_RegionCat->Fill("FBWH_SR",0);
+  h_RegionCat->Fill("FBW_SR",0);
+  h_RegionCat->Fill("FBH_SR",0);
+  h_RegionCat->Fill("FBWH_CR",0);
+  h_RegionCat->Fill("FBW_CR",0);
+  h_RegionCat->Fill("FBH_CR",0);
+
+  h_METvBin_2T2M_SR = new TH1D("METvBin_2T2M_SR","MET for 0b SR with 2T2M",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_1T2M_SR = new TH1D("METvBin_1T2M_SR","MET for 0b SR with 1T2M",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_1T1M_SR = new TH1D("METvBin_1T1M_SR","MET for 0b SR with 1T1M",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_2T2M_CR = new TH1D("METvBin_2T2M_CR","MET for 0b CR with 2T2M",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_0T2M_CR = new TH1D("METvBin_0T2M_CR","MET for 0b CR with 0T2M",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_0T1M_CR = new TH1D("METvBin_0T1M_CR","MET for 0b CR with 0T1M",METvbins.size()-1,&(METvbins[0]));
+
+  h_METvBin_FBWH_SR = new TH1D("METvBin_FBWH_SR","MET for 1b SR of FBWH",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_FBW_SR = new TH1D("METvBin_FBW_SR","MET for 1b SR of FBW",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_FBH_SR = new TH1D("METvBin_FBH_SR","MET for 1b SR of FBH",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_FBWH_CR = new TH1D("METvBin_FBWH_CR","MET for 1b CR of FBWH",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_FBW_CR = new TH1D("METvBin_FBW_CR","MET for 1b CR of FBW",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_FBH_CR = new TH1D("METvBin_FBH_CR","MET for 1b CR of FBH ",METvbins.size()-1,&(METvbins[0]));
 
   h_METvBin_FBWH  = new TH1D("METvBin_FBWH","MET for fully boosted W & H",METvbins.size()-1,&(METvbins[0]));
   h_METvBin_FBWZ  = new TH1D("METvBin_FBWZ","MET for fully boosted W & Z",METvbins.size()-1,&(METvbins[0]));
