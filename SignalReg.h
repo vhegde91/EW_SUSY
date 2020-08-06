@@ -40,6 +40,7 @@ class SignalReg : public NtupleVariables{
   TFile *sdCorrFile;
   TF1 *puppisd_corrGEN, *puppisd_corrRECO_cen, *puppisd_corrRECO_for;
   TH1D *CRweightsHist;
+  TString catname2j;
   vector<TLorentzVector> uncorrAK8SubjSum;
   vector<double> SDmassCorrFac;
   //Variables defined
@@ -78,10 +79,10 @@ class SignalReg : public NtupleVariables{
 
   TH1D *h_filters;
   TH1D *h_RegionCat;
-  TH1D *h_EvtType;
   TH1D *h_EvtTypeFine;
   TH1D *h_EvtTypeWH;
   TH1D *h_EvtTypeWH_ak84;
+  TH1D *h_catname2j;
   TH1D *h_MET;
   TH1D *h_METvBin, *h_METvBinZZMET;
   TH1D *h_MHT;
@@ -99,6 +100,7 @@ class SignalReg : public NtupleVariables{
   TH1D *h_AK8MassNearGenH;
   TH1D *h_AK8MassNearGenW;
   TH1D *h_AK8MassNearGenZ;
+  TH1D *h_NVtx;
 
   TH1D *h_DeepWdisc_BG;
   TH1D *h_DeepWdiscMD_BG;
@@ -121,7 +123,7 @@ class SignalReg : public NtupleVariables{
   TH1D *h_SDmassDeepWpassGenZmatch;
   TH1D *h_dRGenWb;
 
-  TH1D *h_MT, *h_MTvBin, *h_MT2, *h_MT2vBin;
+  TH1D *h_MT, *h_MTvBin;
   TH1D *h_MT2J, *h_MT2JvBin;
   TH1D *h_mTRatio, *h_mTSum, *h_mTSumvBin;
   TH1D *h_mEfft;
@@ -130,11 +132,6 @@ class SignalReg : public NtupleVariables{
   TH1D *h_dPhiAK8J1J2;
   TH1D *h_RA2bBins;
   TH1D *h_dRbosons;
-  TH1D *h_nAk4jNotAK8;
-  TH1D *h_AK4BosonCandMass;
-  TH1D *h_dRaK4BosonGenBoson;
-  TH1D *h_dRbestAK8AK4Cand;
-  TH1D *h_dPhiBestAK8AK4Cand;
   TH1D *h_deepDoubleBdiscrForHcand;
   TH1D *h_TaggedHMassFailM;
   TH1D *h_TaggedWMassFailM;
@@ -145,42 +142,70 @@ class SignalReg : public NtupleVariables{
   TH1D *h_GenPartInDeepDoubleBpassAK8;
   TH1D *h_GenPartInDeepDoubleBfailAK8;
   
-  TH1D *h_dPhibJetAK4BosonCand;
-  TH1D *h_dRbJetAK4BosonCand;
   TH1D *h_dPhiLSPs;
 
   TH1D *h_nAK8;
   TH1D *h_AK8J1Pt, *h_AK8J1Mass, *h_AK8J1Eta, *h_AK8J1MainWdisc;
   TH1D *h_AK8J2Pt, *h_AK8J2Mass, *h_AK8J2Eta, *h_AK8J2MainWdisc;
+  TH1D *h_J1Pt, *h_J2Pt, *h_J1Eta, *h_J2Eta, *h_J1Phi, *h_J2Phi;
 
   TH1D *h_InvMassAK8Jets,*h_dPhibJetMET,*h_dPhibJetAK8,*h_dPhibJetAK8J2;
   TH1D *h_dRbJetAK8, *h_dRbJetAK8J2, *h_AK8J1J2MassRatio;
 
   TH2D *h2_mTbMin_mCT;
-  TH2D *h2_AK8J1J2MainWdisc;
+  TH2D *h2_LeadAK4EtaPhi;
+  TH2D *h2_AK8J1J2Wdisc;
   TH2D *h2_AK8J1J2Mass;
   TH2D *h2_SusyPDGMass;
   TH2D *h2_LSPPtBosonPt;
-  TH2D *h2_bJetPos;
 
   TH1D *h_dPhi1;
   TH1D *h_dPhi2;
   TH1D *h_dPhi3;
   TH1D *h_dPhi4;
 
-  TH1D *h_METvBin_2T2M_SR;
-  TH1D *h_METvBin_1T2M_SR;
-  TH1D *h_METvBin_1T1M_SR;
-  TH1D *h_METvBin_2T2M_CR;
-  TH1D *h_METvBin_0T2M_CR;
-  TH1D *h_METvBin_0T1M_CR;
+  TH1D *h_mTLep;
+  TH1D *h_LepType;
+  TH1D *h_LepPt;
+  TH1D *h_LepEta;
+  TH1D *h_LepPhi;
 
-  TH1D *h_METvBin_FBWH_SR;
-  TH1D *h_METvBin_FBW_SR;
-  TH1D *h_METvBin_FBH_SR;
-  TH1D *h_METvBin_FBWH_CR;
-  TH1D *h_METvBin_FBW_CR;
-  TH1D *h_METvBin_FBH_CR;
+  TH1D *h_WTagMassJPt, *h_WAntiTagMassJPt, *h_HTagMassJPt, *h_HAntiTagMassJPt;
+
+  TH1D *h_METvBin_2T2M_SR, *h_MET_2T2M_SR, *h_mT_2T2M_SR;
+  TH1D *h_METvBin_1T2M_SR, *h_MET_1T2M_SR, *h_mT_1T2M_SR;
+  TH1D *h_METvBin_1T1M_SR, *h_MET_1T1M_SR, *h_mT_1T1M_SR;
+  TH1D *h_METvBin_2T2M_CR, *h_MET_2T2M_CR, *h_mT_2T2M_CR;
+  TH1D *h_METvBin_0T2M_CR, *h_MET_0T2M_CR, *h_mT_0T2M_CR;
+  TH1D *h_METvBin_0T1M_CR, *h_MET_0T1M_CR, *h_mT_0T1M_CR;
+
+  TH1D *h_METvBin_FBWH_SR, *h_MET_FBWH_SR, *h_mT_FBWH_SR;
+  TH1D *h_METvBin_FBW_SR, *h_MET_FBW_SR, *h_mT_FBW_SR;
+  TH1D *h_METvBin_FBH_SR, *h_MET_FBH_SR, *h_mT_FBH_SR;
+  TH1D *h_METvBin_FBWH_CR, *h_MET_FBWH_CR, *h_mT_FBWH_CR;
+  TH1D *h_METvBin_FBW_CR, *h_MET_FBW_CR, *h_mT_FBW_CR;
+  TH1D *h_METvBin_FBH_CR, *h_MET_FBH_CR, *h_mT_FBH_CR;
+
+  TH1D *h_WmassJPt_FBWH_SR, *h_WmassJEta_FBWH_SR;
+  TH1D *h_WmassJPt_FBW_SR, *h_WmassJEta_FBW_SR;
+  TH1D *h_WmassJPt_FBH_SR, *h_WmassJEta_FBH_SR;
+  TH1D *h_WmassJPt_FBWH_CR, *h_WmassJEta_FBWH_CR;
+  TH1D *h_WmassJPt_FBW_CR, *h_WmassJEta_FBW_CR;
+  TH1D *h_WmassJPt_FBH_CR, *h_WmassJEta_FBH_CR;
+
+  TH1D *h_WmassJPt_FBWH_CRwt, *h_HmassJPt_FBWH_CRwt;
+  TH1D *h_WmassJPt_FBW_CRwt, *h_HmassJPt_FBW_CRwt;
+  TH1D *h_WmassJPt_FBH_CRwt, *h_HmassJPt_FBH_CRwt;
+  TH1D *h_METvBin_FBWH_CRwt;
+  TH1D *h_METvBin_FBW_CRwt;
+  TH1D *h_METvBin_FBH_CRwt;
+
+  TH1D *h_HmassJPt_FBWH_SR, *h_HmassJEta_FBWH_SR;
+  TH1D *h_HmassJPt_FBW_SR, *h_HmassJEta_FBW_SR;
+  TH1D *h_HmassJPt_FBH_SR, *h_HmassJEta_FBH_SR;
+  TH1D *h_HmassJPt_FBWH_CR, *h_HmassJEta_FBWH_CR;
+  TH1D *h_HmassJPt_FBW_CR, *h_HmassJEta_FBW_CR;
+  TH1D *h_HmassJPt_FBH_CR, *h_HmassJEta_FBH_CR;
 
   TH1D *h_METvBin_FBWH;
   TH1D *h_METvBin_FBWZ;
@@ -281,12 +306,10 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_cutflow = new TH1F("CutFlow","cut flow",25,0,25);
   h_filters = new TH1D("Filters","Filters: Bin1 : all nEvnts, other bins: filter pass/fail",10,0,10);
   h_RegionCat = new TH1D("RegionCat","SR and CRs total yield",12,0,12);
-  h_EvtType = new TH1D("EvtType","Event type",10,0,10);
   h_EvtTypeFine = new TH1D("EvtTypeFine","Event type fine event category",17,0,17);
   h_EvtTypeWH = new TH1D("EvtTypeWH","Event type for WH event category",16,0,16);
   h_EvtTypeWH_ak84 = new TH1D("EvtTypeWH_ak84","Event type for WH event category, if W/H AK8 mass fail, use AK4 pair mass",12,0,12);
   h_EvtTypeWH_0AK8M = new TH1D("EvtTypeWH_0AK8M","Event type for WH event category, no AK8 jet within W/H mass window",10,0,10);
-
   h_MET = new TH1D("MET","MET",200,0,2000);
   h_MHT = new TH1D("MHT","MHT",200,0,2000);
   h_METvBinZZMET = new TH1D("METvBinZZMET","MET variable bins",METvbinsZZMET.size()-1,&(METvbinsZZMET[0]));
@@ -294,6 +317,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_HT = new TH1D("HT","HT",100,0,5000);
   h_NJets = new TH1D("NJets","NJets with pT > 30, |eta| < 20.4",20,0,20);  
   h_BTags = new TH1D("BTags","BTags with DeepCSV MedWP",10,0,10);  
+  h_NVtx = new TH1D("NVtx","no. of vertices",100,0,100);
 
   h_LeadNonbPairMass = new TH1D("LeadNonbPairMass","M(Lead 2 Non-bjets)",60,0,300);
   h_LeadbPairMass = new TH1D("LeadbPairMass","M(Lead 2 bjets)",60,0,300);
@@ -335,14 +359,7 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_AK8MassNearGenZ = new TH1D("AK8MassNearGenZ","AK8 SD mass near GenZ (dR<0.1)",60,0,300);
 
   h_dRbosons = new TH1D("dRbosons","#DeltaR b/w Gen W/Z/H",100,0,5);
-  h_nAk4jNotAK8 = new TH1D("nAk4jNotAK8","No. of AK4 jets not within 0.8 of best AK8 jet or second best, if exists, AK8 jet",8,0,8);
-  h_AK4BosonCandMass = new TH1D("AK4BosonCandMass","Boson->qq Candidate mass, calc from AK4",60,0,300);
-  h_dRaK4BosonGenBoson = new TH1D("dRaK4BosonGenBoson","Min dR(aK4BosonCandidate, GenBoson)",100,0,5);
-  h_dRbestAK8AK4Cand = new TH1D("dRbestAK8AK4Cand","dR(Best AK8, AK4 candidate for W/Z) for 1 boosted AK8 events",100,0,5);
-  h_dPhiBestAK8AK4Cand = new TH1D("dPhiBestAK8AK4Cand","dPhi(Best AK8, AK4 candidate for W/Z) for 1 boosted AK8 events",40,0,4);
 
-  h_dPhibJetAK4BosonCand = new TH1D("dPhibJetAK4BosonCand","dPhi(leading b, AK4 pair candidate for W/Z) for 1 boosted AK8 events",40,0,4);
-  h_dRbJetAK4BosonCand = new TH1D("dRJetAK4BosonCand","dR(leading b, AK4 pair candidate for W/Z) for 1 boosted AK8 events",100,0,5);
   h_TaggedHMassFailM = new TH1D("TaggedHMassFailM","SD mass of AK8 tagged as H, but not within H-mass",200,0,200);
   h_dRTaggedHFailM = new TH1D("dRTaggedHFailM","dR(H tagged AK8 and failing H mass,Gen H)",60,0,3);
   h_TaggedWMassFailM = new TH1D("TaggedWMassFailM","SD mass of AK8 tagged as W, but not within W-mass",200,0,200);
@@ -350,14 +367,12 @@ void SignalReg::BookHistogram(const char *outFileName) {
 
   h_dPhiLSPs = new TH1D("dPhiLSPs","dPhi b/w LSPs",40,0,4);
 
-  h_MT2 = new TH1D("MT2","MT2(AKJ1, AK8J2)",200,0,2000);
   h_MT = new TH1D("mT","mT(MET,AK8J)",200,0,2000);
   h_MT2J = new TH1D("mT2J","mT(MET,AK8J2)",200,0,2000);  
   h_mTSum = new TH1D("mTSum","mT+mT2J",200,0,4000);
   h_MTvBin = new TH1D("mTvBin","mT(MET,AK8J)",mTvbins.size()-1,&(mTvbins[0]));
   h_MT2JvBin = new TH1D("mT2JvBin","mT(MET,AK8J2)",mT2Jvbins.size()-1,&(mT2Jvbins[0]));
   h_mTSumvBin = new TH1D("mTSumvBin","mT+mT2J",mTSumvbins.size()-1,&(mTSumvbins[0]));
-  h_MT2vBin = new TH1D("MT2vBin","MT2(AKJ1, AK8J2) variable bins",MT2vbins.size()-1,&(MT2vbins[0]));
 
   h_mTbMin = new TH1D("mTbMin","min(mTb1,mTb2)",200,0,2000);
   h_mCT = new TH1D("mCT","mCT(b1,b2)",200,0,2000);
@@ -373,10 +388,28 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_AK8J1Mass = new TH1D("AK8Mass","AK8 Mass",60,0,300);
   h_AK8J1MainWdisc = new TH1D("AK8MainWdisc","AK8 MainWdisc",20,0,1);
 
+  h_mTLep = new TH1D("mTLep","mT(lepton, MET)",30,0,300);
+  h_LepType = new TH1D("LepType","Lepton: 0->0 lep, 11->Ele, 13->Muon",15,0,15);
+  h_LepPt = new TH1D("LepPt","Lepton Pt",100,0,1000);
+  h_LepEta = new TH1D("LepEta","Lepton eta",60,-3,3);
+  h_LepPhi = new TH1D("LepPhi","Lepton phi",80,-4,4);
+
+  h_J1Pt = new TH1D("J1Pt","leading AK4 Pt",200,0,2000);
+  h_J1Eta = new TH1D("J1Eta","leading AK4 Eta",120,-6,6);
+  h_J1Phi = new TH1D("J1Phi","leading AK4 Phi",80,-4,4);
+  h_J2Pt = new TH1D("J2Pt","2nd leading AK4 Pt",200,0,2000);
+  h_J2Eta = new TH1D("J2Eta","2nd leading AK4 Eta",120,-6,6);
+  h_J2Phi = new TH1D("J2Phi","J2Phi",80,-4,4);
+  
   h_AK8J2Pt = new TH1D("AK8J2Pt","2nd leading AK8 jets Pt",200,0,2000);
   h_AK8J2Eta = new TH1D("AK8J2Eta","AK8J2 Eta",120,-6,6);
   h_AK8J2Mass = new TH1D("AK8J2Mass","AK8J2 Mass",60,0,300);
   h_AK8J2MainWdisc = new TH1D("AK8J2MainWdisc","AK8J2 MainWdisc",20,0,1);
+
+  h_WTagMassJPt = new TH1D("WTagMassJPt","Pt of leading AK8 with W-mass and pass DeepW",100,0,1000);
+  h_WAntiTagMassJPt = new TH1D("WAntiTagMassJPt","Pt of leading AK8 with W-mass and fail DeepW",100,0,1000);
+  h_HTagMassJPt = new TH1D("HTagMassJPt","Pt of leading AK8 with H-mass and pass Deepbb",100,0,1000);
+  h_HAntiTagMassJPt = new TH1D("HAntiTagMassJPt","Pt of leading AK8 with H-mass and fail Deepbb",100,0,1000);
 
   h_InvMassAK8Jets = new TH1D("InvMassAK8Jets","Invariant mass of leading 2 AK8 jets",200,0,2000);
   h_AK8J1J2MassRatio = new TH1D("AK8J1J2MassRatio","AK8J2 mass/AK8J1 mass",100,0,5);
@@ -389,11 +422,12 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_deepDoubleBdiscrForHcand = new TH1D("deepDoubleBdiscrForHcand","deepDoubleBdiscriminator value for AK8 jet matched (dR < 0.3) to Gen H",100,-1,1);
 
   h2_mTbMin_mCT = new TH2D("mTbMin_mCT","x:min(mTb1,mTb2), mCT(b1,b2)",200,0,2000,200,0,2000);
-  h2_AK8J1J2MainWdisc = new TH2D("AK8J1J2MainWdisc","x:AK8J1 mainWdisc vs y:AK8J2 mainWdisc",20,0,1,20,0,1);
+  h2_AK8J1J2Wdisc = new TH2D("AK8J1J2Wdisc","x:AK8J1 mainWdisc vs y:AK8J2 mainWdisc",20,0,1,20,0,1);
   h2_AK8J1J2Mass = new TH2D("AK8J1J2Mass","x:AK8J1 Mass vs y:AK8J2 Mass",60,0,300,60,0,300);
   h2_SusyPDGMass = new TH2D("SusyPDGMass","x:PDG ID of SUSY particle, y:Mass of particle",50,1000000,1000050,300,0,3000);
   h2_LSPPtBosonPt = new TH2D("LSPPtBosonPt","x:LSP Pt, y:Boson Pt",200,0,2000,200,0,2000);
-  h2_bJetPos = new TH2D("bJetPos","x:dR(leading bJet, AK8 jets), y: dR(leading bJet, AK8/AK4 Cand)",100,0,5,100,0,5);
+
+  h2_LeadAK4EtaPhi = new TH2D("LeadAK4EtaPhi","Leading AK4 eta (on x) vs phi (on y)",240,-6,6,160,-4,4);
 
   h_dPhi1 = new TH1D("DeltaPhi1","DeltaPhi1",40,0,4);
   h_dPhi2 = new TH1D("DeltaPhi2","DeltaPhi2",40,0,4);
@@ -401,12 +435,6 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_dPhi4 = new TH1D("DeltaPhi4","DeltaPhi4",40,0,4);
 
   h_RA2bBins = new TH1D("RA2bBins","RA2b bins",175,0,175);  
-
-  h_EvtType->Fill("2 Boosted",0);
-  h_EvtType->Fill("1 Boosted",0);
-  h_EvtType->Fill("1 Good AK8",0);
-  h_EvtType->Fill("2 Good AK8",0);
-  h_EvtType->Fill("0 Good AK8",0);
 
   h_RegionCat->Fill("2T2M_SR",0);
   h_RegionCat->Fill("1T2M_SR",0);
@@ -420,6 +448,8 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_RegionCat->Fill("FBWH_CR",0);
   h_RegionCat->Fill("FBW_CR",0);
   h_RegionCat->Fill("FBH_CR",0);
+  
+  h_catname2j = (TH1D*)h_RegionCat->Clone("catname2j");
 
   h_METvBin_2T2M_SR = new TH1D("METvBin_2T2M_SR","MET for 0b SR with 2T2M",METvbins.size()-1,&(METvbins[0]));
   h_METvBin_1T2M_SR = new TH1D("METvBin_1T2M_SR","MET for 0b SR with 1T2M",METvbins.size()-1,&(METvbins[0]));
@@ -434,6 +464,69 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_METvBin_FBWH_CR = new TH1D("METvBin_FBWH_CR","MET for 1b CR of FBWH",METvbins.size()-1,&(METvbins[0]));
   h_METvBin_FBW_CR = new TH1D("METvBin_FBW_CR","MET for 1b CR of FBW",METvbins.size()-1,&(METvbins[0]));
   h_METvBin_FBH_CR = new TH1D("METvBin_FBH_CR","MET for 1b CR of FBH ",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_FBWH_CRwt = new TH1D("METvBin_FBWH_CRwt","MET for 1b CRwt of FBWH",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_FBW_CRwt = new TH1D("METvBin_FBW_CRwt","MET for 1b CRwt of FBW",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_FBH_CRwt = new TH1D("METvBin_FBH_CRwt","MET for 1b CRwt of FBH ",METvbins.size()-1,&(METvbins[0]));
+
+  h_MET_2T2M_SR = new TH1D("MET_2T2M_SR","MET for 0b SR with 2T2M",200,0,2000);
+  h_MET_1T2M_SR = new TH1D("MET_1T2M_SR","MET for 0b SR with 1T2M",200,0,2000);
+  h_MET_1T1M_SR = new TH1D("MET_1T1M_SR","MET for 0b SR with 1T1M",200,0,2000);
+  h_MET_2T2M_CR = new TH1D("MET_2T2M_CR","MET for 0b CR with 2T2M",200,0,2000);
+  h_MET_0T2M_CR = new TH1D("MET_0T2M_CR","MET for 0b CR with 0T2M",200,0,2000);
+  h_MET_0T1M_CR = new TH1D("MET_0T1M_CR","MET for 0b CR with 0T1M",200,0,2000);
+
+  h_MET_FBWH_SR = new TH1D("MET_FBWH_SR","MET for 1b SR of FBWH",200,0,2000);
+  h_MET_FBW_SR = new TH1D("MET_FBW_SR","MET for 1b SR of FBW",200,0,2000);
+  h_MET_FBH_SR = new TH1D("MET_FBH_SR","MET for 1b SR of FBH",200,0,2000);
+  h_MET_FBWH_CR = new TH1D("MET_FBWH_CR","MET for 1b CR of FBWH",200,0,2000);
+  h_MET_FBW_CR = new TH1D("MET_FBW_CR","MET for 1b CR of FBW",200,0,2000);
+  h_MET_FBH_CR = new TH1D("MET_FBH_CR","MET for 1b CR of FBH ",200,0,2000);
+
+  h_mT_2T2M_SR = new TH1D("mT_2T2M_SR","mT for 0b SR with 2T2M",200,0,2000);
+  h_mT_1T2M_SR = new TH1D("mT_1T2M_SR","mT for 0b SR with 1T2M",200,0,2000);
+  h_mT_1T1M_SR = new TH1D("mT_1T1M_SR","mT for 0b SR with 1T1M",200,0,2000);
+  h_mT_2T2M_CR = new TH1D("mT_2T2M_CR","mT for 0b CR with 2T2M",200,0,2000);
+  h_mT_0T2M_CR = new TH1D("mT_0T2M_CR","mT for 0b CR with 0T2M",200,0,2000);
+  h_mT_0T1M_CR = new TH1D("mT_0T1M_CR","mT for 0b CR with 0T1M",200,0,2000);
+
+  h_mT_FBWH_SR = new TH1D("mT_FBWH_SR","mT for 1b SR of FBWH",200,0,2000);
+  h_mT_FBW_SR = new TH1D("mT_FBW_SR","mT for 1b SR of FBW",200,0,2000);
+  h_mT_FBH_SR = new TH1D("mT_FBH_SR","mT for 1b SR of FBH",200,0,2000);
+  h_mT_FBWH_CR = new TH1D("mT_FBWH_CR","mT for 1b CR of FBWH",200,0,2000);
+  h_mT_FBW_CR = new TH1D("mT_FBW_CR","mT for 1b CR of FBW",200,0,2000);
+  h_mT_FBH_CR = new TH1D("mT_FBH_CR","mT for 1b CR of FBH ",200,0,2000);
+
+  h_WmassJPt_FBWH_SR = new TH1D("WmassJPt_FBWH_SR","Pt of leading AK8 with FBWH_SR",100,0,1000);
+  h_WmassJPt_FBW_SR = new TH1D("WmassJPt_FBW_SR","Pt of leading AK8 with FBW_SR",100,0,1000);
+  h_WmassJPt_FBH_SR = new TH1D("WmassJPt_FBH_SR","Pt of leading AK8 with FBH_SR",100,0,1000);
+  h_WmassJPt_FBWH_CR = new TH1D("WmassJPt_FBWH_CR","Pt of leading AK8 with FBWH_CR",100,0,1000);
+  h_WmassJPt_FBW_CR = new TH1D("WmassJPt_FBW_CR","Pt of leading AK8 with FBW_CR",100,0,1000);
+  h_WmassJPt_FBH_CR = new TH1D("WmassJPt_FBH_CR","Pt of leading AK8 with FBH_CR",100,0,1000);
+  h_WmassJPt_FBWH_CRwt = new TH1D("WmassJPt_FBWH_CRwt","Pt of leading AK8 with FBWH_CRwt",100,0,1000);
+  h_WmassJPt_FBW_CRwt = new TH1D("WmassJPt_FBW_CRwt","Pt of leading AK8 with FBW_CRwt",100,0,1000);
+  h_WmassJPt_FBH_CRwt = new TH1D("WmassJPt_FBH_CRwt","Pt of leading AK8 with FBH_CRwt",100,0,1000);
+  h_WmassJEta_FBWH_SR = new TH1D("WmassJEta_FBWH_SR","|Eta| of leading AK8 with FBWH_SR",30,0,3);
+  h_WmassJEta_FBW_SR = new TH1D("WmassJEta_FBW_SR","|Eta| of leading AK8 with FBW_SR",30,0,3);
+  h_WmassJEta_FBH_SR = new TH1D("WmassJEta_FBH_SR","|Eta| of leading AK8 with FBH_SR",30,0,3);
+  h_WmassJEta_FBWH_CR = new TH1D("WmassJEta_FBWH_CR","|Eta| of leading AK8 with FBWH_CR",30,0,3);
+  h_WmassJEta_FBW_CR = new TH1D("WmassJEta_FBW_CR","|Eta| of leading AK8 with FBW_CR",30,0,3);
+  h_WmassJEta_FBH_CR = new TH1D("WmassJEta_FBH_CR","|Eta| of leading AK8 with FBH_CR",30,0,3);
+  h_HmassJPt_FBWH_SR = new TH1D("HmassJPt_FBWH_SR","Pt of leading AK8 with FBWH_SR",100,0,1000);
+  h_HmassJPt_FBW_SR = new TH1D("HmassJPt_FBW_SR","Pt of leading AK8 with FBW_SR",100,0,1000);
+  h_HmassJPt_FBH_SR = new TH1D("HmassJPt_FBH_SR","Pt of leading AK8 with FBH_SR",100,0,1000);
+  h_HmassJPt_FBWH_CR = new TH1D("HmassJPt_FBWH_CR","Pt of leading AK8 with FBWH_CR",100,0,1000);
+  h_HmassJPt_FBW_CR = new TH1D("HmassJPt_FBW_CR","Pt of leading AK8 with FBW_CR",100,0,1000);
+  h_HmassJPt_FBH_CR = new TH1D("HmassJPt_FBH_CR","Pt of leading AK8 with FBH_CR",100,0,1000);
+  h_HmassJPt_FBWH_CRwt = new TH1D("HmassJPt_FBWH_CRwt","Pt of leading AK8 with FBWH_CRwt",100,0,1000);
+  h_HmassJPt_FBW_CRwt = new TH1D("HmassJPt_FBW_CRwt","Pt of leading AK8 with FBW_CRwt",100,0,1000);
+  h_HmassJPt_FBH_CRwt = new TH1D("HmassJPt_FBH_CRwt","Pt of leading AK8 with FBH_CRwt",100,0,1000);
+
+  h_HmassJEta_FBWH_SR = new TH1D("HmassJEta_FBWH_SR","|Eta| of leading AK8 with FBWH_SR",30,0,3);
+  h_HmassJEta_FBW_SR = new TH1D("HmassJEta_FBW_SR","|Eta| of leading AK8 with FBW_SR",30,0,3);
+  h_HmassJEta_FBH_SR = new TH1D("HmassJEta_FBH_SR","|Eta| of leading AK8 with FBH_SR",30,0,3);
+  h_HmassJEta_FBWH_CR = new TH1D("HmassJEta_FBWH_CR","|Eta| of leading AK8 with FBWH_CR",30,0,3);
+  h_HmassJEta_FBW_CR = new TH1D("HmassJEta_FBW_CR","|Eta| of leading AK8 with FBW_CR",30,0,3);
+  h_HmassJEta_FBH_CR = new TH1D("HmassJEta_FBH_CR","|Eta| of leading AK8 with FBH_CR",30,0,3);
 
   h_METvBin_FBWH  = new TH1D("METvBin_FBWH","MET for fully boosted W & H",METvbins.size()-1,&(METvbins[0]));
   h_METvBin_FBWZ  = new TH1D("METvBin_FBWZ","MET for fully boosted W & Z",METvbins.size()-1,&(METvbins[0]));

@@ -29,30 +29,3 @@ root -l -q 'splitRunList.C("TChiWH_600_100_MC2018.txt",1)'
 root -l -q 'splitRunList.C("TChiWH_600_200_MC2018.txt",1)'
 root -l -q 'splitRunList.C("TChiWH_600_400_MC2018.txt",1)'
 root -l -q 'splitRunList.C("TChiWH_300_1_MC2018.txt",1)'
-
-
-#root -l -q 'splitRunList.C("WJetsToLNu_HT_MC2016.txt",1)'
-#root -l -q 'splitRunList.C("WJetsToLNu_HT_MC2017.txt",1)'
-#root -l -q 'splitRunList.C("WJetsToLNu_HT_MC2018.txt",1)'
-
-#root -l -q 'splitRunList.C("ZJetsToNuNu_HT_MC2016.txt",1)'
-#root -l -q 'splitRunList.C("ZJetsToNuNu_HT_MC2017.txt",1)'
-#root -l -q 'splitRunList.C("ZJetsToNuNu_HT_MC2018.txt",1)'
-
-#root -l -q 'splitRunList.C("TTJets_DiLept_MC2016.txt",1)'
-#root -l -q 'splitRunList.C("TTJets_DiLept_MC2017.txt",1)'
-#root -l -q 'splitRunList.C("TTJets_DiLept_MC2018.txt",1)'
-##root -l -q 'splitRunList.C("TTJets_HT_MC2016.txt",1)'
-##root -l -q 'splitRunList.C("TTJets_HT_MC2017.txt",1)'
-##root -l -q 'splitRunList.C("TTJets_HT_MC2018.txt",1)'
-#root -l -q 'splitRunList.C("TTJets_SingleLeptFromT_MC2016.txt",1)'
-#root -l -q 'splitRunList.C("TTJets_SingleLeptFromT_MC2017.txt",1)'
-#root -l -q 'splitRunList.C("TTJets_SingleLeptFromT_MC2018.txt",1)'
-
-#root -l -q 'splitRunList.C("ST__MC2016.txt",1)'
-#root -l -q 'splitRunList.C("ST__MC2017.txt",1)'
-#root -l -q 'splitRunList.C("ST__MC2018.txt",1)'
-
-#root -l -q 'splitRunList.C("MET_Run2016.txt",1)'
-#root -l -q 'splitRunList.C("MET_Run2017.txt",1)'
-#root -l -q 'splitRunList.C("MET_Run2018.txt",1)'
