@@ -1,0 +1,2 @@
+root://cmseos.fnal.gov//store/user/vhegde/RA2bTrees_V17/EW_SUSY/skims/tree_SLm/tree_TTJets_SingleLeptFromT_MC2018.root
+root://cmseos.fnal.gov//store/user/vhegde/RA2bTrees_V17/EW_SUSY/skims/tree_SLm/tree_TTJets_SingleLeptFromTbar_MC2018.root

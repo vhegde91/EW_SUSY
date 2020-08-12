@@ -171,6 +171,10 @@ class SignalReg : public NtupleVariables{
   TH1D *h_LepPhi;
 
   TH1D *h_WTagMassJPt, *h_WAntiTagMassJPt, *h_HTagMassJPt, *h_HAntiTagMassJPt;
+  TH1D *h_AK8Pt_HtHm1AK8, *h_METvBin_HtHm1AK8;
+  TH1D *h_AK8Pt_HatHm1AK8, *h_METvBin_HatHm1AK8;
+  TH1D *h_AK8Pt_WtWm1AK8, *h_METvBin_WtWm1AK8;
+  TH1D *h_AK8Pt_WatWm1AK8, *h_METvBin_WatWm1AK8;
 
   TH1D *h_METvBin_2T2M_SR, *h_MET_2T2M_SR, *h_mT_2T2M_SR;
   TH1D *h_METvBin_1T2M_SR, *h_MET_1T2M_SR, *h_mT_1T2M_SR;
@@ -410,6 +414,14 @@ void SignalReg::BookHistogram(const char *outFileName) {
   h_WAntiTagMassJPt = new TH1D("WAntiTagMassJPt","Pt of leading AK8 with W-mass and fail DeepW",100,0,1000);
   h_HTagMassJPt = new TH1D("HTagMassJPt","Pt of leading AK8 with H-mass and pass Deepbb",100,0,1000);
   h_HAntiTagMassJPt = new TH1D("HAntiTagMassJPt","Pt of leading AK8 with H-mass and fail Deepbb",100,0,1000);
+  h_AK8Pt_HtHm1AK8= new TH1D("AK8Pt_HtHm1AK8","AK8Pt for 1AK8 events with HTag, Hmass",100,0,1000);
+  h_AK8Pt_HatHm1AK8= new TH1D("AK8Pt_HatHm1AK8","AK8Pt for 1AK8 events with HAntiTag, Hmass",100,0,1000);  
+  h_AK8Pt_WtWm1AK8= new TH1D("AK8Pt_WtWm1AK8","AK8Pt for 1AK8 events with WTag, Wmass",100,0,1000);
+  h_AK8Pt_WatWm1AK8= new TH1D("AK8Pt_WatWm1AK8","AK8Pt for 1AK8 events with WAntiTag, Wmass",100,0,1000);
+  h_METvBin_HtHm1AK8 = new TH1D("METvBin_HtHm1AK8","MET for 1AK8 events with HTag, Hmass",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_HatHm1AK8 = new TH1D("METvBin_HatHm1AK8","MET for 1AK8 events with HAntiTag, Hmass",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_WtWm1AK8 = new TH1D("METvBin_WtWm1AK8","MET for 1AK8 events with WTag, Wmass",METvbins.size()-1,&(METvbins[0]));
+  h_METvBin_WatWm1AK8 = new TH1D("METvBin_WatWm1AK8","MET for 1AK8 events with WAntiTag, Wmass",METvbins.size()-1,&(METvbins[0]));
 
   h_InvMassAK8Jets = new TH1D("InvMassAK8Jets","Invariant mass of leading 2 AK8 jets",200,0,2000);
   h_AK8J1J2MassRatio = new TH1D("AK8J1J2MassRatio","AK8J2 mass/AK8J1 mass",100,0,5);

@@ -42,11 +42,11 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
   int decade = 0;
 
   bool isFastSim = false, applySDmassCorr = 1;
-  bool isDataSR = true, isSLepCR = 1;
+  bool isDataSR = true, isSLepCR = 0;
 
   TFile *fFR = TFile::Open("TFfile_VJets_MC2018.root");
-  TH1D *h_WFR = (TH1D*)fFR->Get("WTagFR");
-  TH1D *h_HFR = (TH1D*)fFR->Get("HTagFR");
+  TH1D *h_WFR = (TH1D*)fFR->Get("WFR");
+  TH1D *h_HFR = (TH1D*)fFR->Get("HFR");
   double CRrewtFac = 1;
   bool scaleCR = 1;
   // float xsec = 0.0, numEvents = 0.0;
@@ -75,8 +75,8 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
   h_cutflow->Fill("PassedTrigger",0);
   h_cutflow->Fill("nAK8>0",0);
   h_cutflow->Fill("mT>500",0);
-  h_cutflow->Fill("0b_GoodAK8",0);
   h_cutflow->Fill("mTbMin>200",0);
+  h_cutflow->Fill("0b_GoodAK8",0);
   h_cutflow->Fill("1b_GoodAK8",0);
   h_cutflow->Fill("NEvtsNoWtLeft",0);
   h_cutflow->Fill("NEvtsLeft",0);
@@ -105,8 +105,8 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
   if(isMC) isDataSR = false;
   if(s_data.Contains("Ele") || s_data.Contains("Muon")){ isDataSR = false; isSLepCR = true;}
 
-  lumiInfb = 137.0;
-  cout<<"!!!! changing intLumi to 137/fb, although you should have used 2018 intLumi...."<<endl;
+  // lumiInfb = 137.0;
+  // cout<<"!!!! changing intLumi to 137/fb, although you should have used 2018 intLumi...."<<endl;
 
   if(dataRun>0) cout<<"Processing it as "<<dataRun<<" data"<<endl;
   else if(dataRun<0) cout<<"Processing it as "<<abs(dataRun)<<" MC"<<endl;
@@ -431,8 +431,13 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
 	mct = sqrt(2*b1.Pt()*b2.Pt()*(1 + cos(b1.DeltaPhi(b2))));
 	h2_mTbMin_mCT->Fill(mtbmin,mct,wt);
       }
-      h_mTbMin->Fill(mtbmin,wt);
-      h_mCT->Fill(mct,wt);
+      if(mtbmin < 200 && !isSLepCR) continue;
+      //      if(mtbmin < 200) continue;
+      h_cutflow->Fill("mTbMin>200",wt);
+      if(bjets.size()>0){
+	h_mTbMin->Fill(mtbmin,wt);
+	h_mCT->Fill(mct,wt);
+      }
 
       if(bjets.size() >=2) h_LeadbPairMass->Fill((bjets[0]+bjets[1]).M(),wt);
       else h_LeadbPairMass->Fill(0.,wt);
@@ -635,9 +640,30 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
 	  leadPassHmassIdx = i;
 	}
       }
-
-      if(mtbmin < 200 && !isSLepCR) continue;
-      h_cutflow->Fill("mTbMin>200",wt);
+      
+      if(nAK8PtEta==1){
+	int i = idxInMainAK8[0];
+	if(jetsAK8hasb[i] && nHmass==1){
+	  if((*JetsAK8_deepDoubleBDiscriminatorH)[i] > deepDoubleBDiscriminatorValue){
+	    h_AK8Pt_HtHm1AK8->Fill((*JetsAK8)[i].Pt(),wt);
+	    h_METvBin_HtHm1AK8->Fill(MET,wt);
+	  }
+	  else{
+	    h_AK8Pt_HatHm1AK8->Fill((*JetsAK8)[i].Pt(),wt);
+            h_METvBin_HatHm1AK8->Fill(MET,wt);
+	  }
+	}
+	if(!jetsAK8hasb[i] && nWmass==1){
+	  if((*JetsAK8_wDiscriminatorDeep)[i] > dwdisValue){
+	    h_AK8Pt_WtWm1AK8->Fill((*JetsAK8)[i].Pt(),wt);
+	    h_METvBin_WtWm1AK8->Fill(MET,wt);
+	  }
+	  else{
+	    h_AK8Pt_WatWm1AK8->Fill((*JetsAK8)[i].Pt(),wt);
+            h_METvBin_WatWm1AK8->Fill(MET,wt);
+	  }
+	}	
+      }
 
       if(nAK8PtEta < 2) continue;
       if(ak8jets.size()==0) continue;
@@ -675,17 +701,16 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
 
       if(catname.Contains("_SR") && !isMC && !isSLepCR) isDataSR = true;
       if(isDataSR) continue;
-
       h_RegionCat->Fill(catname,wt);
       if(catname.Contains("_CR") && scaleCR){
 	CRrewtFac = 1.0;
 	if(leadPassWmassIdx >=0){
 	  if((*JetsAK8)[leadPassWmassIdx].Pt() < 500) CRrewtFac = h_WFR->GetBinContent(h_WFR->FindBin((*JetsAK8)[leadPassWmassIdx].Pt()));
-	  else CRrewtFac = 1.0;
+	  else CRrewtFac = 0.32;
 	}
 	if(leadPassHmassIdx >=0){
 	  if((*JetsAK8)[leadPassHmassIdx].Pt() < 500) CRrewtFac = CRrewtFac * h_HFR->GetBinContent(h_HFR->FindBin((*JetsAK8)[leadPassHmassIdx].Pt()));
-	  else CRrewtFac = CRrewtFac*2.2;
+	  else CRrewtFac = CRrewtFac*0.64;
 	}
       }
       if(catname=="FBWH_SR"){ 
@@ -1590,7 +1615,7 @@ void SignalReg::print(Long64_t jentry){
     cout<<"GenJetPt:"<<(*GenJets)[i].Pt()<<" GenJetEta:"<<(*GenJets)[i].Eta()<<" GenJetPhi:"<<(*GenJets)[i].Phi()<<endl;
   }
   for(int i=0;i<Jets->size();i++){
-    cout<<"JetPt:"<<(*Jets)[i].Pt()<<" JetEta:"<<(*Jets)[i].Eta()<<" JetPhi:"<<(*Jets)[i].Phi()<<endl;
+    cout<<"JetPt:"<<(*Jets)[i].Pt()<<" JetEta:"<<(*Jets)[i].Eta()<<" JetPhi:"<<(*Jets)[i].Phi()<<" DeepCSV:"<<(*Jets_bJetTagDeepCSVprobb)[i]+(*Jets_bJetTagDeepCSVprobbb)[i]<<endl;
   }
   cout<<"MET:"<<MET<<" METPhi:"<<METPhi<<" MHTPhi:"<<MHTPhi<<" DPhi1:"<<DeltaPhi1<<" DeltaPhi2:"<<DeltaPhi2<<" DeltaPhi3:"<<DeltaPhi3<<" DeltaPhi4:"<<DeltaPhi4<<endl;
   for(int i=0;i<JetsAK8->size();i++){

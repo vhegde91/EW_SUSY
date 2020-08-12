@@ -1,0 +1,4 @@
+root://cmseos.fnal.gov//store/user/vhegde/RA2bTrees_V17/EW_SUSY/skims/tree_SLm/tree_MET_2018A.root
+root://cmseos.fnal.gov//store/user/vhegde/RA2bTrees_V17/EW_SUSY/skims/tree_SLm/tree_MET_2018B.root
+root://cmseos.fnal.gov//store/user/vhegde/RA2bTrees_V17/EW_SUSY/skims/tree_SLm/tree_MET_2018C.root
+root://cmseos.fnal.gov//store/user/vhegde/RA2bTrees_V17/EW_SUSY/skims/tree_SLm/tree_MET_2018D.root
