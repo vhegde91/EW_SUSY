@@ -431,12 +431,12 @@ void SignalReg::EventLoop(const char *data,const char *inputFileList) {
 	mct = sqrt(2*b1.Pt()*b2.Pt()*(1 + cos(b1.DeltaPhi(b2))));
 	h2_mTbMin_mCT->Fill(mtbmin,mct,wt);
       }
-      if(mtbmin < 200 && !isSLepCR) continue;
       //      if(mtbmin < 200) continue;
-      h_cutflow->Fill("mTbMin>200",wt);
       if(bjets.size()>0){
+	if(mtbmin < 200 && !isSLepCR) continue;
 	h_mTbMin->Fill(mtbmin,wt);
 	h_mCT->Fill(mct,wt);
+	h_cutflow->Fill("mTbMin>200",wt);
       }
 
       if(bjets.size() >=2) h_LeadbPairMass->Fill((bjets[0]+bjets[1]).M(),wt);
